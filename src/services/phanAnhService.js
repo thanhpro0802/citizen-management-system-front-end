@@ -3,11 +3,12 @@ import axios from "axios";
 // URL Backend
 const API_URL = "http://localhost:8080/api/v1/phan-anh";
 
-export const guiPhanAnhMoi = (tieuDe, noiDung, linhVuc) => {
+export const guiPhanAnhMoi = (tieuDe, noiDung, linhVuc, danhSachFileUrl) => {
   return axios.post(API_URL, {
     tieuDe,
     noiDung,
     linhVuc,
+    danhSachFileUrl,
   });
 };
 
@@ -28,4 +29,24 @@ export const phanHoiCongDan = (maPhanAnh, noiDungPhanHoi) => {
     noiDungPhanHoi: noiDungPhanHoi,
   };
   return axios.post(`${API_URL}/${maPhanAnh}/phan-hoi`, requestData);
+};
+
+export const getChiTietPhanAnh = (id) => {
+  return axios.get(`${API_URL}/${id}`);
+};
+
+export const getLichSuPhanAnh = (id) => {
+  return axios.get(`${API_URL}/${id}/lich-su`);
+};
+
+export const danhGiaPhanHoi = (maPhanAnh, danhGiaHaiLong, gopY) => {
+  const requestData = {
+    danhGiaHaiLong: danhGiaHaiLong,
+    gopY: gopY,
+  };
+  return axios.put(`${API_URL}/${maPhanAnh}/danh-gia`, requestData);
+};
+
+export const getAllPhanAnh = () => {
+  return axios.get(API_URL);
 };

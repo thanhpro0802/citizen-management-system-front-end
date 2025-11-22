@@ -48,6 +48,7 @@ import GuiPhanAnh from "layouts/phan-anh";
 import LichSuPhanAnh from "layouts/lich-su-phan-anh";
 import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
+import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -148,6 +149,14 @@ const routes = [
     icon: <Icon fontSize="small">check_circle</Icon>,
     route: "/phan-hoi",
     component: <PhanHoi />,
+  },
+  {
+    type: "collapse",
+    name: "Quản Lý Chung",
+    key: "quan-ly-phan-anh",
+    icon: <Icon fontSize="small">dashboard</Icon>,
+    route: "/quan-ly-phan-anh",
+    component: <QuanLyPhanAnh />,
   },
 ];
 

@@ -1,32 +1,18 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState, useEffect } from "react";
 
 // react-router components
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom"; // <-- IMPORT useNavigate
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
 
-// @material-ui core components
+// @mui material components
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
+import Badge from "@mui/material/Badge"; // Import Badge để hiện số đỏ
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -53,36 +39,84 @@ import {
   setOpenConfigurator,
 } from "context";
 
+// --- 1. IMPORT SERVICE ---
+import { getThongBaoCuaToi, danhDauDaXem } from "services/thongBaoService";
+
 function DashboardNavbar({ absolute, light, isMini }) {
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const navigate = useNavigate(); // <-- Hook chuyển trang
+
+  // --- 2. STATE CHO THÔNG BÁO ---
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const handleNotificationClick = async (notification) => {
+    try {
+      // 1. Gọi API tắt đỏ (chỉ gọi nếu chưa xem)
+      if (!notification.daXem) {
+        await danhDauDaXem(notification.maThongBao);
+
+        // Cập nhật giao diện (Giảm số đỏ đi 1)
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+
+        // Cập nhật trạng thái trong danh sách local
+        setNotifications((prevList) =>
+          prevList.map((item) =>
+            item.maThongBao === notification.maThongBao ? { ...item, daXem: true } : item
+          )
+        );
+      }
+
+      // 2. Đóng menu
+      handleCloseMenu();
+
+      // 3. Chuyển hướng đến trang chi tiết (Nếu có ID phản ánh)
+      if (notification.maPhanAnhLienQuan) {
+        navigate(`/chi-tiet-phan-anh/${notification.maPhanAnhLienQuan}`);
+      } else {
+        console.warn("Thông báo này không có ID phản ánh liên quan");
+      }
+    } catch (error) {
+      console.error("Lỗi xử lý thông báo:", error);
+    }
+  };
+
+  // --- 3. GỌI API LẤY THÔNG BÁO ---
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await getThongBaoCuaToi();
+        if (Array.isArray(response.data)) {
+          setNotifications(response.data);
+          // Đếm số thông báo chưa xem
+          const count = response.data.filter((n) => !n.daXem).length;
+          setUnreadCount(count);
+        }
+      } catch (error) {
+        console.error("Lỗi tải thông báo:", error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   useEffect(() => {
-    // Setting the navbar type
     if (fixedNavbar) {
       setNavbarType("sticky");
     } else {
       setNavbarType("static");
     }
 
-    // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
       setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
     }
 
-    /** 
-     The event listener that's calling the handleTransparentNavbar function when 
-     scrolling the window.
-    */
     window.addEventListener("scroll", handleTransparentNavbar);
-
-    // Call the handleTransparentNavbar function to set the state with the initial value.
     handleTransparentNavbar();
-
-    // Remove event listener on cleanup
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
 
@@ -91,7 +125,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
-  // Render the notifications menu
+  // --- 4. RENDER MENU THÔNG BÁO ---
   const renderMenu = () => (
     <Menu
       anchorEl={openMenu}
@@ -104,13 +138,30 @@ function DashboardNavbar({ absolute, light, isMini }) {
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
     >
-      <NotificationItem icon={<Icon>email</Icon>} title="Check new messages" />
-      <NotificationItem icon={<Icon>podcasts</Icon>} title="Manage Podcast sessions" />
-      <NotificationItem icon={<Icon>shopping_cart</Icon>} title="Payment successfully completed" />
+      {notifications.length > 0 ? (
+        notifications.map((item) => (
+          // Bọc trong MDBox để bắt sự kiện click tốt hơn (nếu NotificationItem không hỗ trợ)
+          <MDBox
+            key={item.maThongBao}
+            onClick={() => handleNotificationClick(item)}
+            sx={{ cursor: "pointer" }}
+          >
+            <NotificationItem
+              icon={<Icon>notifications</Icon>}
+              title={item.noiDung}
+              // Style đậm nhạt tùy trạng thái xem
+              style={{ fontWeight: item.daXem ? "normal" : "bold" }}
+            />
+          </MDBox>
+        ))
+      ) : (
+        <MDBox p={2}>
+          <span style={{ fontSize: "14px" }}>Không có thông báo mới</span>
+        </MDBox>
+      )}
     </Menu>
   );
 
-  // Styles for the navbar icons
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
@@ -133,7 +184,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
         return "Cán Bộ Xử Lý";
       case "phan-hoi":
         return "Trả Lời Dân";
-      // Thêm các case khác nếu cần
       default:
         return slug.replace("-", " ");
     }
@@ -185,6 +235,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton>
+
+              {/* --- 5. ICON QUẢ CHUÔNG CÓ BADGE SỐ --- */}
               <IconButton
                 size="small"
                 disableRipple
@@ -195,7 +247,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 variant="contained"
                 onClick={handleOpenMenu}
               >
-                <Icon sx={iconsStyle}>notifications</Icon>
+                <Badge badgeContent={unreadCount} color="error" size="small">
+                  <Icon sx={iconsStyle}>notifications</Icon>
+                </Badge>
               </IconButton>
               {renderMenu()}
             </MDBox>
@@ -206,14 +260,12 @@ function DashboardNavbar({ absolute, light, isMini }) {
   );
 }
 
-// Setting default values for the props of DashboardNavbar
 DashboardNavbar.defaultProps = {
   absolute: false,
   light: false,
   isMini: false,
 };
 
-// Typechecking props for the DashboardNavbar
 DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,
