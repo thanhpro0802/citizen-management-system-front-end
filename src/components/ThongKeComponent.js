@@ -23,7 +23,8 @@ const ThongKeComponent = () => {
                 "#36A2EB",
                 "#FF6384",
                 "#FFCE56",
-                "#4BC0C0"
+                "#4BC0C0",
+                "#4BC0C1"
               ]
             }
           ]
