@@ -251,7 +251,10 @@ function DataTable({
                 <MDInput
                   inputProps={{ type: "number", min: 1, max: customizedPageOptions.length }}
                   value={customizedPageOptions[pageIndex]}
-                  onChange={(handleInputPagination, handleInputPaginationValue)}
+                  onChange={e => {
+                    handleInputPagination(e);
+                    handleInputPaginationValue(e);
+                  }}
                 />
               </MDBox>
             ) : (
