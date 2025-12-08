@@ -55,20 +55,6 @@ function AuthProvider({ children }) {
 
   const value = useMemo(() => [state, dispatch], [state, dispatch]);
 
-  // Kiểm tra trạng thái đăng nhập khi component mount
-  useEffect(() => {
-    if (kiemTraDaDangNhap()) {
-      const user = layThongTinNguoiDung();
-      const token = layToken();
-      if (user && token) {
-        dispatch({
-          type: "LOGIN",
-          payload: { user, token },
-        });
-      }
-    }
-  }, []);
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

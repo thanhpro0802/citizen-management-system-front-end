@@ -42,6 +42,9 @@ import { dangNhap, luuToken, luuThongTinNguoiDung } from "services/authService";
 // Context
 import { useAuth, setLogin } from "context/authContext";
 
+// Utils
+import { isValidEmail } from "utils/validation";
+
 function Basic() {
   const navigate = useNavigate();
   const [, dispatch] = useAuth();
@@ -77,7 +80,7 @@ function Basic() {
 
     if (!formData.email) {
       newErrors.email = "Email không được để trống";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!isValidEmail(formData.email)) {
       newErrors.email = "Email không hợp lệ";
     }
 

@@ -96,14 +96,27 @@ axios.interceptors.request.use(
   }
 );
 
+// Callback function for handling 401 errors (set by the app)
+let onUnauthorizedCallback = null;
+
+/**
+ * Set callback function to handle unauthorized (401) errors
+ * @param {Function} callback - Function to call on 401 error (e.g., navigate to login)
+ */
+export const setUnauthorizedCallback = (callback) => {
+  onUnauthorizedCallback = callback;
+};
+
 // Xử lý lỗi 401 (Unauthorized) - tự động đăng xuất
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       dangXuat();
-      // Có thể redirect về trang đăng nhập
-      window.location.href = "/authentication/sign-in";
+      // Call the callback if it's set (e.g., navigate to login using React Router)
+      if (onUnauthorizedCallback) {
+        onUnauthorizedCallback();
+      }
     }
     return Promise.reject(error);
   }

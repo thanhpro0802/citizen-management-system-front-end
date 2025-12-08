@@ -42,6 +42,9 @@ import { dangKy, luuToken, luuThongTinNguoiDung } from "services/authService";
 // Context
 import { useAuth, setLogin } from "context/authContext";
 
+// Utils
+import { isValidEmail, isValidVietnamesePhoneNumber } from "utils/validation";
+
 function Cover() {
   const navigate = useNavigate();
   const [, dispatch] = useAuth();
@@ -85,7 +88,7 @@ function Cover() {
 
     if (!formData.email) {
       newErrors.email = "Email không được để trống";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!isValidEmail(formData.email)) {
       newErrors.email = "Email không hợp lệ";
     }
 
@@ -101,7 +104,7 @@ function Cover() {
       newErrors.xacNhanMatKhau = "Mật khẩu không khớp";
     }
 
-    if (formData.soDienThoai && !/^[0-9]{10,11}$/.test(formData.soDienThoai)) {
+    if (formData.soDienThoai && !isValidVietnamesePhoneNumber(formData.soDienThoai)) {
       newErrors.soDienThoai = "Số điện thoại không hợp lệ (10-11 số)";
     }
 
