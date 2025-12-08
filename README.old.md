@@ -1,1 +1,0 @@
-# citizen-management-system-front-end
