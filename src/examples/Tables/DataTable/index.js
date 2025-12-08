@@ -175,7 +175,7 @@ function DataTable({
                 size="small"
                 fullWidth
                 onChange={({ currentTarget }) => {
-                  setSearch(search);
+                  setSearch(currentTarget.value);
                   onSearchChange(currentTarget.value);
                 }}
               />
