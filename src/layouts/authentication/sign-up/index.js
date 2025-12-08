@@ -157,7 +157,9 @@ function Cover() {
       console.error("Lỗi đăng ký:", err);
       if (err.response) {
         // Lỗi từ server
-        setError(err.response.data.message || "Đăng ký không thành công. Email có thể đã được sử dụng.");
+        setError(
+          err.response.data.message || "Đăng ký không thành công. Email có thể đã được sử dụng."
+        );
       } else if (err.request) {
         // Không nhận được phản hồi từ server
         setError("Không thể kết nối đến server. Vui lòng thử lại sau.");
@@ -293,13 +295,7 @@ function Cover() {
               </MDBox>
             )}
             <MDBox mt={4} mb={1}>
-              <MDButton
-                variant="gradient"
-                color="info"
-                fullWidth
-                type="submit"
-                disabled={loading}
-              >
+              <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={loading}>
                 {loading ? <CircularProgress size={24} color="inherit" /> : "Đăng ký"}
               </MDButton>
             </MDBox>

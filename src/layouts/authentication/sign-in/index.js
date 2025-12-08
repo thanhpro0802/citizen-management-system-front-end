@@ -45,7 +45,7 @@ import { useAuth, setLogin } from "context/authContext";
 function Basic() {
   const navigate = useNavigate();
   const [, dispatch] = useAuth();
-  
+
   const [formData, setFormData] = useState({
     email: "",
     matKhau: "",
@@ -103,12 +103,12 @@ function Basic() {
 
     try {
       const response = await dangNhap(formData.email, formData.matKhau);
-      
+
       // Lưu token và thông tin người dùng
       const { token, user } = response.data;
       luuToken(token);
       luuThongTinNguoiDung(user);
-      
+
       // Cập nhật context
       setLogin(dispatch, user, token);
 
@@ -196,13 +196,7 @@ function Basic() {
               </MDTypography>
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton
-                variant="gradient"
-                color="info"
-                fullWidth
-                type="submit"
-                disabled={loading}
-              >
+              <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={loading}>
                 {loading ? <CircularProgress size={24} color="inherit" /> : "Đăng nhập"}
               </MDButton>
             </MDBox>
