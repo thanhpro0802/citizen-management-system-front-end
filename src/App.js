@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Icon from "@mui/material/Icon";
@@ -27,7 +27,11 @@ import brandDark from "assets/images/logo-ct-dark.png";
 // IMPORT TRANG CHI TIẾT
 import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 
+// Auth service
+import { setUnauthorizedCallback } from "services/authService";
+
 export default function App() {
+  const navigate = useNavigate();
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -75,6 +79,13 @@ export default function App() {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
+
+  // Set up unauthorized callback for auth service
+  useEffect(() => {
+    setUnauthorizedCallback(() => {
+      navigate("/authentication/sign-in");
+    });
+  }, [navigate]);
 
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
