@@ -1,10 +1,11 @@
 import './App.css';
-import HelloWorld from './HelloWorld';
+import ThongKeComponent from './components/ThongKeComponent';
+import ListNhanKhauComponent from './components/ListNhanKhauComponent';
 
 function App() {
   return (
     <>
-      <HelloWorld/>
+      <ThongKeComponent/>
     </>
   )
 }
