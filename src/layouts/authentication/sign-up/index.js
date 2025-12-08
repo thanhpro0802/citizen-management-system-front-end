@@ -1,39 +1,24 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 import { useState } from "react";
 
-// react-router-dom components
+// react-router-dom
 import { Link, useNavigate } from "react-router-dom";
 
-// @mui material components
+// @mui components
 import Card from "@mui/material/Card";
-import Checkbox from "@mui/material/Checkbox";
+import Switch from "@mui/material/Switch";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 
-// Material Dashboard 2 React components
+// MD components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
 
-// Authentication layout components
-import CoverLayout from "layouts/authentication/components/CoverLayout";
+// Layout
+import BasicLayout from "layouts/authentication/components/BasicLayout";
 
-// Images
+// Image
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
 
 // Services
@@ -45,17 +30,18 @@ import { useAuth, setLogin } from "context/authContext";
 // Utils
 import { isValidEmail, isValidVietnamesePhoneNumber } from "utils/validation";
 
-function Cover() {
+function SignUp() {
   const navigate = useNavigate();
   const [, dispatch] = useAuth();
 
   const [formData, setFormData] = useState({
     hoTen: "",
     email: "",
+    soDienThoai: "",
     matKhau: "",
     xacNhanMatKhau: "",
-    soDienThoai: "",
   });
+
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -64,53 +50,29 @@ function Cover() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    // Xóa lỗi khi người dùng bắt đầu nhập
+    setFormData({ ...formData, [name]: value });
+
     if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: "",
-      });
+      setErrors({ ...errors, [name]: "" });
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.hoTen) {
-      newErrors.hoTen = "Họ tên không được để trống";
-    } else if (formData.hoTen.length < 2) {
-      newErrors.hoTen = "Họ tên phải có ít nhất 2 ký tự";
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Email không được để trống";
-    } else if (!isValidEmail(formData.email)) {
-      newErrors.email = "Email không hợp lệ";
-    }
-
-    if (!formData.matKhau) {
-      newErrors.matKhau = "Mật khẩu không được để trống";
-    } else if (formData.matKhau.length < 6) {
-      newErrors.matKhau = "Mật khẩu phải có ít nhất 6 ký tự";
-    }
-
-    if (!formData.xacNhanMatKhau) {
-      newErrors.xacNhanMatKhau = "Vui lòng xác nhận mật khẩu";
-    } else if (formData.matKhau !== formData.xacNhanMatKhau) {
-      newErrors.xacNhanMatKhau = "Mật khẩu không khớp";
-    }
+    if (!formData.hoTen.trim()) newErrors.hoTen = "Họ tên không được để trống";
+    if (!isValidEmail(formData.email)) newErrors.email = "Email không hợp lệ";
 
     if (formData.soDienThoai && !isValidVietnamesePhoneNumber(formData.soDienThoai)) {
-      newErrors.soDienThoai = "Số điện thoại không hợp lệ (10-11 số)";
+      newErrors.soDienThoai = "Số điện thoại không hợp lệ";
     }
 
-    if (!agreeTerms) {
-      newErrors.terms = "Bạn phải đồng ý với điều khoản sử dụng";
-    }
+    if (formData.matKhau.length < 6) newErrors.matKhau = "Mật khẩu tối thiểu 6 ký tự";
+
+    if (formData.matKhau !== formData.xacNhanMatKhau)
+      newErrors.xacNhanMatKhau = "Mật khẩu không khớp";
+
+    if (!agreeTerms) newErrors.terms = "Bạn phải đồng ý điều khoản";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -121,54 +83,37 @@ function Cover() {
     setError("");
     setSuccess("");
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
 
     try {
-      const response = await dangKy(
+      const res = await dangKy(
         formData.hoTen,
         formData.email,
         formData.matKhau,
         formData.soDienThoai
       );
 
-      // Kiểm tra response
-      if (response.data) {
-        const { token, user } = response.data;
+      if (res.data) {
+        const { token, user } = res.data;
 
-        // Nếu backend trả về token và user ngay lập tức (tự động đăng nhập)
         if (token && user) {
           luuToken(token);
           luuThongTinNguoiDung(user);
           setLogin(dispatch, user, token);
           setSuccess("Đăng ký thành công! Đang chuyển hướng...");
-          setTimeout(() => {
-            navigate("/gui-phan-anh");
-          }, 1500);
+          setTimeout(() => navigate("/gui-phan-anh"), 1500);
         } else {
-          // Nếu cần xác thực email hoặc chỉ trả về thông báo thành công
-          setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
-          setTimeout(() => {
-            navigate("/authentication/sign-in");
-          }, 2000);
+          setSuccess("Đăng ký thành công! Hãy đăng nhập.");
+          setTimeout(() => navigate("/authentication/sign-in"), 1500);
         }
       }
     } catch (err) {
-      console.error("Lỗi đăng ký:", err);
       if (err.response) {
-        // Lỗi từ server
-        setError(
-          err.response.data.message || "Đăng ký không thành công. Email có thể đã được sử dụng."
-        );
-      } else if (err.request) {
-        // Không nhận được phản hồi từ server
-        setError("Không thể kết nối đến server. Vui lòng thử lại sau.");
+        setError(err.response.data.message || "Email đã tồn tại.");
       } else {
-        // Lỗi khác
-        setError("Đã xảy ra lỗi. Vui lòng thử lại.");
+        setError("Không thể kết nối đến server.");
       }
     } finally {
       setLoading(false);
@@ -176,28 +121,27 @@ function Cover() {
   };
 
   return (
-    <CoverLayout image={bgImage}>
+    <BasicLayout image={bgImage}>
       <Card>
         <MDBox
           variant="gradient"
           bgColor="info"
           borderRadius="lg"
-          coloredShadow="success"
           mx={2}
           mt={-3}
-          p={3}
-          mb={1}
+          p={2}
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Đăng Ký Tài Khoản
+            Đăng Ký
           </MDTypography>
-          <MDTypography display="block" variant="button" color="white" my={1}>
-            Điền thông tin để tạo tài khoản mới
+          <MDTypography variant="button" color="white" mt={1}>
+            Tạo tài khoản mới
           </MDTypography>
         </MDBox>
+
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form" onSubmit={handleSubmit}>
+          <MDBox component="form" onSubmit={handleSubmit}>
             {error && (
               <MDBox mb={2}>
                 <Alert severity="error">{error}</Alert>
@@ -208,10 +152,10 @@ function Cover() {
                 <Alert severity="success">{success}</Alert>
               </MDBox>
             )}
+
             <MDBox mb={2}>
               <MDInput
-                type="text"
-                label="Họ và tên"
+                label="Họ tên"
                 name="hoTen"
                 value={formData.hoTen}
                 onChange={handleChange}
@@ -220,6 +164,7 @@ function Cover() {
                 helperText={errors.hoTen}
               />
             </MDBox>
+
             <MDBox mb={2}>
               <MDInput
                 type="email"
@@ -232,9 +177,9 @@ function Cover() {
                 helperText={errors.email}
               />
             </MDBox>
+
             <MDBox mb={2}>
               <MDInput
-                type="text"
                 label="Số điện thoại (không bắt buộc)"
                 name="soDienThoai"
                 value={formData.soDienThoai}
@@ -244,6 +189,7 @@ function Cover() {
                 helperText={errors.soDienThoai}
               />
             </MDBox>
+
             <MDBox mb={2}>
               <MDInput
                 type="password"
@@ -256,6 +202,7 @@ function Cover() {
                 helperText={errors.matKhau}
               />
             </MDBox>
+
             <MDBox mb={2}>
               <MDInput
                 type="password"
@@ -268,41 +215,32 @@ function Cover() {
                 helperText={errors.xacNhanMatKhau}
               />
             </MDBox>
+
             <MDBox display="flex" alignItems="center" ml={-1}>
-              <Checkbox checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
+              <Switch checked={agreeTerms} onChange={() => setAgreeTerms(!agreeTerms)} />
               <MDTypography
                 variant="button"
-                fontWeight="regular"
                 color="text"
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+                sx={{ cursor: "pointer" }}
                 onClick={() => setAgreeTerms(!agreeTerms)}
               >
-                &nbsp;&nbsp;Tôi đồng ý với&nbsp;
-              </MDTypography>
-              <MDTypography
-                component="a"
-                href="#"
-                variant="button"
-                fontWeight="bold"
-                color="info"
-                textGradient
-              >
-                Điều khoản sử dụng
+                &nbsp;Tôi đồng ý với điều khoản
               </MDTypography>
             </MDBox>
+
             {errors.terms && (
-              <MDBox ml={3} mt={1}>
-                <MDTypography variant="caption" color="error">
-                  {errors.terms}
-                </MDTypography>
-              </MDBox>
+              <MDTypography variant="caption" color="error" ml={3}>
+                {errors.terms}
+              </MDTypography>
             )}
+
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={loading}>
+              <MDButton type="submit" variant="gradient" color="info" fullWidth disabled={loading}>
                 {loading ? <CircularProgress size={24} color="inherit" /> : "Đăng ký"}
               </MDButton>
             </MDBox>
-            <MDBox mt={3} mb={1} textAlign="center">
+
+            <MDBox mt={3} textAlign="center">
               <MDTypography variant="button" color="text">
                 Đã có tài khoản?{" "}
                 <MDTypography
@@ -320,8 +258,8 @@ function Cover() {
           </MDBox>
         </MDBox>
       </Card>
-    </CoverLayout>
+    </BasicLayout>
   );
 }
 
-export default Cover;
+export default SignUp;
