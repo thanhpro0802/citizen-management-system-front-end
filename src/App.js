@@ -1,9 +1,3 @@
-/**
- =========================================================
- * Material Dashboard 2 React - v2.2.0
- =========================================================
- */
-
 import { useState, useEffect, useMemo } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
