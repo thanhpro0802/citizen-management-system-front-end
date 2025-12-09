@@ -1,34 +1,18 @@
 import { useState } from "react";
-
-// react-router-dom
 import { Link, useNavigate } from "react-router-dom";
-
-// @mui components
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
-
-// MD components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDInput from "components/MDInput";
 import MDButton from "components/MDButton";
-
-// Layout
 import BasicLayout from "layouts/authentication/components/BasicLayout";
-
-// Image
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
-
-// Services
 import { dangKy, luuToken, luuThongTinNguoiDung } from "services/authService";
-
-// Context
 import { useAuth, setLogin } from "context/authContext";
-
-// Utils
-import { isValidEmail, isValidVietnamesePhoneNumber } from "utils/validation";
+// import { isValidEmail } from "utils/validation"; // Không dùng email nữa
 
 function SignUp() {
   const navigate = useNavigate();
@@ -36,7 +20,7 @@ function SignUp() {
 
   const [formData, setFormData] = useState({
     hoTen: "",
-    email: "",
+    cccd: "", // SỬA: email -> cccd
     soDienThoai: "",
     matKhau: "",
     xacNhanMatKhau: "",
@@ -50,6 +34,10 @@ function SignUp() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // SỬA: Nếu là nhập CCCD thì chỉ cho nhập số
+    if (name === "cccd" && !/^\d*$/.test(value)) return;
+
     setFormData({ ...formData, [name]: value });
 
     if (errors[name]) {
@@ -61,10 +49,12 @@ function SignUp() {
     const newErrors = {};
 
     if (!formData.hoTen.trim()) newErrors.hoTen = "Họ tên không được để trống";
-    if (!isValidEmail(formData.email)) newErrors.email = "Email không hợp lệ";
 
-    if (formData.soDienThoai && !isValidVietnamesePhoneNumber(formData.soDienThoai)) {
-      newErrors.soDienThoai = "Số điện thoại không hợp lệ";
+    // SỬA: Validate CCCD 12 số
+    if (!formData.cccd) {
+      newErrors.cccd = "Vui lòng nhập số CCCD";
+    } else if (formData.cccd.length !== 12) {
+      newErrors.cccd = "Số CCCD phải có đúng 12 chữ số";
     }
 
     if (formData.matKhau.length < 6) newErrors.matKhau = "Mật khẩu tối thiểu 6 ký tự";
@@ -88,20 +78,27 @@ function SignUp() {
     setLoading(true);
 
     try {
+      // SỬA: Gọi hàm đăng ký với CCCD
       const res = await dangKy(
         formData.hoTen,
-        formData.email,
+        formData.cccd,
         formData.matKhau,
         formData.soDienThoai
       );
 
       if (res.data) {
-        const { token, user } = res.data;
+        // ... (Logic xử lý response giữ nguyên)
+        const { token, user } = res.data; // Đảm bảo JwtResponse trả về đúng
+        // Backend bạn trả về JwtResponse gồm: token, type, id, cccd, roles
+        // Cần lưu ý object "user" để lưu vào localStorage cho đúng
 
-        if (token && user) {
+        if (token) {
+          // Giả lập object user từ response để lưu frontend
+          const userToSave = { cccd: res.data.cccd, roles: res.data.roles, id: res.data.id };
+
           luuToken(token);
-          luuThongTinNguoiDung(user);
-          setLogin(dispatch, user, token);
+          luuThongTinNguoiDung(userToSave);
+          setLogin(dispatch, userToSave, token);
           setSuccess("Đăng ký thành công! Đang chuyển hướng...");
           setTimeout(() => navigate("/gui-phan-anh"), 1500);
         } else {
@@ -111,7 +108,8 @@ function SignUp() {
       }
     } catch (err) {
       if (err.response) {
-        setError(err.response.data.message || "Email đã tồn tại.");
+        // Back-end trả về Map<String, String> error -> error.message
+        setError(err.response.data.message || "Đăng ký thất bại.");
       } else {
         setError("Không thể kết nối đến server.");
       }
@@ -136,7 +134,7 @@ function SignUp() {
             Đăng Ký
           </MDTypography>
           <MDTypography variant="button" color="white" mt={1}>
-            Tạo tài khoản mới
+            Tạo tài khoản công dân
           </MDTypography>
         </MDBox>
 
@@ -165,28 +163,27 @@ function SignUp() {
               />
             </MDBox>
 
+            {/* SỬA: Input CCCD */}
             <MDBox mb={2}>
               <MDInput
-                type="email"
-                label="Email"
-                name="email"
-                value={formData.email}
+                label="Số CCCD"
+                name="cccd"
+                value={formData.cccd}
                 onChange={handleChange}
                 fullWidth
-                error={!!errors.email}
-                helperText={errors.email}
+                error={!!errors.cccd}
+                helperText={errors.cccd}
+                inputProps={{ maxLength: 12 }}
               />
             </MDBox>
 
             <MDBox mb={2}>
               <MDInput
-                label="Số điện thoại (không bắt buộc)"
+                label="Số điện thoại (tùy chọn)"
                 name="soDienThoai"
                 value={formData.soDienThoai}
                 onChange={handleChange}
                 fullWidth
-                error={!!errors.soDienThoai}
-                helperText={errors.soDienThoai}
               />
             </MDBox>
 
@@ -227,7 +224,6 @@ function SignUp() {
                 &nbsp;Tôi đồng ý với điều khoản
               </MDTypography>
             </MDBox>
-
             {errors.terms && (
               <MDTypography variant="caption" color="error" ml={3}>
                 {errors.terms}

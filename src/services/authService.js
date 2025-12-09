@@ -1,35 +1,33 @@
 import axios from "axios";
 
-// URL Backend cho authentication
-const API_URL = "http://localhost:8080/api/v1/auth";
+// SỬA: URL Backend khớp với @RequestMapping("/api/auth")
+const API_URL = "http://localhost:8080/api/auth";
 
 /**
  * Đăng ký người dùng mới
- * @param {string} hoTen - Họ và tên người dùng
- * @param {string} email - Email người dùng
- * @param {string} matKhau - Mật khẩu
- * @param {string} soDienThoai - Số điện thoại (optional)
- * @returns {Promise} Promise với thông tin người dùng đã đăng ký
+ * Lưu ý: Back-end hiện tại chỉ nhận cccd và password.
+ * Các trường hoTen, soDienThoai cần thêm vào DTO Back-end nếu muốn lưu.
  */
-export const dangKy = (hoTen, email, matKhau, soDienThoai = "") => {
-  return axios.post(`${API_URL}/dang-ky`, {
-    hoTen,
-    email,
-    matKhau,
-    soDienThoai,
+export const dangKy = (hoTen, cccd, matKhau, soDienThoai = "") => {
+  return axios.post(`${API_URL}/register`, {
+    // SỬA: endpoint /register
+    cccd: cccd, // Map với Back-end
+    password: matKhau, // Map matKhau -> password
+    // Gửi kèm các trường này phòng khi bạn update Back-end sau này
+    hoTen: hoTen,
+    soDienThoai: soDienThoai,
   });
 };
 
 /**
  * Đăng nhập người dùng
- * @param {string} email - Email người dùng
- * @param {string} matKhau - Mật khẩu
- * @returns {Promise} Promise với token và thông tin người dùng
+ * SỬA: Thay email bằng cccd
  */
-export const dangNhap = (email, matKhau) => {
-  return axios.post(`${API_URL}/dang-nhap`, {
-    email,
-    matKhau,
+export const dangNhap = (cccd, matKhau) => {
+  return axios.post(`${API_URL}/login`, {
+    // SỬA: endpoint /login
+    cccd: cccd, // Map email cũ -> cccd
+    password: matKhau, // Map matKhau -> password
   });
 };
 
