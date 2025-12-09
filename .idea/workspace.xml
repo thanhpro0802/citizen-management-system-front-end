@@ -4,17 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/dev/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/dev/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/dev/palette.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/dev/previews.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/dev/useInitial.js" afterDir="false" />
+    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/authentication/sign-in/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/authentication/sign-in/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/authentication/sign-up/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/authentication/sign-up/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/authService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +30,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="copilot/implement-login-registration-forms" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -72,27 +66,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Node.js.phanAnhService.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.routes.js.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.webpack&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Node.js.phanAnhService.js.executor": "Run",
+    "Node.js.routes.js.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "signin-signup",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "settings.webpack",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -122,11 +116,16 @@
       <workItem from="1763834749317" duration="4340000" />
       <workItem from="1765119084978" duration="1584000" />
       <workItem from="1765182549926" duration="5386000" />
+      <workItem from="1765255105115" duration="7271000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
