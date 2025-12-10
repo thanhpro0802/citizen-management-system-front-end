@@ -41,6 +41,8 @@ import {
 
 // --- 1. IMPORT SERVICE ---
 import { getThongBaoCuaToi, danhDauDaXem } from "services/thongBaoService";
+import { dangXuat } from "services/authService";
+import { useAuth, setLogout } from "context/authContext";
 
 function DashboardNavbar({ absolute, light, isMini }) {
   const [navbarType, setNavbarType] = useState();
@@ -49,6 +51,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
   const navigate = useNavigate(); // <-- Hook chuyển trang
+
+  // Auth context
+  const [authState, authDispatch] = useAuth();
+  const { isAuthenticated, user } = authState;
+
+  // User menu state
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
 
   // --- 2. STATE CHO THÔNG BÁO ---
   const [notifications, setNotifications] = useState([]);
@@ -124,6 +133,17 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+
+  // User menu handlers
+  const handleUserMenuOpen = (event) => setUserMenuAnchor(event.currentTarget);
+  const handleUserMenuClose = () => setUserMenuAnchor(null);
+
+  const handleLogout = () => {
+    dangXuat();
+    setLogout(authDispatch);
+    handleUserMenuClose();
+    navigate("/authentication/sign-in");
+  };
 
   // --- 4. RENDER MENU THÔNG BÁO ---
   const renderMenu = () => (
@@ -210,11 +230,47 @@ function DashboardNavbar({ absolute, light, isMini }) {
               <MDInput label="Search here" />
             </MDBox>
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in/basic">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
+              {/* User Account Menu */}
+              {isAuthenticated ? (
+                <>
+                  <IconButton
+                    sx={navbarIconButton}
+                    size="small"
+                    disableRipple
+                    onClick={handleUserMenuOpen}
+                  >
+                    <Icon sx={iconsStyle}>account_circle</Icon>
+                  </IconButton>
+                  <Menu
+                    anchorEl={userMenuAnchor}
+                    open={Boolean(userMenuAnchor)}
+                    onClose={handleUserMenuClose}
+                    sx={{ mt: 2 }}
+                  >
+                    <MDBox px={2} py={1}>
+                      <MDBox mb={1}>
+                        <strong>CCCD:</strong> {user?.cccd || "N/A"}
+                      </MDBox>
+                      <MDBox mb={1}>
+                        <strong>Vai trò:</strong>{" "}
+                        {user?.roles?.includes("CAN_BO") ? "Cán Bộ" : "Người Dân"}
+                      </MDBox>
+                    </MDBox>
+                    <NotificationItem
+                      icon={<Icon>logout</Icon>}
+                      title="Đăng Xuất"
+                      onClick={handleLogout}
+                    />
+                  </Menu>
+                </>
+              ) : (
+                <Link to="/authentication/sign-in">
+                  <IconButton sx={navbarIconButton} size="small" disableRipple>
+                    <Icon sx={iconsStyle}>login</Icon>
+                  </IconButton>
+                </Link>
+              )}
+
               <IconButton
                 size="small"
                 disableRipple
@@ -237,21 +293,25 @@ function DashboardNavbar({ absolute, light, isMini }) {
               </IconButton>
 
               {/* --- 5. ICON QUẢ CHUÔNG CÓ BADGE SỐ --- */}
-              <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={handleOpenMenu}
-              >
-                <Badge badgeContent={unreadCount} color="error" size="small">
-                  <Icon sx={iconsStyle}>notifications</Icon>
-                </Badge>
-              </IconButton>
-              {renderMenu()}
+              {isAuthenticated && (
+                <>
+                  <IconButton
+                    size="small"
+                    disableRipple
+                    color="inherit"
+                    sx={navbarIconButton}
+                    aria-controls="notification-menu"
+                    aria-haspopup="true"
+                    variant="contained"
+                    onClick={handleOpenMenu}
+                  >
+                    <Badge badgeContent={unreadCount} color="error" size="small">
+                      <Icon sx={iconsStyle}>notifications</Icon>
+                    </Badge>
+                  </IconButton>
+                  {renderMenu()}
+                </>
+              )}
             </MDBox>
           </MDBox>
         )}
