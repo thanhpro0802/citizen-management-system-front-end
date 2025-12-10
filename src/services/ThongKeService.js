@@ -1,5 +1,9 @@
-import axios from "axios";
+import axiosClient from "./axiosClient";
 
-const REST_API_BASE_URL = 'http://localhost:8080/api/ThongKe/QueQuan';
+export const getThongKeDoTuoi = () => axiosClient.get("/thong-ke/do-tuoi");
 
-export const getThongKe = () => axios.get(REST_API_BASE_URL);
+export const getThongKeGioiTinh = () => axiosClient.get("/thong-ke/gioi-tinh");
+
+export const getThongKeQueQuan = () => axiosClient.get("/thong-ke/que-quan");
+
+export const getThongKeSoLuong = () => axiosClient.get("/thong-ke/so-nguoi");
