@@ -28,6 +28,7 @@ import LichSuPhanAnh from "layouts/lich-su-phan-anh";
 import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
 import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
+import Forbidden from "layouts/forbidden";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -56,6 +57,7 @@ const routes = [
     icon: <Icon fontSize="small">feedback</Icon>,
     route: "/gui-phan-anh",
     component: <GuiPhanAnh />,
+    requireAuth: true,
   },
   {
     type: "collapse",
@@ -64,6 +66,7 @@ const routes = [
     icon: <Icon fontSize="small">history</Icon>,
     route: "/lich-su-phan-anh",
     component: <LichSuPhanAnh />,
+    requireAuth: true,
   },
   {
     type: "collapse",
@@ -72,6 +75,8 @@ const routes = [
     icon: <Icon fontSize="small">engineering</Icon>,
     route: "/xu-ly-phan-anh",
     component: <XuLyPhanAnh />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
   },
   {
     type: "collapse",
@@ -80,6 +85,8 @@ const routes = [
     icon: <Icon fontSize="small">check_circle</Icon>,
     route: "/phan-hoi",
     component: <PhanHoi />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
   },
   {
     type: "collapse",
@@ -88,6 +95,15 @@ const routes = [
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/quan-ly-phan-anh",
     component: <QuanLyPhanAnh />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    type: "route",
+    name: "Không Có Quyền",
+    key: "forbidden",
+    route: "/forbidden",
+    component: <Forbidden />,
   },
 ];
 

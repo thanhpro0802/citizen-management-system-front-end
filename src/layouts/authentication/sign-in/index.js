@@ -12,6 +12,7 @@ import BasicLayout from "layouts/authentication/components/BasicLayout";
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
 import { dangNhap, luuToken, luuThongTinNguoiDung } from "services/authService";
 import { useAuth, setLogin } from "context/authContext";
+import { getUserFromToken } from "utils/jwtUtils";
 
 function Basic() {
   const navigate = useNavigate();
@@ -70,12 +71,20 @@ function Basic() {
       // Backend trả về JwtResponse (token, type, id, cccd, roles)
       const data = response.data;
 
-      // Tạo object user để lưu (vì JwtResponse không gói user vào 1 object con)
-      const user = {
+      // Tạo object user để lưu
+      let user = {
         id: data.id,
         cccd: data.cccd,
-        roles: data.roles,
+        roles: data.roles || [],
       };
+
+      // Nếu roles không có trong response, decode từ JWT token
+      if (!user.roles || user.roles.length === 0) {
+        const userFromToken = getUserFromToken(data.token);
+        if (userFromToken && userFromToken.roles) {
+          user.roles = userFromToken.roles;
+        }
+      }
 
       luuToken(data.token);
       luuThongTinNguoiDung(user);

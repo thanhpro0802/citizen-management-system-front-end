@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getUserFromToken, getRolesFromToken, isTokenExpired } from "utils/jwtUtils";
 
 // SỬA: URL Backend khớp với @RequestMapping("/api/auth")
 const API_URL = "http://localhost:8080/api/auth";
@@ -77,7 +78,48 @@ export const layThongTinNguoiDung = () => {
  * @returns {boolean} True nếu đã đăng nhập
  */
 export const kiemTraDaDangNhap = () => {
-  return layToken() !== null;
+  const token = layToken();
+  if (!token) return false;
+
+  // Kiểm tra token có hết hạn không
+  return !isTokenExpired(token);
+};
+
+/**
+ * Lấy roles của người dùng hiện tại
+ * @returns {array} Mảng các roles
+ */
+export const layRoles = () => {
+  const user = layThongTinNguoiDung();
+  if (user && user.roles) {
+    return user.roles;
+  }
+
+  // Nếu không có trong user, thử decode từ token
+  const token = layToken();
+  if (token) {
+    return getRolesFromToken(token);
+  }
+
+  return [];
+};
+
+/**
+ * Kiểm tra người dùng có role cụ thể không
+ * @param {string} role - Tên role cần kiểm tra
+ * @returns {boolean} True nếu có role
+ */
+export const coRole = (role) => {
+  const roles = layRoles();
+  return roles.includes(role);
+};
+
+/**
+ * Kiểm tra người dùng có phải là cán bộ không
+ * @returns {boolean} True nếu là cán bộ
+ */
+export const laCanBo = () => {
+  return coRole("CAN_BO");
 };
 
 // Cấu hình axios interceptor để tự động thêm token vào headers
