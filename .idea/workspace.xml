@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="">
+    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/authentication/sign-in/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/authentication/sign-in/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/authentication/sign-up/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/authentication/sign-up/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/authService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +74,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "sua-signin-signup",
+    "git-widget-placeholder": "signin-signup",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end",
     "node.js.detected.package.eslint": "true",
@@ -115,11 +116,16 @@
       <workItem from="1763834749317" duration="4340000" />
       <workItem from="1765119084978" duration="1584000" />
       <workItem from="1765182549926" duration="5386000" />
+      <workItem from="1765255105115" duration="7271000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
