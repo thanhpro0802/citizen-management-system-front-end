@@ -94,8 +94,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
 
       // Kiểm tra nếu route yêu cầu role cụ thể
       if (route.requiredRole) {
-        const hasRole = user && user.roles && user.roles.includes(route.requiredRole);
-        return hasRole || coRole(route.requiredRole);
+        return coRole(route.requiredRole, user);
       }
 
       // Kiểm tra nếu route yêu cầu đăng nhập

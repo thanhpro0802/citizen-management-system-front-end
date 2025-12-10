@@ -41,7 +41,7 @@ import {
 
 // --- 1. IMPORT SERVICE ---
 import { getThongBaoCuaToi, danhDauDaXem } from "services/thongBaoService";
-import { dangXuat } from "services/authService";
+import { dangXuat, layTenHienThiRole } from "services/authService";
 import { useAuth, setLogout } from "context/authContext";
 
 function DashboardNavbar({ absolute, light, isMini }) {
@@ -252,8 +252,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                         <strong>CCCD:</strong> {user?.cccd || "N/A"}
                       </MDBox>
                       <MDBox mb={1}>
-                        <strong>Vai trò:</strong>{" "}
-                        {user?.roles?.includes("CAN_BO") ? "Cán Bộ" : "Người Dân"}
+                        <strong>Vai trò:</strong> {layTenHienThiRole(user?.roles)}
                       </MDBox>
                     </MDBox>
                     <NotificationItem

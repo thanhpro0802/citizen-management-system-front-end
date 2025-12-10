@@ -17,10 +17,15 @@ export const decodeJWT = (token) => {
     if (parts.length !== 3) return null;
 
     // Decode phần payload (base64url)
-    const payload = parts[1];
+    let payload = parts[1];
     const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    
+    // Thêm padding nếu cần (base64 cần độ dài chia hết cho 4)
+    const padLength = (4 - (base64.length % 4)) % 4;
+    const paddedBase64 = base64 + "=".repeat(padLength);
+    
     const jsonPayload = decodeURIComponent(
-      atob(base64)
+      atob(paddedBase64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
         .join("")

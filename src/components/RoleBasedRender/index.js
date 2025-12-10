@@ -27,10 +27,8 @@ function RoleBasedRender({ children, requiredRole, requireAuth, fallback }) {
 
   // Nếu yêu cầu role cụ thể
   if (requiredRole) {
-    const hasRole = user && user.roles && user.roles.includes(requiredRole);
-    
-    // Nếu không có role, return fallback hoặc null
-    if (!hasRole && !coRole(requiredRole)) {
+    // Kiểm tra user có role yêu cầu không (truyền user để tránh duplicate check)
+    if (!coRole(requiredRole, user)) {
       return fallback || null;
     }
   }

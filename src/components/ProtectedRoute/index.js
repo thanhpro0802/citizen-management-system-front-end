@@ -26,11 +26,8 @@ function ProtectedRoute({ children, requiredRole }) {
 
   // Nếu yêu cầu role cụ thể
   if (requiredRole) {
-    // Kiểm tra user có role yêu cầu không
-    const hasRequiredRole = user && user.roles && user.roles.includes(requiredRole);
-
-    // Nếu không có role, chuyển đến trang Forbidden
-    if (!hasRequiredRole && !coRole(requiredRole)) {
+    // Kiểm tra user có role yêu cầu không (truyền user để tránh duplicate check)
+    if (!coRole(requiredRole, user)) {
       return <Navigate to="/forbidden" replace />;
     }
   }
