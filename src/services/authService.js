@@ -115,7 +115,7 @@ export const coRole = (role, userObj = null) => {
   if (userObj && userObj.roles) {
     return userObj.roles.includes(role);
   }
-  
+
   // Không thì lấy từ localStorage/token
   const roles = layRoles();
   return roles.includes(role);
@@ -135,16 +135,18 @@ export const laCanBo = () => {
  * @returns {object} User object với roles đầy đủ
  */
 export const taoUserTuJWTResponse = (jwtResponse) => {
-  const { getUserFromToken } = require("utils/jwtUtils");
-  
+  if (!jwtResponse) {
+    throw new Error("jwtResponse is required");
+  }
+
   let user = {
     id: jwtResponse.id,
     cccd: jwtResponse.cccd,
     roles: jwtResponse.roles || [],
   };
 
-  // Nếu roles không có trong response, decode từ JWT token
-  if (!user.roles || user.roles.length === 0) {
+  // Nếu roles không có trong response và có token, decode từ JWT token
+  if ((!user.roles || user.roles.length === 0) && jwtResponse.token) {
     const userFromToken = getUserFromToken(jwtResponse.token);
     if (userFromToken && userFromToken.roles) {
       user.roles = userFromToken.roles;
