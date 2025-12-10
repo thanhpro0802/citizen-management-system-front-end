@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { Box, Typography, useTheme } from '@mui/material'
-import { tokens } from '../../theme'
-import Header from '../../components/Header'
-import ButtonMenu from '../../components/ButtonMenu'
-import ThongKeDoTuoi from '../../components/thongke/ThongKeDoTuoi'
-import ThongKeGioiTinh from '../../components/thongke/ThongKeGioiTinh'
-import ThongKeQueQuan from '../../components/thongke/ThongKeQueQuan'
-import ThongKeSoLuong from '../../components/thongke/ThongKeSoLuong'
+import { tokens } from '../theme'
+import Header from './components/Header'
+import ButtonMenu from './components/ButtonMenu'
+import ThongKeDoTuoi from './components/thongke/ThongKeDoTuoi'
+import ThongKeGioiTinh from './components/thongke/ThongKeGioiTinh'
+import ThongKeQueQuan from './components/thongke/ThongKeQueQuan'
+import ThongKeSoLuong from './components/thongke/ThongKeSoLuong'
 
 const ThongKe = () => {
   const theme = useTheme();
@@ -67,7 +67,7 @@ const ThongKe = () => {
                 backgroundColor={colors.primary[400]}
                 display="flex"
                 flexDirection="column"
-                alignItems="center"
+                alignItems="flex-end"
                 justifyContent="center"
                 borderRadius={8}
                 

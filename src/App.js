@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import Topbar from './pages/global/Topbar';
 import Sidebar from './pages/global/Sidebar';
 import TrangChu from './pages/TrangChu';
-import ThongKe from './pages/ThongKe';
+import ThongKe from './thong-ke';
 
 function App() {
   const [theme, colorMode] = useMode();
