@@ -24,6 +24,9 @@ import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 // Auth service
 import { setUnauthorizedCallback } from "services/authService";
 
+// Protected Route
+import ProtectedRoute from "components/ProtectedRoute";
+
 export default function App() {
   const navigate = useNavigate();
   const [controller, dispatch] = useMaterialUIController();
@@ -87,7 +90,16 @@ export default function App() {
         return getRoutes(route.collapse);
       }
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        // Wrap component with ProtectedRoute if authentication or role is required
+        let element = route.component;
+
+        if (route.requireAuth || route.requiredRole) {
+          element = (
+            <ProtectedRoute requiredRole={route.requiredRole}>{route.component}</ProtectedRoute>
+          );
+        }
+
+        return <Route exact path={route.route} element={element} key={route.key} />;
       }
       return null;
     });

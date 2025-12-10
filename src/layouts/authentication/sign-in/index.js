@@ -70,12 +70,9 @@ function Basic() {
       // Backend trả về JwtResponse (token, type, id, cccd, roles)
       const data = response.data;
 
-      // Tạo object user để lưu (vì JwtResponse không gói user vào 1 object con)
-      const user = {
-        id: data.id,
-        cccd: data.cccd,
-        roles: data.roles,
-      };
+      // Tạo object user từ response (xử lý cả roles từ response hoặc token)
+      const { taoUserTuJWTResponse } = await import("services/authService");
+      const user = taoUserTuJWTResponse(data);
 
       luuToken(data.token);
       luuThongTinNguoiDung(user);
