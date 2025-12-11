@@ -2,7 +2,7 @@ import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import { Route, Routes } from 'react-router-dom';
 import Topbar from './pages/global/Topbar';
-import Sidebar from './pages/global/Sidebar';
+import Sidebar from './components/global/Sidebar';
 import TrangChu from './pages/TrangChu';
 import ThongKe from './thong-ke';
 
