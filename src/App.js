@@ -77,6 +77,10 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
+  useEffect(() => {
+    document.title = "Hộ khẩu - Nhân khẩu";
+  }, [pathname]);
+
   // Set up unauthorized callback for auth service
   useEffect(() => {
     setUnauthorizedCallback(() => {

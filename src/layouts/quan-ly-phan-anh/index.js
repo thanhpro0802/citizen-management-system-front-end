@@ -24,7 +24,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 // API
-import { getAllPhanAnh } from "services/phanAnhService";
+import { getPhanAnhCuaToi } from "services/phanAnhService";
 
 function QuanLyPhanAnh() {
   const [danhSach, setDanhSach] = useState([]);
@@ -40,7 +40,7 @@ function QuanLyPhanAnh() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getAllPhanAnh();
+        const response = await getPhanAnhCuaToi();
         if (Array.isArray(response.data)) {
           setDanhSach(response.data);
         }
