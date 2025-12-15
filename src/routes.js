@@ -43,7 +43,7 @@ const routes = [
     route: "/authentication/sign-in",
     component: <SignIn />,
   },
-  { 
+  {
     type: "collapse",
     name: "Đăng Ký",
     key: "sign-up",
@@ -57,7 +57,7 @@ const routes = [
     key: "thong-ke",
     icon: <Icon fontSize="small">equalizer</Icon>,
     route: "/thong-ke",
-    component: <GuiPhanAnh />,
+    component: <ThongKe />,
     requireAuth: true,
   },
   {
@@ -66,7 +66,7 @@ const routes = [
     key: "gui-phan-anh",
     icon: <Icon fontSize="small">feedback</Icon>,
     route: "/gui-phan-anh",
-    component: <ThongKe />,
+    component: <GuiPhanAnh />,
     requireAuth: true,
   },
   {

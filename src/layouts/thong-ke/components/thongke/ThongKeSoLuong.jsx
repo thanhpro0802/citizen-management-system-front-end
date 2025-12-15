@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { getThongKeSoLuong } from '../../services/ThongKeService';
-import PieChart from '../charts/PieChart';
+import React, { useEffect, useState } from "react";
+import { getThongKeSoLuong } from "../../services/ThongKeService";
+import PieChart from "../charts/PieChart";
 
 const ThongKeSoLuong = () => {
-    const [data, setData] = useState([]);
+  const [data, setData] = useState([]);
 
-    useEffect(() => {
-        getThongKeSoLuong()
-            .then(res => setData(res.data))
-            .catch(err => console.error(err));
-    }, []);
+  useEffect(() => {
+    getThongKeSoLuong()
+      .then((res) => setData(res.data))
+      .catch((err) => console.error(err));
+  }, []);
 
-    return (
-      <PieChart data={data} />
-    )
-} 
+  return <PieChart data={data} />;
+};
 
-export default ThongKeSoLuong
+export default ThongKeSoLuong;
