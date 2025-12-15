@@ -29,6 +29,7 @@ import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
 import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
 import Forbidden from "layouts/forbidden";
+import ThongKe from "layouts/thong-ke";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -65,7 +66,7 @@ const routes = [
     key: "gui-phan-anh",
     icon: <Icon fontSize="small">feedback</Icon>,
     route: "/gui-phan-anh",
-    component: <GuiPhanAnh />,
+    component: <ThongKe />,
     requireAuth: true,
   },
   {
