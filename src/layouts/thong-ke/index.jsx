@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
+import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
 import { tokens } from "theme";
 import Header from "./components/Header";
 import ButtonMenu from "./components/ButtonMenu";
@@ -19,17 +21,17 @@ const ThongKe = () => {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <Box m="20px">
+      <MDBox m="20px">
         {/* HEADER */}
-        {/* <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="THỐNG KÊ" subtitle="Nhân khẩu & Hộ khẩu" />
-      </Box> */}
+        <MDBox display="flex" justifyContent="space-between" alignItems="center">
+          <Header title="THỐNG KÊ" subtitle="Nhân khẩu & Hộ khẩu" />
+        </MDBox>
 
         {/* GRID & CHARTS */}
-        <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gridAutoRows="500px" gap="20px">
+        <MDBox display="grid" gridTemplateColumns="repeat(12, 1fr)" gridAutoRows="500px" gap="20px">
           {/* ROW 1 */}
           {/* Thống kê Nhân khẩu */}
-          <Box
+          <MDBox
             gridColumn="span 6"
             backgroundColor={colors.primary[400]}
             display="flex"
@@ -39,11 +41,11 @@ const ThongKe = () => {
             borderRadius={8}
             p={3}
           >
-            <Box alignSelf="flex-start" mb={1}>
-              <Typography variant="h2" fontWeight="bold">
+            <MDBox alignSelf="flex-start" mb={1}>
+              <MDTypography variant="h2" fontWeight="bold">
                 Nhân khẩu
-              </Typography>
-            </Box>
+              </MDTypography>
+            </MDBox>
             <ButtonMenu
               title="Chọn thống kê"
               items={[
@@ -57,10 +59,10 @@ const ThongKe = () => {
             {typeNK === "age" && <ThongKeDoTuoi />}
             {typeNK === "gender" && <ThongKeGioiTinh />}
             {typeNK === "province" && <ThongKeQueQuan />}
-          </Box>
+          </MDBox>
 
           {/* Thống kê Hộ khẩu */}
-          <Box
+          <MDBox
             gridColumn="span 6"
             backgroundColor={colors.primary[400]}
             display="flex"
@@ -70,11 +72,11 @@ const ThongKe = () => {
             borderRadius={8}
             p={3}
           >
-            <Box alignSelf="flex-start" mb={1}>
-              <Typography variant="h2" fontWeight="bold">
+            <MDBox alignSelf="flex-start" mb={1}>
+              <MDTypography variant="h2" fontWeight="bold">
                 Hộ khẩu
-              </Typography>
-            </Box>
+              </MDTypography>
+            </MDBox>
             <ButtonMenu
               title="Chọn thống kê"
               items={[{ value: "mem-count", label: "Thống kê số lượng" }]}
@@ -82,9 +84,9 @@ const ThongKe = () => {
             />
 
             {typeHK === "mem-count" && <ThongKeSoLuong />}
-          </Box>
-        </Box>
-      </Box>
+          </MDBox>
+        </MDBox>
+      </MDBox>
     </DashboardLayout>
   );
 };

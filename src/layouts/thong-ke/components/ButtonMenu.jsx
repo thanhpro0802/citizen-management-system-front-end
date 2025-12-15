@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useTheme, Button, Menu, MenuItem } from "@mui/material";
+import MDButton from "components/MDButton";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import { tokens } from "../theme";
 
@@ -16,7 +17,7 @@ const ButtonMenu = ({ title = "Menu", items = [], onSelect }) => {
 
   return (
     <>
-      <Button
+      <MDButton
         variant="contained"
         onClick={handleClick}
         startIcon={<BarChartIcon />}
@@ -29,7 +30,7 @@ const ButtonMenu = ({ title = "Menu", items = [], onSelect }) => {
         }}
       >
         {title}
-      </Button>
+      </MDButton>
 
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         {items.map((item) => (
