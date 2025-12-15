@@ -42,13 +42,22 @@ const routes = [
     route: "/authentication/sign-in",
     component: <SignIn />,
   },
-  {
+  { 
     type: "collapse",
     name: "Đăng Ký",
     key: "sign-up",
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/authentication/sign-up",
     component: <SignUp />,
+  },
+  {
+    type: "collapse",
+    name: "Thống kê",
+    key: "thong-ke",
+    icon: <Icon fontSize="small">equalizer</Icon>,
+    route: "/thong-ke",
+    component: <GuiPhanAnh />,
+    requireAuth: true,
   },
   {
     type: "collapse",
