@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
+import { useNavigate } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
@@ -10,53 +10,52 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Icon from "@mui/material/Icon"; // 2. Import Icon
+import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDBadge from "components/MDBadge";
-import MDButton from "components/MDButton"; // 3. Import MDButton
+import MDButton from "components/MDButton";
 
-// Material Dashboard 2 React example components
+// Layout components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
 // API Service
-import { getPhanAnhCuaToi } from "services/phanAnhService";
+import { getPhanAnhCuaToi } from "services/phanAnhService"; // Chỉ import cái này
 
 function LichSuPhanAnh() {
   const [danhSach, setDanhSach] = useState([]);
-  const navigate = useNavigate(); // 4. Khởi tạo hook navigate
+  const navigate = useNavigate();
 
-  // Hàm lấy màu sắc cho trạng thái
   const getStatusColor = (status) => {
     if (status === "DA_XU_LY") return "success";
     if (status === "DANG_XU_LY") return "warning";
-    if (status === "TU_CHOI") return "error";
-    return "secondary"; // CHO_XU_LY
+    return "secondary";
   };
 
-  // Hàm hiển thị tên trạng thái đẹp hơn
   const getStatusLabel = (status) => {
     if (status === "DA_XU_LY") return "Đã Xử Lý";
     if (status === "DANG_XU_LY") return "Đang Xử Lý";
-    if (status === "TU_CHOI") return "Bị Từ Chối";
     return "Đang Chờ";
   };
 
-  // Hàm xử lý khi bấm nút Chi tiết
   const handleXemChiTiet = (id) => {
-    // Điều hướng sang trang chi tiết (kèm ID phản ánh)
     navigate(`/chi-tiet-phan-anh/${id}`);
   };
 
+  // --- USE EFFECT: LUÔN GỌI API CỦA TÔI ---
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getPhanAnhCuaToi();
-        setDanhSach(response.data);
+        // Sắp xếp mới nhất lên đầu
+        const sortedData = response.data.sort((a, b) =>
+          (b.thoiGianTao || "").localeCompare(a.thoiGianTao || "")
+        );
+        setDanhSach(sortedData);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
       }
@@ -82,7 +81,7 @@ function LichSuPhanAnh() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Lịch Sử Phản Ánh
+                  Lịch Sử Phản Ánh Của Tôi
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -94,12 +93,11 @@ function LichSuPhanAnh() {
                         <TableCell>Lĩnh vực</TableCell>
                         <TableCell align="center">Trạng thái</TableCell>
                         <TableCell align="center">Đánh giá</TableCell>
-                        {/* 5. Thêm cột Hành động vào Header */}
                         <TableCell align="center">Hành động</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {Array.isArray(danhSach) &&
+                      {danhSach.length > 0 ? (
                         danhSach.map((row) => (
                           <TableRow key={row.maPhanAnh}>
                             <TableCell style={{ maxWidth: "250px" }}>
@@ -126,13 +124,9 @@ function LichSuPhanAnh() {
                                   {row.danhGiaHaiLong} ⭐
                                 </MDTypography>
                               ) : (
-                                <MDTypography variant="caption" color="text">
-                                  -
-                                </MDTypography>
+                                "-"
                               )}
                             </TableCell>
-
-                            {/* 6. Thêm nút Chi tiết vào Body */}
                             <TableCell align="center">
                               <MDButton
                                 variant="text"
@@ -144,13 +138,12 @@ function LichSuPhanAnh() {
                               </MDButton>
                             </TableCell>
                           </TableRow>
-                        ))}
-
-                      {danhSach.length === 0 && (
+                        ))
+                      ) : (
                         <TableRow>
                           <TableCell colSpan={5} align="center">
-                            <MDTypography variant="button" color="text">
-                              Chưa có phản ánh nào
+                            <MDTypography variant="caption" color="text">
+                              Bạn chưa gửi phản ánh nào.
                             </MDTypography>
                           </TableCell>
                         </TableRow>

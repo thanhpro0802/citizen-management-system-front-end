@@ -48,5 +48,9 @@ export const danhGiaPhanHoi = (maPhanAnh, danhGiaHaiLong, gopY) => {
 };
 
 export const getAllPhanAnh = () => {
-  return axios.get(API_URL);
+  const user = JSON.parse(localStorage.getItem("user"));
+  return axios.get(API_URL, {
+    // Gọi vào gốc /api/v1/phan-anh
+    headers: { Authorization: `Bearer ${user.token}` },
+  });
 };

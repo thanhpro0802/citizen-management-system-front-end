@@ -5,11 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/examples/Navbars/DashboardNavbar/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/examples/Navbars/DashboardNavbar/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/chi-tiet-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/chi-tiet-phan-anh/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/lich-su-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/lich-su-phan-anh/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/phanAnhService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/phanAnhService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/thongBaoService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/thongBaoService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +71,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#15 on feature/feedback-management&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end&quot;,
@@ -77,6 +80,9 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;settings.webpack&quot;,
     &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -92,6 +98,17 @@
     </option>
   </component>
   <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="citizen-management-system-front-end" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="citizen-management-system-front-end" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="citizen-management-system-front-end" />
       <method v="2">
@@ -142,6 +159,12 @@
       <workItem from="1765424390543" duration="5000" />
       <workItem from="1765424481498" duration="1874000" />
       <workItem from="1765456820980" duration="3704000" />
+      <workItem from="1765783983078" duration="743000" />
+      <workItem from="1765814691142" duration="2751000" />
+      <workItem from="1765818130361" duration="591000" />
+      <workItem from="1765819033000" duration="5000" />
+      <workItem from="1765819748472" duration="3805000" />
+      <workItem from="1765881588187" duration="35000" />
     </task>
     <servers />
   </component>

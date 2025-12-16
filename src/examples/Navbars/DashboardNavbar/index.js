@@ -12,7 +12,7 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
-import Badge from "@mui/material/Badge";
+import Badge from "@mui/material/Badge"; // Sửa lại import Badge từ @mui
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -44,7 +44,6 @@ import { getThongBaoCuaToi, danhDauDaXem } from "services/thongBaoService";
 import { dangXuat, layTenHienThiRole } from "services/authService";
 import { useAuth, setLogout } from "context/authContext";
 
-// Thêm prop customTitle vào đây
 function DashboardNavbar({ absolute, light, isMini, customTitle }) {
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
@@ -73,6 +72,8 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
         return "Gửi Phản Ánh";
       case "lich-su-phan-anh":
         return "Lịch Sử Phản Ánh";
+      case "quan-ly-phan-anh": // Thêm cái này
+        return "Quản Lý Phản Ánh";
       case "xu-ly-phan-anh":
         return "Cán Bộ Xử Lý";
       case "phan-hoi":
@@ -84,17 +85,12 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     }
   };
 
-  // --- LOGIC XỬ LÝ CUSTOM TITLE (QUAN TRỌNG) ---
-  // Tạo bản sao của route để hiển thị Breadcrumb
+  // --- LOGIC XỬ LÝ CUSTOM TITLE ---
   const displayRoute = [...route];
-
-  // Lấy tiêu đề mặc định từ URL
   let pageTitle = getVietnameseTitle(displayRoute[displayRoute.length - 1]);
 
-  // Nếu có customTitle được truyền vào (từ trang Chi tiết), ghi đè lên
   if (customTitle) {
     pageTitle = customTitle;
-    // Thay thế phần tử cuối của breadcrumb bằng Title thật
     displayRoute[displayRoute.length - 1] = customTitle;
   }
   // ----------------------------------------------
@@ -103,6 +99,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     try {
       if (!notification.daXem) {
         await danhDauDaXem(notification.maThongBao);
+        // Cập nhật UI ngay lập tức
         setUnreadCount((prev) => Math.max(0, prev - 1));
         setNotifications((prevList) =>
           prevList.map((item) =>
@@ -119,21 +116,31 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     }
   };
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await getThongBaoCuaToi();
-        if (Array.isArray(response.data)) {
-          setNotifications(response.data);
-          const count = response.data.filter((n) => !n.daXem).length;
-          setUnreadCount(count);
-        }
-      } catch (error) {
-        console.error("Lỗi tải thông báo:", error);
+  // --- USE EFFECT: LOAD THÔNG BÁO & AUTO REFRESH ---
+  const fetchNotifications = async () => {
+    try {
+      if (!isAuthenticated) return; // Chỉ gọi khi đã đăng nhập
+
+      const response = await getThongBaoCuaToi();
+      if (Array.isArray(response.data)) {
+        setNotifications(response.data);
+        const count = response.data.filter((n) => !n.daXem).length;
+        setUnreadCount(count);
       }
-    };
-    fetchNotifications();
-  }, []);
+    } catch (error) {
+      // console.error("Lỗi tải thông báo:", error);
+      // Ẩn log lỗi để tránh spam console khi chưa đăng nhập
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications(); // Gọi lần đầu
+
+    // Tự động gọi lại mỗi 15 giây
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]); // Thêm dependency isAuthenticated
+  // -----------------------------------------------------
 
   useEffect(() => {
     if (fixedNavbar) {
@@ -182,7 +189,11 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
             <NotificationItem
               icon={<Icon>notifications</Icon>}
               title={item.noiDung}
-              style={{ fontWeight: item.daXem ? "normal" : "bold" }}
+              // Hiển thị đậm nếu chưa xem
+              style={{
+                fontWeight: item.daXem ? "normal" : "bold",
+                color: item.daXem ? "inherit" : "#000",
+              }}
             />
           </MDBox>
         ))
@@ -212,13 +223,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>
-          {/* CẬP NHẬT COMPONENT BREADCRUMBS VỚI TITLE MỚI */}
-          <Breadcrumbs
-            icon="home"
-            title={pageTitle} // Sử dụng tiêu đề đã xử lý
-            route={displayRoute} // Sử dụng mảng route đã xử lý
-            light={light}
-          />
+          <Breadcrumbs icon="home" title={pageTitle} route={displayRoute} light={light} />
         </MDBox>
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
@@ -317,14 +322,14 @@ DashboardNavbar.defaultProps = {
   absolute: false,
   light: false,
   isMini: false,
-  customTitle: "", // Mặc định là rỗng
+  customTitle: "",
 };
 
 DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,
   isMini: PropTypes.bool,
-  customTitle: PropTypes.string, // Khai báo kiểu dữ liệu
+  customTitle: PropTypes.string,
 };
 
 export default DashboardNavbar;
