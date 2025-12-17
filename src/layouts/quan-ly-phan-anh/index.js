@@ -19,12 +19,12 @@ import MDTypography from "components/MDTypography";
 import MDBadge from "components/MDBadge";
 import MDButton from "components/MDButton";
 
-// Example components
+// Layout components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// API (Sửa lại import này)
+// API (Thay đổi đường dẫn import nếu cần cho đúng cấu trúc folder của bạn)
 import { getAllPhanAnh } from "services/phanAnhService";
 
 function QuanLyPhanAnh() {
@@ -37,7 +37,6 @@ function QuanLyPhanAnh() {
     return "secondary";
   };
 
-  // Helper hiển thị tên trạng thái tiếng Việt
   const getStatusLabel = (status) => {
     if (status === "DA_XU_LY") return "Đã Xử Lý";
     if (status === "DANG_XU_LY") return "Đang Xử Lý";
@@ -47,7 +46,6 @@ function QuanLyPhanAnh() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Gọi API lấy tất cả phản ánh (Dành cho Cán bộ)
         const response = await getAllPhanAnh();
         if (Array.isArray(response.data)) {
           // Sắp xếp: Mới nhất lên đầu
@@ -57,7 +55,7 @@ function QuanLyPhanAnh() {
           setDanhSach(sortedData);
         }
       } catch (error) {
-        console.error("Lỗi tải dữ liệu quản lý:", error);
+        console.error("Lỗi tải dữ liệu:", error);
       }
     };
     fetchData();
@@ -76,7 +74,7 @@ function QuanLyPhanAnh() {
                 py={3}
                 px={2}
                 variant="gradient"
-                bgColor="warning" // Màu cam để phân biệt với trang cá nhân
+                bgColor="warning"
                 borderRadius="lg"
                 coloredShadow="warning"
               >
@@ -92,7 +90,7 @@ function QuanLyPhanAnh() {
                         <TableCell>Người Gửi</TableCell>
                         <TableCell>Tiêu đề</TableCell>
                         <TableCell align="center">Trạng thái</TableCell>
-                        <TableCell align="center">Đánh giá của Dân</TableCell>
+                        <TableCell align="center">Đánh giá</TableCell>
                         <TableCell align="center">Tác vụ</TableCell>
                       </TableRow>
                     </TableHead>
@@ -100,26 +98,21 @@ function QuanLyPhanAnh() {
                       {danhSach.length > 0 ? (
                         danhSach.map((row) => (
                           <TableRow key={row.maPhanAnh}>
-                            {/* Cột Người gửi */}
                             <TableCell>
-                              <MDBox display="flex" flexDirection="column">
-                                <MDTypography variant="caption" fontWeight="bold">
-                                  {row.nguoiGui ? row.nguoiGui.cccd : "N/A"}
-                                </MDTypography>
-                                <MDTypography variant="caption" color="text" fontSize="10px">
-                                  ID: {row.maPhanAnh.substring(0, 6)}...
-                                </MDTypography>
-                              </MDBox>
+                              <MDTypography variant="caption" fontWeight="bold" display="block">
+                                {row.nguoiGui ? row.nguoiGui.cccd : "Ẩn danh"}
+                              </MDTypography>
+                              <MDTypography variant="caption" color="text" fontSize="10px">
+                                ID: {row.maPhanAnh.substring(0, 6)}...
+                              </MDTypography>
                             </TableCell>
 
-                            {/* Cột Tiêu đề */}
                             <TableCell style={{ maxWidth: "200px" }}>
                               <MDTypography variant="button" fontWeight="medium">
                                 {row.tieuDe}
                               </MDTypography>
                             </TableCell>
 
-                            {/* Cột Trạng thái */}
                             <TableCell align="center">
                               <MDBadge
                                 badgeContent={getStatusLabel(row.trangThaiHienTai)}
@@ -129,41 +122,45 @@ function QuanLyPhanAnh() {
                               />
                             </TableCell>
 
-                            {/* Cột Đánh giá */}
                             <TableCell align="center">
                               {row.danhGiaHaiLong ? (
-                                <MDBox display="flex" alignItems="center" justifyContent="center">
-                                  <Rating value={row.danhGiaHaiLong} readOnly size="small" />
-                                  <MDTypography variant="caption" ml={0.5} fontWeight="bold">
-                                    ({row.danhGiaHaiLong})
-                                  </MDTypography>
-                                </MDBox>
+                                <Rating value={row.danhGiaHaiLong} readOnly size="small" />
                               ) : (
-                                <MDTypography variant="caption" color="text">
-                                  -
-                                </MDTypography>
+                                "-"
                               )}
                             </TableCell>
 
-                            {/* Cột Hành động */}
+                            {/* --- CẬP NHẬT CỘT TÁC VỤ TẠI ĐÂY --- */}
                             <TableCell align="center">
-                              <MDButton
-                                variant="outlined"
-                                color="info"
-                                size="small"
-                                onClick={() => navigate(`/chi-tiet-phan-anh/${row.maPhanAnh}`)}
-                              >
-                                <Icon>edit</Icon>&nbsp;Chi tiết
-                              </MDButton>
+                              <MDBox display="flex" justifyContent="center" gap={1}>
+                                {/* Nút Xem Chi Tiết (Giữ nguyên) */}
+                                <MDButton
+                                  variant="outlined"
+                                  color="info"
+                                  size="small"
+                                  onClick={() => navigate(`/chi-tiet-phan-anh/${row.maPhanAnh}`)}
+                                >
+                                  Chi tiết
+                                </MDButton>
+
+                                {/* --- THÊM NÚT XỬ LÝ (QUAN TRỌNG) --- */}
+                                <MDButton
+                                  variant="gradient"
+                                  color="warning" // Màu cam để nổi bật
+                                  size="small"
+                                  onClick={() => navigate(`/xu-ly-phan-anh/${row.maPhanAnh}`)}
+                                >
+                                  <Icon>settings</Icon>&nbsp;Xử lý
+                                </MDButton>
+                                {/* ----------------------------------- */}
+                              </MDBox>
                             </TableCell>
                           </TableRow>
                         ))
                       ) : (
                         <TableRow>
                           <TableCell colSpan={5} align="center">
-                            <MDTypography variant="button" color="text" py={2}>
-                              Hiện chưa có phản ánh nào.
-                            </MDTypography>
+                            Chưa có dữ liệu
                           </TableCell>
                         </TableRow>
                       )}

@@ -6,7 +6,7 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
-import Rating from "@mui/material/Rating"; // Component Ngôi sao
+import Rating from "@mui/material/Rating";
 import TextField from "@mui/material/TextField";
 import Icon from "@mui/material/Icon";
 
@@ -29,37 +29,53 @@ function ChiTietPhanAnh() {
 
   // State dữ liệu
   const [data, setData] = useState(null);
-  const [ketQua, setKetQua] = useState(null); // Kết quả xử lý từ cán bộ
+  const [ketQua, setKetQua] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // State cho phần Đánh giá
-  const [soSao, setSoSao] = useState(5); // Mặc định 5 sao
+  // State đánh giá
+  const [soSao, setSoSao] = useState(5);
   const [gopY, setGopY] = useState("");
-  const [daDanhGia, setDaDanhGia] = useState(false); // Check xem đã đánh giá chưa
+  const [daDanhGia, setDaDanhGia] = useState(false);
   const [thongBao, setThongBao] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State User Role
   const [userRole, setUserRole] = useState(null);
 
+  // --- HÀM CHUYỂN ĐỔI MÃ LĨNH VỰC SANG TIẾNG VIỆT ---
+  const getLinhVucLabel = (code) => {
+    switch (code) {
+      case "AN_NINH_TRAT_TU":
+        return "An ninh trật tự";
+      case "VE_SINH_MOI_TRUONG":
+        return "Vệ sinh môi trường";
+      case "HA_TANG_DO_THI":
+        return "Hạ tầng đô thị";
+      case "KHAC":
+        return "Khác";
+      default:
+        return code; // Nếu không khớp thì giữ nguyên
+    }
+  };
+  // --------------------------------------------------
+
   const fetchFullData = async () => {
     try {
       setLoading(true);
+
       // 1. Lấy thông tin chi tiết
       const resInfo = await getChiTietPhanAnh(id);
       setData(resInfo.data);
 
-      // Kiểm tra xem phản ánh này đã có đánh giá chưa (Dựa vào data trả về)
       if (resInfo.data.danhGiaHaiLong) {
         setDaDanhGia(true);
         setSoSao(resInfo.data.danhGiaHaiLong);
         setGopY(resInfo.data.gopY || "");
       }
 
-      // 2. Lấy lịch sử để tìm "Kết quả xử lý" (Cái tin nhắn cuối cùng của Cán bộ)
+      // 2. Lấy lịch sử
       const resHistory = await getLichSuPhanAnh(id);
       if (Array.isArray(resHistory.data)) {
-        // Tìm lịch sử có hành động là "PHAN_HOI" (Khi cán bộ trả lời dân)
         const phanHoiCuoi = resHistory.data.find((h) => h.hanhDong === "PHAN_HOI");
         if (phanHoiCuoi) {
           setKetQua(phanHoiCuoi.noiDung);
@@ -73,7 +89,6 @@ function ChiTietPhanAnh() {
   };
 
   useEffect(() => {
-    // Lấy Role từ localStorage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
@@ -82,15 +97,12 @@ function ChiTietPhanAnh() {
     fetchFullData();
   }, [id]);
 
-  // Hàm xử lý khi ấn nút "Gửi Đánh Giá"
   const handleGuiDanhGia = async () => {
     try {
       setIsSubmitting(true);
-      // Gọi API (Backend cần Endpoint PUT /api/v1/phan-anh/{id}/danh-gia)
       await danhGiaPhanHoi(id, soSao, gopY);
-
       setThongBao("Cảm ơn! Đánh giá của bạn đã được ghi nhận.");
-      setDaDanhGia(true); // Chuyển giao diện sang chế độ Read-only
+      setDaDanhGia(true);
     } catch (error) {
       console.error(error);
       setThongBao("Lỗi khi gửi đánh giá. Vui lòng thử lại.");
@@ -106,7 +118,6 @@ function ChiTietPhanAnh() {
       </MDBox>
     );
 
-  // Xác định màu sắc trạng thái
   const getStatusColor = (status) => {
     if (status === "CHO") return "warning";
     if (status === "DANG_XU_LY") return "info";
@@ -123,8 +134,7 @@ function ChiTietPhanAnh() {
 
   return (
     <DashboardLayout>
-      {/* Truyền title sang Navbar để hiện thay vì ID */}
-      <DashboardNavbar customTitle={data.tieuDe} />
+      <DashboardNavbar customTitle={`Hồ sơ: ${data.maPhanAnh || ""}`} />
 
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
@@ -146,8 +156,6 @@ function ChiTietPhanAnh() {
                 <MDTypography variant="h6" color="white">
                   Chi Tiết Phản Ánh
                 </MDTypography>
-
-                {/* Badge trạng thái nằm góc phải header */}
                 <MDBox
                   bgColor="white"
                   borderRadius="md"
@@ -162,10 +170,9 @@ function ChiTietPhanAnh() {
               </MDBox>
 
               <MDBox p={4}>
-                {/* Chỉ hiện Mã ID nếu là Cán Bộ */}
                 {userRole === "CAN_BO" && (
                   <MDTypography variant="caption" color="text" display="block" mb={1}>
-                    ID Hồ sơ: {data.maPhanAnh}
+                    ID: {data.maPhanAnh}
                   </MDTypography>
                 )}
 
@@ -176,51 +183,68 @@ function ChiTietPhanAnh() {
                 <Grid container spacing={2} mb={3}>
                   <Grid item xs={12} md={6}>
                     <MDTypography variant="button" fontWeight="bold" color="text">
-                      Lĩnh vực:
+                      Lĩnh vực:{" "}
                     </MDTypography>
+
+                    {/* --- ĐÃ SỬA: GỌI HÀM CHUYỂN ĐỔI TẠI ĐÂY --- */}
                     <MDTypography variant="body2" ml={1} component="span">
-                      {data.linhVuc}
+                      {getLinhVucLabel(data.linhVuc)}
                     </MDTypography>
+                    {/* ------------------------------------------- */}
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <MDTypography variant="button" fontWeight="bold" color="text">
-                      Ngày gửi:
+                      Ngày gửi:{" "}
                     </MDTypography>
                     <MDTypography variant="body2" ml={1} component="span">
-                      {new Date(data.thoiGianTao).toLocaleDateString("vi-VN")}
+                      {data.thoiGianTao
+                        ? new Date(data.thoiGianTao).toLocaleDateString("vi-VN")
+                        : "N/A"}
                     </MDTypography>
                   </Grid>
                 </Grid>
 
-                {/* Phần nội dung chính */}
+                {/* --- PHẦN NỘI DUNG & ẢNH --- */}
                 <MDBox bgColor="grey-100" p={2} borderRadius="lg" mb={3}>
                   <MDTypography variant="h6" gutterBottom>
                     Nội dung phản ánh:
                   </MDTypography>
-                  <MDTypography variant="body2" style={{ whiteSpace: "pre-line" }}>
-                    {data.noiDung}
+
+                  <MDTypography variant="body2" style={{ whiteSpace: "pre-line" }} color="text">
+                    {data.noiDung || "Không có nội dung chi tiết."}
                   </MDTypography>
 
-                  {/* Hiển thị ảnh nếu có */}
-                  {data.hinhAnh && (
-                    <MDBox mt={2}>
-                      <img
-                        src={data.hinhAnh}
-                        alt="Ảnh đính kèm"
-                        style={{
-                          maxWidth: "100%",
-                          maxHeight: "300px",
-                          borderRadius: "8px",
-                          border: "1px solid #ddd",
-                        }}
-                      />
+                  {data.tepDinhKems && data.tepDinhKems.length > 0 && (
+                    <MDBox mt={3}>
+                      <MDTypography variant="caption" fontWeight="bold" color="text">
+                        Minh chứng đính kèm:
+                      </MDTypography>
+                      <MDBox mt={1} display="flex" gap={2} flexWrap="wrap">
+                        {data.tepDinhKems.map((tep, index) => (
+                          <MDBox
+                            key={index}
+                            component="img"
+                            src={tep.url}
+                            alt="minh-chung"
+                            width="150px"
+                            height="150px"
+                            borderRadius="lg"
+                            style={{
+                              objectFit: "cover",
+                              border: "1px solid #ddd",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => window.open(tep.url, "_blank")}
+                          />
+                        ))}
+                      </MDBox>
                     </MDBox>
                   )}
                 </MDBox>
 
                 <Divider />
 
-                {/* --- PHẦN KẾT QUẢ XỬ LÝ (Chỉ hiện khi đã có phản hồi) --- */}
+                {/* --- KẾT QUẢ XỬ LÝ --- */}
                 <MDTypography variant="h6" color="success" gutterBottom mt={3}>
                   <Icon sx={{ verticalAlign: "middle", mr: 1 }}>check_circle</Icon>
                   Kết quả xử lý / Phản hồi từ cơ quan:
@@ -228,7 +252,7 @@ function ChiTietPhanAnh() {
 
                 {ketQua ? (
                   <MDBox
-                    bgColor="#e8f5e9" // Màu xanh nhạt
+                    bgColor="#e8f5e9"
                     p={2}
                     borderRadius="lg"
                     border="1px solid #4caf50"
@@ -244,8 +268,7 @@ function ChiTietPhanAnh() {
                   </MDTypography>
                 )}
 
-                {/* --- PHẦN ĐÁNH GIÁ (LOGIC QUAN TRỌNG) --- */}
-                {/* Chỉ hiện khi Trạng thái là DA_XU_LY */}
+                {/* --- KHU VỰC ĐÁNH GIÁ --- */}
                 {data.trangThaiHienTai === "DA_XU_LY" && (
                   <>
                     <Divider />
@@ -261,33 +284,25 @@ function ChiTietPhanAnh() {
                         gutterBottom
                         color={daDanhGia ? "dark" : "warning"}
                       >
-                        {daDanhGia
-                          ? "Đánh giá của bạn:"
-                          : "Đánh giá mức độ hài lòng về kết quả xử lý:"}
+                        {daDanhGia ? "Đánh giá của bạn:" : "Đánh giá mức độ hài lòng:"}
                       </MDTypography>
 
                       <MDBox display="flex" alignItems="center" mb={2}>
                         <Rating
-                          name="rating-feedback"
                           value={soSao}
-                          onChange={(event, newValue) => {
-                            // Chỉ cho sửa nếu chưa đánh giá
-                            if (!daDanhGia && newValue !== null) setSoSao(newValue);
-                          }}
-                          readOnly={daDanhGia} // Nếu đã đánh giá -> ReadOnly
+                          onChange={(e, val) => !daDanhGia && val !== null && setSoSao(val)}
+                          readOnly={daDanhGia}
                           size="large"
                         />
-                        <MDTypography variant="button" ml={2} fontWeight="bold" color="text">
+                        <MDTypography variant="button" ml={2} fontWeight="bold">
                           ({soSao} sao)
                         </MDTypography>
                       </MDBox>
 
-                      {/* Nếu chưa đánh giá -> Hiện Form nhập */}
                       {!daDanhGia ? (
                         <MDBox>
                           <TextField
-                            label="Góp ý thêm (Tùy chọn)"
-                            placeholder="Bạn có hài lòng với cách xử lý không?"
+                            label="Góp ý thêm"
                             multiline
                             rows={3}
                             fullWidth
@@ -305,11 +320,7 @@ function ChiTietPhanAnh() {
                           </MDButton>
                         </MDBox>
                       ) : (
-                        // Nếu đã đánh giá -> Hiện kết quả text
                         <MDBox bgColor="grey-100" p={2} borderRadius="lg">
-                          <MDTypography variant="caption" fontWeight="bold" color="text">
-                            Góp ý:
-                          </MDTypography>
                           <MDTypography variant="body2">
                             {gopY || "Không có góp ý thêm."}
                           </MDTypography>

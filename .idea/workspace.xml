@@ -5,14 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/examples/Navbars/DashboardNavbar/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/examples/Navbars/DashboardNavbar/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/chi-tiet-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/chi-tiet-phan-anh/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/lich-su-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/lich-su-phan-anh/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/phan-anh/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/phanAnhService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/phanAnhService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/thongBaoService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/thongBaoService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/uploadService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/uploadService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +66,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.index.js.executor&quot;: &quot;Run&quot;,
     &quot;Node.js.phanAnhService.js.executor&quot;: &quot;Run&quot;,
     &quot;Node.js.routes.js.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
@@ -165,6 +166,8 @@
       <workItem from="1765819033000" duration="5000" />
       <workItem from="1765819748472" duration="3805000" />
       <workItem from="1765881588187" duration="35000" />
+      <workItem from="1765883667427" duration="620000" />
+      <workItem from="1765892526413" duration="8628000" />
     </task>
     <servers />
   </component>
