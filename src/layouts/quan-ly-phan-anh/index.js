@@ -19,6 +19,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDBadge from "components/MDBadge";
 import MDButton from "components/MDButton";
+import MDInput from "components/MDInput"; // <--- IMPORT INPUT
 
 // Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -35,35 +36,26 @@ function QuanLyPhanAnh() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // Helper
-  const getMucDoLabel = (mucDo) => {
-    switch (mucDo) {
-      case "CAO":
-        return "Cao";
-      case "TRUNG_BINH":
-        return "TB";
-      default:
-        return "Thấp";
-    }
-  };
+  // --- STATE TÌM KIẾM ---
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const getMucDoColor = (mucDo) => {
-    switch (mucDo) {
-      case "CAO":
-        return "error";
-      case "TRUNG_BINH":
-        return "warning";
-      default:
-        return "success";
-    }
+  // Helpers (Giữ nguyên)
+  const getMucDoLabel = (m) => {
+    if (m === "CAO") return "Cao";
+    if (m === "TRUNG_BINH") return "TB";
+    return "Thấp";
   };
-
+  const getMucDoColor = (m) => {
+    if (m === "CAO") return "error";
+    if (m === "TRUNG_BINH") return "warning";
+    return "success";
+  };
   const getStatusColor = (s) =>
     s === "DA_XU_LY" ? "success" : s === "DANG_XU_LY" ? "info" : "secondary";
   const getStatusLabel = (s) =>
     s === "DA_XU_LY" ? "Đã Xử Lý" : s === "DANG_XU_LY" ? "Đang Xử Lý" : "Chờ Tiếp Nhận";
-
   const getLinhVucLabel = (c) => {
+    // (Giữ nguyên logic cũ)
     switch (c) {
       case "AN_NINH_TRAT_TU":
         return "An ninh trật tự";
@@ -83,7 +75,7 @@ function QuanLyPhanAnh() {
   };
   const formatDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "");
 
-  // Check quyền
+  // Check quyền (Giữ nguyên)
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (!userStr) {
@@ -99,25 +91,22 @@ function QuanLyPhanAnh() {
     }
   }, [navigate]);
 
-  // --- LOGIC SẮP XẾP ---
+  // Logic sắp xếp (Giữ nguyên)
   const sortPhanAnh = (data) => {
     return data.sort((a, b) => {
-      // 1. Check hoàn thành (Chưa xong lên trước)
-      const isDoneA = a.trangThaiHienTai === "DA_XU_LY";
-      const isDoneB = b.trangThaiHienTai === "DA_XU_LY";
-      if (isDoneA !== isDoneB) return isDoneA ? 1 : -1;
+      const statusScore = { CHO: 1, DANG_XU_LY: 2, DA_XU_LY: 3 };
+      const scoreA = statusScore[a.trangThaiHienTai] || 4;
+      const scoreB = statusScore[b.trangThaiHienTai] || 4;
+      if (scoreA !== scoreB) return scoreA - scoreB;
 
-      // 2. Check mức độ (Cao lên trước)
-      const priorityMap = { CAO: 3, TRUNG_BINH: 2, THAP: 1 };
-      const pA = priorityMap[a.mucDoKhanCap] || 0;
-      const pB = priorityMap[b.mucDoKhanCap] || 0;
+      const priorityScore = { CAO: 3, TRUNG_BINH: 2, THAP: 1 };
+      const pA = priorityScore[a.mucDoKhanCap] || 0;
+      const pB = priorityScore[b.mucDoKhanCap] || 0;
       if (pA !== pB) return pB - pA;
 
-      // 3. Check thời gian (Mới lên trước)
       return (b.thoiGianTao || "").localeCompare(a.thoiGianTao || "");
     });
   };
-  // ---------------------
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,17 +116,39 @@ function QuanLyPhanAnh() {
           setDanhSach(sortPhanAnh(response.data));
         }
       } catch (error) {
-        console.error("Lỗi tải dữ liệu:", error);
+        console.error("Lỗi:", error);
       }
     };
     fetchData();
   }, []);
 
-  const handleChangePage = (event, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+  const handleChangePage = (e, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (e) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
     setPage(0);
   };
+
+  // --- XỬ LÝ TÌM KIẾM ---
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setPage(0);
+  };
+
+  const filteredList = danhSach.filter((item) => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+
+    // Lấy thông tin người gửi an toàn
+    const tenNguoiGui = item.nguoiGui ? (item.nguoiGui.hoTen || "").toLowerCase() : "";
+    const cccdNguoiGui = item.nguoiGui ? (item.nguoiGui.cccd || "").toLowerCase() : "";
+
+    return (
+      (item.tieuDe && item.tieuDe.toLowerCase().includes(term)) ||
+      tenNguoiGui.includes(term) || // Tìm theo tên người gửi
+      cccdNguoiGui.includes(term) // Tìm theo CCCD
+    );
+  });
+  // ---------------------
 
   return (
     <DashboardLayout>
@@ -160,7 +171,19 @@ function QuanLyPhanAnh() {
                   Quản Lý Tiếp Nhận Phản Ánh
                 </MDTypography>
               </MDBox>
+
               <MDBox pt={3}>
+                {/* --- THANH TÌM KIẾM --- */}
+                <MDBox px={3} mb={2}>
+                  <MDInput
+                    label="Tìm kiếm (Tiêu đề, Người gửi, CCCD)..."
+                    fullWidth
+                    value={searchTerm}
+                    onChange={handleSearch}
+                  />
+                </MDBox>
+                {/* ---------------------- */}
+
                 <TableContainer>
                   <Table>
                     <TableHead style={{ display: "table-header-group" }}>
@@ -174,8 +197,8 @@ function QuanLyPhanAnh() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {danhSach.length > 0 ? (
-                        danhSach
+                      {filteredList.length > 0 ? (
+                        filteredList
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                           .map((row) => (
                             <TableRow key={row.maPhanAnh}>
@@ -239,7 +262,9 @@ function QuanLyPhanAnh() {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={6} align="center">
-                            Chưa có dữ liệu phản ánh.
+                            <MDTypography variant="caption" color="text">
+                              Không tìm thấy kết quả.
+                            </MDTypography>
                           </TableCell>
                         </TableRow>
                       )}
@@ -250,7 +275,7 @@ function QuanLyPhanAnh() {
                 <TablePagination
                   rowsPerPageOptions={[]}
                   component="div"
-                  count={danhSach.length}
+                  count={filteredList.length} // SỬA: Đếm trên filteredList
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}

@@ -6,11 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/lich-su-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/lich-su-phan-anh/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/phanAnhService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/phanAnhService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -168,7 +165,7 @@
       <workItem from="1765892526413" duration="8628000" />
       <workItem from="1765985681008" duration="4890000" />
       <workItem from="1766037793577" duration="637000" />
-      <workItem from="1766061206014" duration="3392000" />
+      <workItem from="1766061206014" duration="4954000" />
     </task>
     <servers />
   </component>
