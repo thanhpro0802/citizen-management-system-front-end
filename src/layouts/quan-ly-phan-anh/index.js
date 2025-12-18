@@ -10,49 +10,121 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
 import Rating from "@mui/material/Rating";
 import Icon from "@mui/material/Icon";
 
-// Material Dashboard 2 React components
+// Components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDBadge from "components/MDBadge";
 import MDButton from "components/MDButton";
 
-// Layout components
+// Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// API (Thay đổi đường dẫn import nếu cần cho đúng cấu trúc folder của bạn)
+// API
 import { getAllPhanAnh } from "services/phanAnhService";
 
 function QuanLyPhanAnh() {
   const [danhSach, setDanhSach] = useState([]);
   const navigate = useNavigate();
 
-  const getStatusColor = (status) => {
-    if (status === "DA_XU_LY") return "success";
-    if (status === "DANG_XU_LY") return "warning";
-    return "secondary";
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Helper
+  const getMucDoLabel = (mucDo) => {
+    switch (mucDo) {
+      case "CAO":
+        return "Cao";
+      case "TRUNG_BINH":
+        return "TB";
+      default:
+        return "Thấp";
+    }
   };
 
-  const getStatusLabel = (status) => {
-    if (status === "DA_XU_LY") return "Đã Xử Lý";
-    if (status === "DANG_XU_LY") return "Đang Xử Lý";
-    return "Chờ Tiếp Nhận";
+  const getMucDoColor = (mucDo) => {
+    switch (mucDo) {
+      case "CAO":
+        return "error";
+      case "TRUNG_BINH":
+        return "warning";
+      default:
+        return "success";
+    }
   };
+
+  const getStatusColor = (s) =>
+    s === "DA_XU_LY" ? "success" : s === "DANG_XU_LY" ? "info" : "secondary";
+  const getStatusLabel = (s) =>
+    s === "DA_XU_LY" ? "Đã Xử Lý" : s === "DANG_XU_LY" ? "Đang Xử Lý" : "Chờ Tiếp Nhận";
+
+  const getLinhVucLabel = (c) => {
+    switch (c) {
+      case "AN_NINH_TRAT_TU":
+        return "An ninh trật tự";
+      case "HA_TANG_DO_THI":
+        return "Hạ tầng đô thị";
+      case "MOI_TRUONG":
+        return "Môi trường";
+      case "Y_TE":
+        return "Y tế";
+      case "GIAO_DUC":
+        return "Giáo dục";
+      case "HANH_CHINH_CONG":
+        return "Hành chính công";
+      default:
+        return c ? c.replace(/_/g, " ") : "Khác";
+    }
+  };
+  const formatDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "");
+
+  // Check quyền
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
+      navigate("/authentication/sign-in");
+      return;
+    }
+    const user = JSON.parse(userStr);
+    const role = user.roles || user.role || "";
+    const isCanBo = Array.isArray(role) ? role.includes("CAN_BO") : role === "CAN_BO";
+    if (!isCanBo) {
+      alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
+      navigate("/lich-su-phan-anh");
+    }
+  }, [navigate]);
+
+  // --- LOGIC SẮP XẾP ---
+  const sortPhanAnh = (data) => {
+    return data.sort((a, b) => {
+      // 1. Check hoàn thành (Chưa xong lên trước)
+      const isDoneA = a.trangThaiHienTai === "DA_XU_LY";
+      const isDoneB = b.trangThaiHienTai === "DA_XU_LY";
+      if (isDoneA !== isDoneB) return isDoneA ? 1 : -1;
+
+      // 2. Check mức độ (Cao lên trước)
+      const priorityMap = { CAO: 3, TRUNG_BINH: 2, THAP: 1 };
+      const pA = priorityMap[a.mucDoKhanCap] || 0;
+      const pB = priorityMap[b.mucDoKhanCap] || 0;
+      if (pA !== pB) return pB - pA;
+
+      // 3. Check thời gian (Mới lên trước)
+      return (b.thoiGianTao || "").localeCompare(a.thoiGianTao || "");
+    });
+  };
+  // ---------------------
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await getAllPhanAnh();
         if (Array.isArray(response.data)) {
-          // Sắp xếp: Mới nhất lên đầu
-          const sortedData = response.data.sort((a, b) =>
-            (b.thoiGianTao || "").localeCompare(a.thoiGianTao || "")
-          );
-          setDanhSach(sortedData);
+          setDanhSach(sortPhanAnh(response.data));
         }
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
@@ -60,6 +132,12 @@ function QuanLyPhanAnh() {
     };
     fetchData();
   }, []);
+
+  const handleChangePage = (event, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   return (
     <DashboardLayout>
@@ -87,8 +165,9 @@ function QuanLyPhanAnh() {
                   <Table>
                     <TableHead style={{ display: "table-header-group" }}>
                       <TableRow>
-                        <TableCell>Người Gửi</TableCell>
-                        <TableCell>Tiêu đề</TableCell>
+                        <TableCell>Người Gửi / Ngày</TableCell>
+                        <TableCell>Tiêu đề / Lĩnh vực</TableCell>
+                        <TableCell align="center">Mức độ</TableCell>
                         <TableCell align="center">Trạng thái</TableCell>
                         <TableCell align="center">Đánh giá</TableCell>
                         <TableCell align="center">Tác vụ</TableCell>
@@ -96,77 +175,90 @@ function QuanLyPhanAnh() {
                     </TableHead>
                     <TableBody>
                       {danhSach.length > 0 ? (
-                        danhSach.map((row) => (
-                          <TableRow key={row.maPhanAnh}>
-                            <TableCell>
-                              <MDTypography variant="caption" fontWeight="bold" display="block">
-                                {row.nguoiGui ? row.nguoiGui.cccd : "Ẩn danh"}
-                              </MDTypography>
-                              <MDTypography variant="caption" color="text" fontSize="10px">
-                                ID: {row.maPhanAnh.substring(0, 6)}...
-                              </MDTypography>
-                            </TableCell>
-
-                            <TableCell style={{ maxWidth: "200px" }}>
-                              <MDTypography variant="button" fontWeight="medium">
-                                {row.tieuDe}
-                              </MDTypography>
-                            </TableCell>
-
-                            <TableCell align="center">
-                              <MDBadge
-                                badgeContent={getStatusLabel(row.trangThaiHienTai)}
-                                color={getStatusColor(row.trangThaiHienTai)}
-                                variant="gradient"
-                                size="sm"
-                              />
-                            </TableCell>
-
-                            <TableCell align="center">
-                              {row.danhGiaHaiLong ? (
-                                <Rating value={row.danhGiaHaiLong} readOnly size="small" />
-                              ) : (
-                                "-"
-                              )}
-                            </TableCell>
-
-                            {/* --- CẬP NHẬT CỘT TÁC VỤ TẠI ĐÂY --- */}
-                            <TableCell align="center">
-                              <MDBox display="flex" justifyContent="center" gap={1}>
-                                {/* Nút Xem Chi Tiết (Giữ nguyên) */}
-                                <MDButton
-                                  variant="outlined"
-                                  color="info"
-                                  size="small"
-                                  onClick={() => navigate(`/chi-tiet-phan-anh/${row.maPhanAnh}`)}
-                                >
-                                  Chi tiết
-                                </MDButton>
-
-                                {/* --- THÊM NÚT XỬ LÝ (QUAN TRỌNG) --- */}
-                                <MDButton
+                        danhSach
+                          .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                          .map((row) => (
+                            <TableRow key={row.maPhanAnh}>
+                              <TableCell>
+                                <MDTypography variant="caption" fontWeight="bold" display="block">
+                                  {row.nguoiGui
+                                    ? row.nguoiGui.hoTen || row.nguoiGui.cccd
+                                    : "Ẩn danh"}
+                                </MDTypography>
+                                <MDTypography variant="caption" color="text">
+                                  📅 {formatDate(row.thoiGianTao)}
+                                </MDTypography>
+                              </TableCell>
+                              <TableCell style={{ maxWidth: "250px" }}>
+                                <MDTypography variant="button" fontWeight="medium" display="block">
+                                  {row.tieuDe}
+                                </MDTypography>
+                                <MDTypography variant="caption" color="info" fontWeight="regular">
+                                  📂 {getLinhVucLabel(row.linhVuc)}
+                                </MDTypography>
+                              </TableCell>
+                              <TableCell align="center">
+                                <MDBadge
+                                  badgeContent={getMucDoLabel(row.mucDoKhanCap)}
+                                  color={getMucDoColor(row.mucDoKhanCap)}
                                   variant="gradient"
-                                  color="warning" // Màu cam để nổi bật
-                                  size="small"
-                                  onClick={() => navigate(`/xu-ly-phan-anh/${row.maPhanAnh}`)}
-                                >
-                                  <Icon>settings</Icon>&nbsp;Xử lý
-                                </MDButton>
-                                {/* ----------------------------------- */}
-                              </MDBox>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                                  size="sm"
+                                />
+                              </TableCell>
+                              <TableCell align="center">
+                                <MDBadge
+                                  badgeContent={getStatusLabel(row.trangThaiHienTai)}
+                                  color={getStatusColor(row.trangThaiHienTai)}
+                                  variant="gradient"
+                                  size="sm"
+                                />
+                              </TableCell>
+                              <TableCell align="center">
+                                {row.danhGiaHaiLong ? (
+                                  <Rating value={row.danhGiaHaiLong} readOnly size="small" />
+                                ) : (
+                                  <MDTypography variant="caption" color="text">
+                                    -
+                                  </MDTypography>
+                                )}
+                              </TableCell>
+                              <TableCell align="center">
+                                <MDBox display="flex" justifyContent="center" gap={1}>
+                                  <MDButton
+                                    variant="gradient"
+                                    color="warning"
+                                    size="small"
+                                    onClick={() => navigate(`/xu-ly-phan-anh/${row.maPhanAnh}`)}
+                                  >
+                                    <Icon>edit</Icon>&nbsp;Xử lý
+                                  </MDButton>
+                                </MDBox>
+                              </TableCell>
+                            </TableRow>
+                          ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={5} align="center">
-                            Chưa có dữ liệu
+                          <TableCell colSpan={6} align="center">
+                            Chưa có dữ liệu phản ánh.
                           </TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
                 </TableContainer>
+
+                <TablePagination
+                  rowsPerPageOptions={[]}
+                  component="div"
+                  count={danhSach.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelDisplayedRows={({ from, to, count }) =>
+                    `${from}–${to} trong tổng số ${count}`
+                  }
+                />
               </MDBox>
             </Card>
           </Grid>

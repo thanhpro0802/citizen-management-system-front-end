@@ -1,87 +1,92 @@
 import axios from "axios";
 
-// URL Backend
+// Đảm bảo URL này đúng với Backend của bạn
 const API_URL = "http://localhost:8080/api/v1/phan-anh";
 
-export const guiPhanAnhMoi = (duLieu) => {
-  // 1. Lấy thủ công Token từ LocalStorage ra
-  const userString = localStorage.getItem("user");
+// --- QUAN TRỌNG: HÀM LẤY TOKEN (Không được xóa hàm này) ---
+const getAuthHeaders = () => {
+  let token = localStorage.getItem("token");
 
-  if (!userString) {
-    console.error("Không tìm thấy user trong LocalStorage");
-    throw new Error("Bạn chưa đăng nhập!");
+  // Nếu không thấy token rời, tìm trong object user
+  if (!token) {
+    const userString = localStorage.getItem("user");
+    if (userString) {
+      const user = JSON.parse(userString);
+      token = user.token || user.accessToken;
+    }
   }
 
-  const user = JSON.parse(userString);
-  const token = user.token || user.accessToken; // Dự phòng trường hợp tên biến khác nhau
+  if (!token) return {};
 
-  // 2. Gửi Request kèm Header Authorization cứng
-  return axios.post(API_URL, duLieu, {
-    headers: {
-      Authorization: `Bearer ${token}`, // <-- QUAN TRỌNG NHẤT
-      "Content-Type": "application/json",
-    },
-  });
-};
-
-export const getPhanAnhCuaToi = () => {
-  return axios.get(`${API_URL}/cua-toi`);
-};
-
-export const capNhatXuLyNoiBo = (maPhanAnh, noiDungCapNhat, danhSachFileUrl) => {
-  const requestData = {
-    noiDungCapNhat: noiDungCapNhat,
-    danhSachFileUrl: danhSachFileUrl,
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
   };
-  return axios.post(`${API_URL}/${maPhanAnh}/xu-ly-noi-bo`, requestData);
 };
+// -----------------------------------------------------------
 
-export const phanHoiCongDan = (maPhanAnh, noiDungPhanHoi) => {
-  const requestData = {
-    noiDungPhanHoi: noiDungPhanHoi,
-  };
-  return axios.post(`${API_URL}/${maPhanAnh}/phan-hoi`, requestData);
-};
+// --- CÁC API NGHIỆP VỤ ---
 
-export const getChiTietPhanAnh = (id) => {
-  return axios.get(`${API_URL}/${id}`);
-};
+export const getAllPhanAnh = () => axios.get(API_URL, { headers: getAuthHeaders() });
 
-export const getLichSuPhanAnh = (id) => {
-  return axios.get(`${API_URL}/${id}/lich-su`);
-};
+export const guiPhanAnhMoi = (duLieu) => axios.post(API_URL, duLieu, { headers: getAuthHeaders() });
 
-export const danhGiaPhanHoi = (maPhanAnh, danhGiaHaiLong, gopY) => {
-  const requestData = {
-    danhGiaHaiLong: danhGiaHaiLong,
-    gopY: gopY,
-  };
-  return axios.put(`${API_URL}/${maPhanAnh}/danh-gia`, requestData);
-};
+export const getPhanAnhCuaToi = () =>
+  axios.get(`${API_URL}/cua-toi`, { headers: getAuthHeaders() });
 
-export const getAllPhanAnh = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  return axios.get(API_URL, {
-    // Gọi vào gốc /api/v1/phan-anh
-    headers: { Authorization: `Bearer ${user.token}` },
-  });
-};
+export const getChiTietPhanAnh = (id) =>
+  axios.get(`${API_URL}/${id}`, { headers: getAuthHeaders() });
 
-export const updateMucDoKhanCap = (id, mucDo) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  // API: PUT /api/v1/phan-anh/{id}/muc-do-khan-cap?mucDo=CAO
-  return axios.put(`${API_URL}/${id}/muc-do-khan-cap`, null, {
-    params: { mucDo }, // Gửi dưới dạng query param
-    headers: { Authorization: `Bearer ${user.token}` },
-  });
-};
+export const getLichSuPhanAnh = (id) =>
+  axios.get(`${API_URL}/${id}/lich-su`, { headers: getAuthHeaders() });
 
-export const phanCongXuLy = (id, maCanBo, thoiHan) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  // API: PUT /api/v1/phan-anh/{id}/phan-cong
+// 1. Phân công xử lý (Dùng Mã Cán Bộ)
+export const phanCongXuLy = (id, maCanBo, hanXuLy) => {
   return axios.put(
     `${API_URL}/${id}/phan-cong`,
-    { maCanBoPhuTrach: maCanBo, thoiHanXuLy: thoiHan },
-    { headers: { Authorization: `Bearer ${user.token}` } }
+    { maCanBoPhuTrach: maCanBo, thoiHanXuLy: hanXuLy },
+    { headers: getAuthHeaders() }
+  );
+};
+
+// 2. Ghi nhật ký xử lý (Nội bộ)
+export const capNhatXuLyNoiBo = (id, textNoiDung) => {
+  return axios.put(
+    `${API_URL}/${id}/xu-ly`,
+    { noiDung: textNoiDung, danhSachFileUrl: [] },
+    { headers: getAuthHeaders() }
+  );
+};
+
+// 3. Phản hồi công dân (Hoàn tất)
+export const phanHoiCongDan = (id, noiDung) => {
+  return axios.put(
+    `${API_URL}/${id}/phan-hoi`,
+    { noiDungPhanHoi: noiDung },
+    { headers: getAuthHeaders() }
+  );
+};
+
+// 4. Cập nhật mức độ khẩn cấp (Đã sửa lỗi ReferenceError tại đây)
+export const updateMucDoKhanCap = (id, mucDo) => {
+  // Đường dẫn API dựa trên log lỗi bạn cung cấp
+  const url = `${API_URL}/${id}/muc-do-khan-cap`;
+
+  return axios.put(
+    url,
+    { mucDo: mucDo }, // Gửi Body JSON
+    {
+      params: { mucDo: mucDo }, // Gửi kèm Params cho chắc chắn
+      headers: getAuthHeaders(), // Gọi hàm lấy Token tại đây
+    }
+  );
+};
+
+// 5. Đánh giá (Công dân)
+export const danhGiaPhanHoi = (id, soSao, gopY) => {
+  return axios.put(
+    `${API_URL}/${id}/danh-gia`,
+    { danhGiaHaiLong: soSao, gopY: gopY },
+    { headers: getAuthHeaders() }
   );
 };
