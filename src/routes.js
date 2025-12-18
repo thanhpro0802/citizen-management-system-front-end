@@ -29,6 +29,12 @@ import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
 import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
 import Forbidden from "layouts/forbidden";
+import HoKhauList from "layouts/ho-khau";
+import HoKhauDetail from "layouts/ho-khau/Detail";
+import HoKhauForm from "layouts/ho-khau/Form";
+import TachHo from "layouts/ho-khau/TachHo";
+import NhapHo from "layouts/ho-khau/NhapHo";
+import ThayDoiChuHo from "layouts/ho-khau/DoiChuHo";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -104,6 +110,52 @@ const routes = [
     key: "forbidden",
     route: "/forbidden",
     component: <Forbidden />,
+  },
+  {
+    type: "collapse",
+    name: "Hộ Khẩu",
+    key: "ho-khau",
+    icon: <Icon fontSize="small">home</Icon>,
+    route: "/ho-khau",
+    component: <HoKhauList />,
+    // requireAuth: true,
+    // requiredRole: "CAN_BO",
+  },
+  {
+    route: "/ho-khau/tao-moi",
+    component: <HoKhauForm />,
+    // requireAuth: true,
+    // requiredRole: "CAN_BO",
+  },
+  {
+    route: "/ho-khau/:id",
+    component: <HoKhauDetail />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    route: "/ho-khau/:id/chinh-sua",
+    component: <HoKhauForm />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    route: "/ho-khau/:id/tach-ho",
+    component: <TachHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    route: "/ho-khau/:id/nhap-ho",
+    component: <NhapHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    route: "/ho-khau/:id/thay-doi-chu-ho",
+    component: <ThayDoiChuHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
   },
 ];
 
