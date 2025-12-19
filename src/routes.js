@@ -33,6 +33,7 @@ import ThongKe from "layouts/thong-ke";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
+import Dashboard from "layouts/dashboard";
 
 const routes = [
   {
@@ -56,7 +57,7 @@ const routes = [
     name: "Thống kê",
     key: "thong-ke",
     icon: <Icon fontSize="small">equalizer</Icon>,
-    route: "/thong-ke",
+    route: "/dashboard",
     component: <ThongKe />,
     requireAuth: true,
   },

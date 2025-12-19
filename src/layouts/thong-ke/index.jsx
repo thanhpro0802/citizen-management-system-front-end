@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Grid, Typography, useTheme } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import { tokens } from "theme";
@@ -12,83 +12,23 @@ import ThongKeSoLuong from "./components/thongke/ThongKeSoLuong";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-const ThongKe = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [typeNK, setTypeNK] = useState("age");
-  const [typeHK, setTypeHK] = useState("mem-count");
-
+function ThongKe() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox m="20px">
-        {/* HEADER */}
-        <MDBox display="flex" justifyContent="space-between" alignItems="center">
-          <Header title="THỐNG KÊ" subtitle="Nhân khẩu & Hộ khẩu" />
-        </MDBox>
-
-        {/* GRID & CHARTS */}
-        <MDBox display="grid" gridTemplateColumns="repeat(12, 1fr)" gridAutoRows="500px" gap="20px">
-          {/* ROW 1 */}
-          {/* Thống kê Nhân khẩu */}
-          <MDBox
-            gridColumn="span 6"
-            backgroundColor={colors.primary[400]}
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-end"
-            justifyContent="center"
-            borderRadius={8}
-            p={3}
-          >
-            <MDBox alignSelf="flex-start" mb={1}>
-              <MDTypography variant="h2" fontWeight="bold">
-                Nhân khẩu
-              </MDTypography>
-            </MDBox>
-            <ButtonMenu
-              title="Chọn thống kê"
-              items={[
-                { value: "age", label: "Thống kê độ tuổi" },
-                { value: "gender", label: "Thống kê giới tính" },
-                { value: "province", label: "Thống kê quê quán" },
-              ]}
-              onSelect={(value) => setTypeNK(value)}
-            />
-
-            {typeNK === "age" && <ThongKeDoTuoi />}
-            {typeNK === "gender" && <ThongKeGioiTinh />}
-            {typeNK === "province" && <ThongKeQueQuan />}
-          </MDBox>
-
-          {/* Thống kê Hộ khẩu */}
-          <MDBox
-            gridColumn="span 6"
-            backgroundColor={colors.primary[400]}
-            display="flex"
-            flexDirection="column"
-            alignItems="flex-end"
-            justifyContent="center"
-            borderRadius={8}
-            p={3}
-          >
-            <MDBox alignSelf="flex-start" mb={1}>
-              <MDTypography variant="h2" fontWeight="bold">
-                Hộ khẩu
-              </MDTypography>
-            </MDBox>
-            <ButtonMenu
-              title="Chọn thống kê"
-              items={[{ value: "mem-count", label: "Thống kê số lượng" }]}
-              onSelect={(value) => setTypeHK(value)}
-            />
-
-            {typeHK === "mem-count" && <ThongKeSoLuong />}
-          </MDBox>
+      <MDBox py={3}>
+        <Grid container spacing={3}></Grid>
+        <MDBox mt={4.5}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6} lg={4}>
+              <MDBox mb={3}>
+                <ThongKeDoTuoi />
+              </MDBox>
+            </Grid>
+          </Grid>
         </MDBox>
       </MDBox>
     </DashboardLayout>
   );
-};
-
+}
 export default ThongKe;
