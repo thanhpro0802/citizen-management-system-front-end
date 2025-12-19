@@ -1,10 +1,9 @@
-import axios from "axios";
+import api from "./api";
 
-// URL Backend
-const API_URL = "http://localhost:8080/api/v1/phan-anh";
+const API_URL = "/api/v1/phan-anh";
 
 export const guiPhanAnhMoi = (tieuDe, noiDung, linhVuc, danhSachFileUrl) => {
-  return axios.post(API_URL, {
+  return api.post(API_URL, {
     tieuDe,
     noiDung,
     linhVuc,
@@ -13,40 +12,37 @@ export const guiPhanAnhMoi = (tieuDe, noiDung, linhVuc, danhSachFileUrl) => {
 };
 
 export const getPhanAnhCuaToi = () => {
-  return axios.get(`${API_URL}/cua-toi`);
+  return api.get(`${API_URL}/cua-toi`);
 };
 
 export const capNhatXuLyNoiBo = (maPhanAnh, noiDungCapNhat, danhSachFileUrl) => {
-  const requestData = {
-    noiDungCapNhat: noiDungCapNhat,
-    danhSachFileUrl: danhSachFileUrl,
-  };
-  return axios.post(`${API_URL}/${maPhanAnh}/xu-ly-noi-bo`, requestData);
+  return api.post(`${API_URL}/${maPhanAnh}/xu-ly-noi-bo`, {
+    noiDungCapNhat,
+    danhSachFileUrl,
+  });
 };
 
 export const phanHoiCongDan = (maPhanAnh, noiDungPhanHoi) => {
-  const requestData = {
-    noiDungPhanHoi: noiDungPhanHoi,
-  };
-  return axios.post(`${API_URL}/${maPhanAnh}/phan-hoi`, requestData);
+  return api.post(`${API_URL}/${maPhanAnh}/phan-hoi`, {
+    noiDungPhanHoi,
+  });
 };
 
 export const getChiTietPhanAnh = (id) => {
-  return axios.get(`${API_URL}/${id}`);
+  return api.get(`${API_URL}/${id}`);
 };
 
 export const getLichSuPhanAnh = (id) => {
-  return axios.get(`${API_URL}/${id}/lich-su`);
+  return api.get(`${API_URL}/${id}/lich-su`);
 };
 
 export const danhGiaPhanHoi = (maPhanAnh, danhGiaHaiLong, gopY) => {
-  const requestData = {
-    danhGiaHaiLong: danhGiaHaiLong,
-    gopY: gopY,
-  };
-  return axios.put(`${API_URL}/${maPhanAnh}/danh-gia`, requestData);
+  return api.put(`${API_URL}/${maPhanAnh}/danh-gia`, {
+    danhGiaHaiLong,
+    gopY,
+  });
 };
 
 export const getAllPhanAnh = () => {
-  return axios.get(API_URL);
+  return api.get(API_URL);
 };

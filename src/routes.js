@@ -152,7 +152,7 @@ const routes = [
     requiredRole: "CAN_BO",
   },
   {
-    route: "/ho-khau/:id/thay-doi-chu-ho",
+    route: "/ho-khau/:id/doi-chu-ho",
     component: <ThayDoiChuHo />,
     requireAuth: true,
     requiredRole: "CAN_BO",

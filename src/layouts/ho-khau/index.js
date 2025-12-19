@@ -48,8 +48,13 @@ function HoKhauList() {
     setLoading(true);
     fetchHoKhauList({ page: page + 1, size: rowsPerPage, keyword: search })
       .then((res) => {
-        setList(res.data.data || res.data);
-        setTotal(res.data.total || res.data.length);
+        let data = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data.data)
+          ? res.data.data
+          : [];
+        setList(data);
+        setTotal(res.data.total || data.length);
         setLoading(false);
       })
       .catch(() => {
@@ -151,7 +156,7 @@ function HoKhauList() {
                       <TableCell>{row.maHoKhau}</TableCell>
                       <TableCell>{row.chuHo?.hoTen}</TableCell>
                       <TableCell>{row.diaChi}</TableCell>
-                      <TableCell>{row.nhanKhau?.length || 0}</TableCell>
+                      <TableCell>{row.danhSachThanhVien?.length || 0}</TableCell>
                       <TableCell align="center">
                         <IconButton color="primary" onClick={() => navigate(`/ho-khau/${row.id}`)}>
                           <VisibilityIcon />

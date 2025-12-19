@@ -88,9 +88,9 @@ function HoKhauDetail() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {(hoKhau.nhanKhau || []).map((nk) => (
-                <TableRow key={nk.id}>
-                  <TableCell>{nk.cccd}</TableCell>
+              {(hoKhau.danhSachThanhVien || []).map((nk) => (
+                <TableRow key={nk.maNhanKhau || nk.id}>
+                  <TableCell>{nk.soCccd || nk.cccd}</TableCell>
                   <TableCell>{nk.hoTen}</TableCell>
                   <TableCell>{nk.quanHeVoiChuHo}</TableCell>
                 </TableRow>

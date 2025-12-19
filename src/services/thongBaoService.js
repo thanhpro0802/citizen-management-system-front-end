@@ -1,11 +1,11 @@
-import axios from "axios";
+import api from "./api";
 
-const API_URL = "http://localhost:8080/api/v1/thong-bao";
+const API_URL = "/api/v1/thong-bao";
 
 export const getThongBaoCuaToi = () => {
-  return axios.get(`${API_URL}/cua-toi`);
+  return api.get(`${API_URL}/cua-toi`);
 };
 
 export const danhDauDaXem = (maThongBao) => {
-  return axios.put(`${API_URL}/${maThongBao}/da-xem`);
+  return api.put(`${API_URL}/${maThongBao}/da-xem`);
 };

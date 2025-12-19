@@ -9,19 +9,19 @@ function HoKhauForm() {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
   const [form, setForm] = useState({
-    maHoKhau: "",
     diaChi: "",
-    chuHoCccd: "",
+    maNhanKhauChuHo: "",
+    ngayDangKy: new Date().toISOString().slice(0, 10), // mặc định hôm nay
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isEdit) {
-      fetchHoKhauDetail(id).then(res => {
+      fetchHoKhauDetail(id).then((res) => {
         setForm({
           maHoKhau: res.data.maHoKhau || "",
           diaChi: res.data.diaChi || "",
-          chuHoCccd: res.data.chuHo?.cccd || "",
+          maNhanKhauChuHo: res.data.chuHo?.maNhanKhau || "", // hoặc res.data.chuHo?.id
         });
       });
     }
@@ -32,10 +32,16 @@ function HoKhauForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
+    // Build body đúng chuẩn backend cần:
+    const reqBody = {
+      diaChi: form.diaChi,
+      ngayDangKy: form.ngayDangKy,
+      chuHo: { maNhanKhau: form.maNhanKhauChuHo },
+    };
     if (isEdit) {
-      updateHoKhau(id, form).then(() => navigate(`/ho-khau/${id}`));
+      updateHoKhau(id, reqBody).then(() => navigate(`/ho-khau/${id}`));
     } else {
-      createHoKhau(form).then(() => navigate("/ho-khau"));
+      createHoKhau(reqBody).then(() => navigate("/ho-khau"));
     }
   };
 
@@ -44,14 +50,6 @@ function HoKhauForm() {
       <Typography variant="h5">{isEdit ? "Cập nhật" : "Tạo mới"} hộ khẩu</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Mã hộ khẩu"
-          name="maHoKhau"
-          value={form.maHoKhau}
-          onChange={handleChange}
-          fullWidth
-          style={{ marginBottom: 16 }}
-        />
-        <TextField
           label="Địa chỉ"
           name="diaChi"
           value={form.diaChi}
@@ -59,18 +57,33 @@ function HoKhauForm() {
           fullWidth
           style={{ marginBottom: 16 }}
         />
+
         <TextField
-          label="CCCD chủ hộ"
-          name="chuHoCccd"
-          value={form.chuHoCccd}
+          label="Mã nhân khẩu chủ hộ (VD: NK0001)"
+          name="maNhanKhauChuHo"
+          value={form.maNhanKhauChuHo}
+          onChange={handleChange}
+          fullWidth
+          style={{ marginBottom: 16 }}
+        />
+
+        <TextField
+          label="Ngày đăng ký"
+          name="ngayDangKy"
+          type="date"
+          value={form.ngayDangKy}
           onChange={handleChange}
           fullWidth
           style={{ marginBottom: 24 }}
+          InputLabelProps={{ shrink: true }}
         />
+
         <Button type="submit" variant="contained" color="primary" disabled={loading}>
           {isEdit ? "Cập nhật" : "Tạo mới"}
         </Button>
-        <Button style={{ marginLeft: 8 }} onClick={() => navigate(-1)}>Hủy</Button>
+        <Button style={{ marginLeft: 8 }} onClick={() => navigate(-1)}>
+          Hủy
+        </Button>
       </form>
     </Paper>
   );
