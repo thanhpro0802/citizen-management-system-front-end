@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { getThongKeSoThanhVien } from "layouts/thong-ke/services/thongKeService";
+import { getThongKeSoThanhVien } from "layouts/thong-ke/services/ThongKeService";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 
 const ThongKeSoThanhVien = ({ color }) => {
@@ -10,7 +10,7 @@ const ThongKeSoThanhVien = ({ color }) => {
     getThongKeSoThanhVien()
       .then((res) => {
         console.log("RAW API:", res);
-        const apiData = res.data;
+        const apiData = res.data.soThanhVien;
 
         setChartData({
           labels: apiData.labels,

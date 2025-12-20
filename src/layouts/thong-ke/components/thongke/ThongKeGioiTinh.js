@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { getThongKeGioiTinh } from "layouts/thong-ke/services/thongKeService";
+import { getThongKeGioiTinh } from "layouts/thong-ke/services/ThongKeService";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 
 const ThongKeGioiTinh = ({ color = "info" }) => {

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
-import { getTongNhanKhau } from "layouts/thong-ke/services/thongKeService";
+import { getTongHoKhau } from "layouts/thong-ke/services/ThongKeService";
 
 const TongHoKhau = () => {
   const [tong, setTong] = useState(0);
 
   useEffect(() => {
-    getTongNhanKhau()
+    getTongHoKhau()
       .then((res) => {
         setTong(res.data.tong);
       })

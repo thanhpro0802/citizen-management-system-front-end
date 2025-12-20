@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { getThongKeDoTuoi } from "layouts/thong-ke/services/thongKeService";
+import { getThongKeDoTuoi } from "layouts/thong-ke/services/ThongKeService";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
-import DoTuoiData from "layouts/thong-ke/services/DoTuoiData";
 
 const ThongKeDoTuoi = ({ color = "info" }) => {
   const [chartData, setChartData] = useState(null);

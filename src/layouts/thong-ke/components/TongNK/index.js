@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
-import { getTongNhanKhau } from "layouts/thong-ke/services/thongKeService";
+import { getTongNhanKhau } from "layouts/thong-ke/services/ThongKeService";
 
 const TongNhanKhau = () => {
   const [tong, setTong] = useState(0);
