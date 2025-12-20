@@ -20,7 +20,7 @@ const TongHoKhau = () => {
       color="success"
       icon="house"
       title="Tổng hộ khẩu"
-      count={10}
+      count={tong}
       percentage={{
         color: "success",
         amount: "",

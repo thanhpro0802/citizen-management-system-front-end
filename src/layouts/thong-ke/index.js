@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { Box, Grid, Typography, useTheme } from "@mui/material";
 import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import { tokens } from "theme";
-import Header from "./components/Header";
 import ButtonMenu from "./components/ButtonMenu";
 import ThongKeDoTuoi from "./components/thongke/ThongKeDoTuoi";
 import ThongKeGioiTinh from "./components/thongke/ThongKeGioiTinh";
@@ -13,6 +10,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import TongNhanKhau from "./components/TongNK";
 import TongHoKhau from "./components/TongHK";
+import Projects from "layouts/dashboard/components/Projects";
+import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
@@ -78,6 +77,18 @@ function ThongKe() {
 
                 {typeHK === "mem-count" && <ThongKeSoThanhVien color="success" />}
               </MDBox>
+            </Grid>
+          </Grid>
+        </MDBox>
+
+        {/* Phần dưới */}
+        <MDBox>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6} lg={8}>
+              <Projects />
+            </Grid>
+            <Grid item xs={12} md={6} lg={4}>
+              <OrdersOverview />
             </Grid>
           </Grid>
         </MDBox>

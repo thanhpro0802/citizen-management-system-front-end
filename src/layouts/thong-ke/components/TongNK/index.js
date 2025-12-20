@@ -20,7 +20,7 @@ const TongNhanKhau = () => {
       color="info"
       icon="groups"
       title="Tổng nhân khẩu"
-      count={20}
+      count={tong}
       percentage={{
         color: "success",
         amount: "",
