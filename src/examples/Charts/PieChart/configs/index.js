@@ -1,36 +1,26 @@
 /* eslint-disable no-dupe-keys */
-// Material Dashboard 2 React base styles
 import colors from "assets/theme/base/colors";
 
 const { gradients, dark } = colors;
 
-function configs(labels, datasets) {
-  const backgroundColors = [];
+const COLOR_KEYS = ["info", "success", "warning", "error", "primary", "secondary"];
 
-  if (datasets.backgroundColors) {
-    datasets.backgroundColors.forEach((color) =>
-      gradients[color]
-        ? backgroundColors.push(gradients[color].state)
-        : backgroundColors.push(dark.main)
-    );
-  } else {
-    backgroundColors.push(dark.main);
-  }
+function configs(labels = [], datasets = {}) {
+  const backgroundColors = labels.map((_, index) => {
+    const colorKey = datasets.backgroundColors?.[index] || COLOR_KEYS[index % COLOR_KEYS.length];
+
+    return gradients[colorKey] ? gradients[colorKey].state : dark.main;
+  });
 
   return {
     data: {
       labels,
       datasets: [
         {
-          label: datasets.label,
-          weight: 9,
-          cutout: 0,
-          tension: 0.9,
-          pointRadius: 2,
-          borderWidth: 2,
+          label: datasets.label || "",
+          data: datasets.data || [],
           backgroundColor: backgroundColors,
-          fill: false,
-          data: datasets.data,
+          borderWidth: 1,
         },
       ],
     },
@@ -39,12 +29,9 @@ function configs(labels, datasets) {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: "bottom",
         },
-      },
-      interaction: {
-        intersect: false,
-        mode: "index",
       },
     },
   };

@@ -1,9 +1,9 @@
 import axiosClient from "./axiosClient";
 
-export const getThongKeDoTuoi = () => axiosClient.get("/thong-ke/do-tuoi");
+export const getThongKeDoTuoi = () => axiosClient.get("/do-tuoi");
 
-export const getThongKeGioiTinh = () => axiosClient.get("/thong-ke/gioi-tinh");
+export const getThongKeGioiTinh = () => axiosClient.get("/gioi-tinh");
 
-export const getThongKeQueQuan = () => axiosClient.get("/thong-ke/que-quan");
+export const getThongKeQueQuan = () => axiosClient.get("/que-quan");
 
-export const getThongKeSoLuong = () => axiosClient.get("/thong-ke/so-nguoi");
+export const getThongKeSoLuong = () => axiosClient.get("/so-nguoi");

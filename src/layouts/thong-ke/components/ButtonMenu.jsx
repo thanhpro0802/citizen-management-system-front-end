@@ -3,30 +3,23 @@ import PropTypes from "prop-types";
 import { useTheme, Button, Menu, MenuItem } from "@mui/material";
 import MDButton from "components/MDButton";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import { tokens } from "../theme";
 
-const ButtonMenu = ({ title = "Menu", items = [], onSelect }) => {
+const ButtonMenu = ({ color, title = "Menu", items = [], onSelect }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleClick = (e) => setAnchorEl(e.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-
   return (
     <>
       <MDButton
-        variant="contained"
+        color={color}
+        variant="gradient"
         onClick={handleClick}
         startIcon={<BarChartIcon />}
         sx={{
-          backgroundColor: colors.primary[100],
-          color: colors.grey[900],
-          "&:hover": {
-            backgroundColor: colors.primary[200],
-          },
+          boxShadow: "0 4px 20px rgba(26, 115, 232, 0.6)",
         }}
       >
         {title}
@@ -50,6 +43,16 @@ const ButtonMenu = ({ title = "Menu", items = [], onSelect }) => {
 };
 
 ButtonMenu.propTypes = {
+  color: PropTypes.oneOf([
+    "primary",
+    "secondary",
+    "info",
+    "success",
+    "warning",
+    "error",
+    "light",
+    "dark",
+  ]),
   title: PropTypes.string,
   items: PropTypes.arrayOf(
     PropTypes.shape({

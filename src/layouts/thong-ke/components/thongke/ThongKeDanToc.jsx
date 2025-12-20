@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import { getThongKeQueQuan } from "layouts/thong-ke/services/thongKeService";
+import { getThongKeDanToc } from "layouts/thong-ke/services/thongKeService";
 import PieChart from "examples/Charts/PieChart";
 import DoTuoiData from "layouts/thong-ke/services/DoTuoiData";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 
-const ThongKeQueQuan = ({ color }) => {
+const ThongKeDanToc = () => {
   // const [chartData, setChartData] = useState(null);
 
   // useEffect(() => {
@@ -39,34 +38,13 @@ const ThongKeQueQuan = ({ color }) => {
 
   return (
     <ReportsBarChart
-      color={color || "info"}
-      title="Thống kê quê quán"
-      description="Cấp: Tỉnh"
+      color="info"
+      title="Thống kê dân tộc"
+      description="Phân bố nhân khẩu theo dân tộc"
       date="2 years ago"
       chart={DoTuoiData}
     />
   );
 };
 
-ThongKeQueQuan.propTypes = {
-  color: PropTypes.oneOf([
-    "primary",
-    "secondary",
-    "info",
-    "success",
-    "warning",
-    "error",
-    "light",
-    "dark",
-  ]),
-  title: PropTypes.string,
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-      label: PropTypes.string.isRequired,
-    })
-  ),
-  onSelect: PropTypes.func.isRequired,
-};
-
-export default ThongKeQueQuan;
+export default ThongKeDanToc;
