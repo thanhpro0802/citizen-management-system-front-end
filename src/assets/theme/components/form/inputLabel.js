@@ -25,7 +25,7 @@ const inputLabel = {
     root: {
       fontSize: size.sm,
       color: text.main,
-      lineHeight: 0.9,
+      lineHeight: 1.2,
 
       '&.Mui-focused': {
         color: info.main,

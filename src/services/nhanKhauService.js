@@ -124,7 +124,7 @@ class NhanKhauService {
    * Đăng ký tạm trú
    */
   async registerTamTru(data) {
-    const response = await fetch(`${API_BASE_URL}/nhan-khau/tam-tru`, {
+    const response = await fetch(`${API_BASE_URL}/nhan-khau/${data.maNhanKhau}/tam-tru`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ class NhanKhauService {
    * Đăng ký tạm vắng
    */
   async registerTamVang(data) {
-    const response = await fetch(`${API_BASE_URL}/nhan-khau/tam-vang`, {
+    const response = await fetch(`${API_BASE_URL}/nhan-khau/${data.maNhanKhau}/tam-vang`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ class NhanKhauService {
    */
   async declareDeath(maNhanKhau) {
     const response = await fetch(`${API_BASE_URL}/nhan-khau/${maNhanKhau}/khai-tu`, {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },

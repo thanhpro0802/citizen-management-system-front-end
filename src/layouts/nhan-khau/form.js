@@ -121,6 +121,7 @@ function NhanKhauForm() {
     event.preventDefault();
 
     if (!validateForm()) {
+      console.log('Validation failed:', errors);
       return;
     }
 
@@ -133,11 +134,15 @@ function NhanKhauForm() {
         ngaySinh: formData.ngaySinh ? new Date(formData.ngaySinh).toISOString() : null,
       };
 
+      console.log('Submitting data:', submitData);
+
       if (isEditMode) {
-        await nhanKhauService.updateNhanKhau(id, submitData);
+        const result = await nhanKhauService.updateNhanKhau(id, submitData);
+        console.log('Update result:', result);
         alert('Cập nhật nhân khẩu thành công');
       } else {
-        await nhanKhauService.createNhanKhau(submitData);
+        const result = await nhanKhauService.createNhanKhau(submitData);
+        console.log('Create result:', result);
         alert('Thêm mới nhân khẩu thành công');
       }
 
@@ -177,13 +182,16 @@ function NhanKhauForm() {
                   <Grid container spacing={3}>
                     {/* Họ tên */}
                     <Grid item xs={12} md={6}>
-                      <MDInput
+                      <TextField
                         label="Họ và tên *"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.hoTen}
                         onChange={handleChange('hoTen')}
                         error={Boolean(errors.hoTen)}
                         helperText={errors.hoTen}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       />
                     </Grid>
 
@@ -192,6 +200,8 @@ function NhanKhauForm() {
                       <TextField
                         label="Ngày sinh *"
                         type="date"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.ngaySinh}
                         onChange={handleChange('ngaySinh')}
@@ -200,6 +210,7 @@ function NhanKhauForm() {
                         InputLabelProps={{
                           shrink: true,
                         }}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       />
                     </Grid>
 
@@ -208,11 +219,14 @@ function NhanKhauForm() {
                       <TextField
                         select
                         label="Giới tính *"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.gioiTinh}
                         onChange={handleChange('gioiTinh')}
                         error={Boolean(errors.gioiTinh)}
                         helperText={errors.gioiTinh}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       >
                         <MenuItem value="Nam">Nam</MenuItem>
                         <MenuItem value="Nữ">Nữ</MenuItem>
@@ -222,24 +236,30 @@ function NhanKhauForm() {
 
                     {/* Số CCCD */}
                     <Grid item xs={12} md={6}>
-                      <MDInput
+                      <TextField
                         label="Số CCCD"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.soCCCD}
                         onChange={handleChange('soCCCD')}
                         error={Boolean(errors.soCCCD)}
                         helperText={errors.soCCCD}
                         inputProps={{ maxLength: 12 }}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       />
                     </Grid>
 
                     {/* Quê quán */}
                     <Grid item xs={12} md={6}>
-                      <MDInput
+                      <TextField
                         label="Quê quán"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.queQuan}
                         onChange={handleChange('queQuan')}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       />
                     </Grid>
 
@@ -248,9 +268,12 @@ function NhanKhauForm() {
                       <TextField
                         select
                         label="Dân tộc"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.danToc}
                         onChange={handleChange('danToc')}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       >
                         <MenuItem value="Kinh">Kinh</MenuItem>
                         <MenuItem value="Tày">Tày</MenuItem>
@@ -270,9 +293,12 @@ function NhanKhauForm() {
                       <TextField
                         select
                         label="Quan hệ với chủ hộ"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.quanHeVoiChuHo}
                         onChange={handleChange('quanHeVoiChuHo')}
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       >
                         <MenuItem value="">Không xác định</MenuItem>
                         <MenuItem value="Chủ hộ">Chủ hộ</MenuItem>
@@ -288,12 +314,15 @@ function NhanKhauForm() {
 
                     {/* Mã hộ khẩu */}
                     <Grid item xs={12} md={6}>
-                      <MDInput
+                      <TextField
                         label="Mã hộ khẩu"
+                        variant="outlined"
+                        size="medium"
                         fullWidth
                         value={formData.maHoKhau}
                         onChange={handleChange('maHoKhau')}
                         helperText="Để trống nếu chưa thuộc hộ khẩu nào"
+                        sx={{ '& .MuiInputBase-root': { height: '45px' } }}
                       />
                     </Grid>
 

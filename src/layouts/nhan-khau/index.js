@@ -56,6 +56,15 @@ function NhanKhauList() {
   // Delete dialog
   const [deleteDialog, setDeleteDialog] = useState({ open: false, maNhanKhau: null, hoTen: '' });
 
+  const textFieldLikeMDInput = {
+    '& .MuiInputBase-root': {
+      height: 45,
+      boxSizing: 'border-box',
+    },
+    '& .MuiInputBase-input': {
+      padding: '12px 14px 12px',
+    },
+  };
   // Load data
   const loadData = async () => {
     try {
@@ -225,6 +234,7 @@ function NhanKhauList() {
                       fullWidth
                       value={searchCriteria.q}
                       onChange={(e) => setSearchCriteria({ ...searchCriteria, q: e.target.value })}
+                      sx={textFieldLikeMDInput}
                     />
                   </Grid>
                   <Grid item xs={12} md={2}>
@@ -236,13 +246,11 @@ function NhanKhauList() {
                       onChange={(e) =>
                         setSearchCriteria({ ...searchCriteria, gioiTinh: e.target.value })
                       }
-                      SelectProps={{
-                        native: true,
-                      }}
+                      sx={textFieldLikeMDInput}
                     >
-                      <option value="">Tất cả</option>
-                      <option value="Nam">Nam</option>
-                      <option value="Nữ">Nữ</option>
+                      <MenuItem value="">Tất cả</MenuItem>
+                      <MenuItem value="Nam">Nam</MenuItem>
+                      <MenuItem value="Nữ">Nữ</MenuItem>
                     </TextField>
                   </Grid>
                   <Grid item xs={12} md={2}>
@@ -254,15 +262,13 @@ function NhanKhauList() {
                       onChange={(e) =>
                         setSearchCriteria({ ...searchCriteria, status: e.target.value })
                       }
-                      SelectProps={{
-                        native: true,
-                      }}
+                      sx={textFieldLikeMDInput}
                     >
-                      <option value="">Tất cả</option>
-                      <option value="THUONG_TRU">Thường trú</option>
-                      <option value="TAM_TRU">Tạm trú</option>
-                      <option value="TAM_VANG">Tạm vắng</option>
-                      <option value="KHAI_TU">Đã mất</option>
+                      <MenuItem value="">Tất cả</MenuItem>
+                      <MenuItem value="THUONG_TRU">Thường trú</MenuItem>
+                      <MenuItem value="TAM_TRU">Tạm trú</MenuItem>
+                      <MenuItem value="TAM_VANG">Tạm vắng</MenuItem>
+                      <MenuItem value="KHAI_TU">Đã mất</MenuItem>
                     </TextField>
                   </Grid>
                   <Grid item xs={12} md={3}>
@@ -273,6 +279,7 @@ function NhanKhauList() {
                       onChange={(e) =>
                         setSearchCriteria({ ...searchCriteria, maHoKhau: e.target.value })
                       }
+                      sx={textFieldLikeMDInput}
                     />
                   </Grid>
                   <Grid item xs={12} md={2}>

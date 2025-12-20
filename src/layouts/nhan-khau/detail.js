@@ -117,6 +117,8 @@ function NhanKhauDetail() {
       alert('Đăng ký tạm trú thành công');
       setTamTruDialog(false);
       setTamTruForm({ ngayBatDau: '', ngayKetThuc: '', lyDo: '' });
+      // Small delay to ensure database commit
+      await new Promise((resolve) => setTimeout(resolve, 300));
       loadData();
     } catch (error) {
       console.error('Lỗi:', error);
@@ -138,6 +140,8 @@ function NhanKhauDetail() {
       alert('Đăng ký tạm vắng thành công');
       setTamVangDialog(false);
       setTamVangForm({ ngayBatDau: '', ngayKetThuc: '', lyDo: '' });
+      // Small delay to ensure database commit
+      await new Promise((resolve) => setTimeout(resolve, 300));
       loadData();
     } catch (error) {
       console.error('Lỗi:', error);
