@@ -171,7 +171,7 @@ export default function App() {
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
-          {/*<Configurator />*/}
+          <Configurator />
           {/*{configsButton}*/}
         </>
       )}

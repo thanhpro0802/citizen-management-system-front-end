@@ -11,7 +11,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TablePagination from "@mui/material/TablePagination";
-import Rating from "@mui/material/Rating";
 import Icon from "@mui/material/Icon";
 
 // Import cho bộ lọc
@@ -50,15 +49,17 @@ function QuanLyPhanAnh() {
 
   // Helpers
   const getMucDoLabel = (m) => {
-    if (m === "CAO") return "Cao";
-    if (m === "TRUNG_BINH") return "TB";
+    if (m === "CAO") return "Khẩn cấp";
+    if (m === "TRUNG_BINH") return "Bình thường";
     return "Thấp";
   };
+
   const getMucDoColor = (m) => {
     if (m === "CAO") return "error";
     if (m === "TRUNG_BINH") return "warning";
     return "success";
   };
+
   const getLinhVucLabel = (c) => {
     switch (c) {
       case "AN_NINH_TRAT_TU":
@@ -146,46 +147,36 @@ function QuanLyPhanAnh() {
     setPage(0);
   };
 
-  // --- LOGIC LỌC DỮ LIỆU ---
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     setPage(0);
   };
 
   const filteredList = danhSach.filter((item) => {
-    // 1. Search
     const term = searchTerm.toLowerCase();
     const tenNguoiGui = item.nguoiGui ? (item.nguoiGui.hoTen || "").toLowerCase() : "";
     const cccdNguoiGui = item.nguoiGui ? (item.nguoiGui.cccd || "").toLowerCase() : "";
+    const tenCanBo =
+      item.canBoPhuTrach && item.canBoPhuTrach.nhanKhau
+        ? (item.canBoPhuTrach.nhanKhau.hoTen || "").toLowerCase()
+        : "";
+
     const matchSearch =
       !searchTerm ||
       (item.tieuDe && item.tieuDe.toLowerCase().includes(term)) ||
       tenNguoiGui.includes(term) ||
-      cccdNguoiGui.includes(term);
+      cccdNguoiGui.includes(term) ||
+      tenCanBo.includes(term);
 
-    // 2. Filter Status
     const matchStatus = filterStatus === "ALL" || item.trangThaiHienTai === filterStatus;
-    // 3. Filter Priority
     const matchMucDo = filterMucDo === "ALL" || item.mucDoKhanCap === filterMucDo;
-    // 4. Filter Field
     const matchLinhVuc = filterLinhVuc === "ALL" || item.linhVuc === filterLinhVuc;
 
     return matchSearch && matchStatus && matchMucDo && matchLinhVuc;
   });
 
-  // Render Status Badge có check Quá Hạn
+  // Render Status Badge
   const renderTrangThai = (row) => {
-    const isOverdue = checkQuaHan(row.thoiHanXuLy, row.trangThaiHienTai);
-    if (isOverdue)
-      return (
-        <MDBox display="flex" flexDirection="column" alignItems="center">
-          <MDBadge badgeContent="Đang Xử Lý" color="info" variant="gradient" size="sm" />
-          <MDTypography variant="caption" color="error" fontWeight="bold" mt={0.5}>
-            ⚠️ QUÁ HẠN
-          </MDTypography>
-        </MDBox>
-      );
-
     let label = "Chờ Tiếp Nhận",
       color = "secondary";
     if (row.trangThaiHienTai === "DA_XU_LY") {
@@ -200,7 +191,11 @@ function QuanLyPhanAnh() {
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+      {/* Sửa lại: Thêm MDBox bọc Navbar để sửa lỗi không bấm được nút Configurator */}
+      <MDBox position="relative" zIndex={10}>
+        <DashboardNavbar />
+      </MDBox>
+
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
@@ -211,9 +206,13 @@ function QuanLyPhanAnh() {
                 py={3}
                 px={2}
                 variant="gradient"
-                bgColor="warning"
                 borderRadius="lg"
-                coloredShadow="warning"
+                coloredShadow="none"
+                sx={{
+                  background: "linear-gradient(195deg, #0f766e, #115e59)",
+                  boxShadow:
+                    "0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(15, 118, 110, 0.4)",
+                }}
               >
                 <MDTypography variant="h6" color="white">
                   Quản Lý Tiếp Nhận Phản Ánh
@@ -221,19 +220,15 @@ function QuanLyPhanAnh() {
               </MDBox>
 
               <MDBox pt={3} px={3}>
-                {/* --- KHU VỰC TÌM KIẾM & BỘ LỌC --- */}
                 <Grid container spacing={2} mb={3}>
-                  {/* Ô Tìm kiếm */}
                   <Grid item xs={12} md={4}>
                     <MDInput
-                      label="Tìm kiếm (Tiêu đề, Người gửi, CCCD)..."
+                      label="Tìm kiếm..."
                       fullWidth
                       value={searchTerm}
                       onChange={handleSearch}
                     />
                   </Grid>
-
-                  {/* Lọc Trạng Thái */}
                   <Grid item xs={6} md={2}>
                     <FormControl fullWidth size="small" sx={{ height: "44px" }}>
                       <InputLabel id="status-filter">Trạng thái</InputLabel>
@@ -254,8 +249,6 @@ function QuanLyPhanAnh() {
                       </Select>
                     </FormControl>
                   </Grid>
-
-                  {/* Lọc Mức Độ */}
                   <Grid item xs={6} md={2}>
                     <FormControl fullWidth size="small" sx={{ height: "44px" }}>
                       <InputLabel id="level-filter">Mức độ</InputLabel>
@@ -270,14 +263,12 @@ function QuanLyPhanAnh() {
                         sx={{ height: "44px" }}
                       >
                         <MenuItem value="ALL">Tất cả</MenuItem>
-                        <MenuItem value="CAO">🔴 Cao</MenuItem>
-                        <MenuItem value="TRUNG_BINH">🟡 Trung bình</MenuItem>
+                        <MenuItem value="CAO">🔴 Khẩn cấp</MenuItem>
+                        <MenuItem value="TRUNG_BINH">🟡 Bình thường</MenuItem>
                         <MenuItem value="THAP">🟢 Thấp</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
-
-                  {/* Lọc Lĩnh Vực */}
                   <Grid item xs={12} md={4}>
                     <FormControl fullWidth size="small" sx={{ height: "44px" }}>
                       <InputLabel id="field-filter">Lĩnh vực</InputLabel>
@@ -308,9 +299,10 @@ function QuanLyPhanAnh() {
                     <TableHead style={{ display: "table-header-group" }}>
                       <TableRow>
                         <TableCell>Người Gửi / Ngày</TableCell>
-                        <TableCell>Tiêu đề / Lĩnh vực</TableCell>
+                        <TableCell>Tiêu đề / Lĩnh vực / Mức độ</TableCell>
+                        <TableCell>Cán bộ phụ trách</TableCell>
                         <TableCell align="center">Deadline</TableCell>
-                        <TableCell align="center">Mức độ</TableCell>
+                        <TableCell align="center">Hoàn thành</TableCell>
                         <TableCell align="center">Trạng thái</TableCell>
                         <TableCell align="center">Tác vụ</TableCell>
                       </TableRow>
@@ -321,6 +313,7 @@ function QuanLyPhanAnh() {
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                           .map((row) => {
                             const isOverdue = checkQuaHan(row.thoiHanXuLy, row.trangThaiHienTai);
+
                             return (
                               <TableRow key={row.maPhanAnh}>
                                 <TableCell>
@@ -333,7 +326,7 @@ function QuanLyPhanAnh() {
                                     📅 {formatDate(row.thoiGianTao)}
                                   </MDTypography>
                                 </TableCell>
-                                <TableCell style={{ maxWidth: "200px" }}>
+                                <TableCell style={{ maxWidth: "250px" }}>
                                   <MDTypography
                                     variant="button"
                                     fontWeight="medium"
@@ -341,19 +334,71 @@ function QuanLyPhanAnh() {
                                   >
                                     {row.tieuDe}
                                   </MDTypography>
-                                  <MDTypography variant="caption" color="info" fontWeight="regular">
-                                    📂 {getLinhVucLabel(row.linhVuc)}
-                                  </MDTypography>
+                                  <MDBox display="flex" alignItems="center" mt={0.5} gap={1}>
+                                    <MDTypography
+                                      variant="caption"
+                                      color="text"
+                                      fontWeight="regular"
+                                    >
+                                      📂 {getLinhVucLabel(row.linhVuc)}
+                                    </MDTypography>
+                                    <MDBadge
+                                      badgeContent={getMucDoLabel(row.mucDoKhanCap)}
+                                      color={getMucDoColor(row.mucDoKhanCap)}
+                                      variant="gradient"
+                                      size="xs"
+                                    />
+                                  </MDBox>
+                                </TableCell>
+                                <TableCell>
+                                  {row.canBoPhuTrach && row.canBoPhuTrach.nhanKhau ? (
+                                    <MDBox display="flex" flexDirection="column">
+                                      <MDTypography
+                                        variant="caption"
+                                        fontWeight="bold"
+                                        color="dark"
+                                      >
+                                        {row.canBoPhuTrach.nhanKhau.hoTen}
+                                      </MDTypography>
+                                      <MDTypography variant="caption" color="text">
+                                        {row.canBoPhuTrach.cccd}
+                                      </MDTypography>
+                                    </MDBox>
+                                  ) : (
+                                    <MDTypography variant="caption" color="text" fontStyle="italic">
+                                      Chưa giao
+                                    </MDTypography>
+                                  )}
                                 </TableCell>
                                 <TableCell align="center">
                                   {row.thoiHanXuLy ? (
-                                    <MDTypography
-                                      variant="caption"
-                                      fontWeight="bold"
-                                      color={isOverdue ? "error" : "dark"}
-                                    >
-                                      {formatDate(row.thoiHanXuLy)}
-                                    </MDTypography>
+                                    isOverdue ? (
+                                      <MDBox
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                        color="error"
+                                      >
+                                        <Icon fontSize="small" sx={{ mr: 0.5 }}>
+                                          error
+                                        </Icon>
+                                        <MDTypography
+                                          variant="caption"
+                                          fontWeight="bold"
+                                          color="error"
+                                        >
+                                          {formatDate(row.thoiHanXuLy)}
+                                        </MDTypography>
+                                      </MDBox>
+                                    ) : (
+                                      <MDTypography
+                                        variant="caption"
+                                        fontWeight="medium"
+                                        color="text"
+                                      >
+                                        {formatDate(row.thoiHanXuLy)}
+                                      </MDTypography>
+                                    )
                                   ) : (
                                     <MDTypography variant="caption" color="text">
                                       _
@@ -361,23 +406,50 @@ function QuanLyPhanAnh() {
                                   )}
                                 </TableCell>
                                 <TableCell align="center">
-                                  <MDBadge
-                                    badgeContent={getMucDoLabel(row.mucDoKhanCap)}
-                                    color={getMucDoColor(row.mucDoKhanCap)}
-                                    variant="gradient"
-                                    size="sm"
-                                  />
+                                  {row.trangThaiHienTai === "DA_XU_LY" && row.thoiGianHoanThanh ? (
+                                    <MDTypography
+                                      variant="caption"
+                                      fontWeight="bold"
+                                      color="success"
+                                    >
+                                      {formatDate(row.thoiGianHoanThanh)}
+                                    </MDTypography>
+                                  ) : (
+                                    <MDTypography variant="caption" color="text">
+                                      -
+                                    </MDTypography>
+                                  )}
                                 </TableCell>
                                 <TableCell align="center">{renderTrangThai(row)}</TableCell>
+
                                 <TableCell align="center">
                                   <MDBox display="flex" justifyContent="center" gap={1}>
+                                    {/* --- 1. NÚT XEM CHI TIẾT --- */}
+                                    <MDButton
+                                      variant="gradient"
+                                      color="info"
+                                      size="small"
+                                      iconOnly={true}
+                                      circular
+                                      onClick={() =>
+                                        navigate(`/chi-tiet-phan-anh/${row.maPhanAnh}`)
+                                      }
+                                      title="Xem chi tiết & Đánh giá"
+                                    >
+                                      <Icon>visibility</Icon>
+                                    </MDButton>
+
+                                    {/* --- 2. NÚT XỬ LÝ --- */}
                                     <MDButton
                                       variant="gradient"
                                       color="warning"
                                       size="small"
+                                      iconOnly={true}
+                                      circular
                                       onClick={() => navigate(`/xu-ly-phan-anh/${row.maPhanAnh}`)}
+                                      title="Cập nhật / Xử lý"
                                     >
-                                      <Icon>edit</Icon>&nbsp;Xử lý
+                                      <Icon>edit</Icon>
                                     </MDButton>
                                   </MDBox>
                                 </TableCell>
@@ -386,7 +458,7 @@ function QuanLyPhanAnh() {
                           })
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={6} align="center">
+                          <TableCell colSpan={7} align="center">
                             <MDTypography variant="caption" color="text">
                               Không tìm thấy kết quả.
                             </MDTypography>

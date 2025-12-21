@@ -39,41 +39,48 @@ function ChiTietPhanAnh() {
   const [thongBao, setThongBao] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // State User Role
-  const [userRole, setUserRole] = useState(null);
+  // --- LOGIC PHÂN QUYỀN ---
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const userRoles = Array.isArray(currentUser.roles)
+    ? currentUser.roles
+    : currentUser.role
+    ? [currentUser.role]
+    : [];
 
-  // --- HÀM CHUYỂN ĐỔI MÃ LĨNH VỰC SANG TIẾNG VIỆT ---
+  const isCanBo = userRoles.includes("CAN_BO");
+  // -------------------------
+
   const getLinhVucLabel = (code) => {
     switch (code) {
       case "AN_NINH_TRAT_TU":
         return "An ninh trật tự";
-      case "VE_SINH_MOI_TRUONG":
-        return "Vệ sinh môi trường";
       case "HA_TANG_DO_THI":
         return "Hạ tầng đô thị";
-      case "KHAC":
-        return "Khác";
+      case "MOI_TRUONG":
+        return "Môi trường";
+      case "Y_TE":
+        return "Y tế";
+      case "GIAO_DUC":
+        return "Giáo dục";
+      case "HANH_CHINH_CONG":
+        return "Hành chính công";
       default:
-        return code; // Nếu không khớp thì giữ nguyên
+        return code ? code.replace(/_/g, " ") : "Khác";
     }
   };
-  // --------------------------------------------------
 
   const fetchFullData = async () => {
     try {
       setLoading(true);
-
-      // 1. Lấy thông tin chi tiết
       const resInfo = await getChiTietPhanAnh(id);
       setData(resInfo.data);
 
-      if (resInfo.data.danhGiaHaiLong) {
+      if (resInfo.data.danhGiaHaiLong && resInfo.data.danhGiaHaiLong > 0) {
         setDaDanhGia(true);
         setSoSao(resInfo.data.danhGiaHaiLong);
         setGopY(resInfo.data.gopY || "");
       }
 
-      // 2. Lấy lịch sử
       const resHistory = await getLichSuPhanAnh(id);
       if (Array.isArray(resHistory.data)) {
         const phanHoiCuoi = resHistory.data.find((h) => h.hanhDong === "PHAN_HOI");
@@ -89,11 +96,6 @@ function ChiTietPhanAnh() {
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUserRole(parsedUser.vaiTro || (parsedUser.roles && parsedUser.roles[0]));
-    }
     fetchFullData();
   }, [id]);
 
@@ -111,13 +113,6 @@ function ChiTietPhanAnh() {
     }
   };
 
-  if (loading || !data)
-    return (
-      <MDBox display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <CircularProgress />
-      </MDBox>
-    );
-
   const getStatusColor = (status) => {
     if (status === "CHO") return "warning";
     if (status === "DANG_XU_LY") return "info";
@@ -131,6 +126,13 @@ function ChiTietPhanAnh() {
     if (status === "DA_XU_LY") return "Đã xử lý xong";
     return status;
   };
+
+  if (loading || !data)
+    return (
+      <MDBox display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </MDBox>
+    );
 
   return (
     <DashboardLayout>
@@ -170,7 +172,7 @@ function ChiTietPhanAnh() {
               </MDBox>
 
               <MDBox p={4}>
-                {userRole === "CAN_BO" && (
+                {isCanBo && (
                   <MDTypography variant="caption" color="text" display="block" mb={1}>
                     ID: {data.maPhanAnh}
                   </MDTypography>
@@ -185,12 +187,9 @@ function ChiTietPhanAnh() {
                     <MDTypography variant="button" fontWeight="bold" color="text">
                       Lĩnh vực:{" "}
                     </MDTypography>
-
-                    {/* --- ĐÃ SỬA: GỌI HÀM CHUYỂN ĐỔI TẠI ĐÂY --- */}
                     <MDTypography variant="body2" ml={1} component="span">
                       {getLinhVucLabel(data.linhVuc)}
                     </MDTypography>
-                    {/* ------------------------------------------- */}
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <MDTypography variant="button" fontWeight="bold" color="text">
@@ -202,52 +201,83 @@ function ChiTietPhanAnh() {
                         : "N/A"}
                     </MDTypography>
                   </Grid>
+                  {data.trangThaiHienTai === "DA_XU_LY" && data.thoiGianHoanThanh && (
+                    <Grid item xs={12} md={6}>
+                      <MDTypography variant="button" fontWeight="bold" color="text">
+                        Ngày hoàn thành:{" "}
+                      </MDTypography>
+                      <MDTypography
+                        variant="body2"
+                        ml={1}
+                        component="span"
+                        fontWeight="bold"
+                        color="success"
+                      >
+                        {new Date(data.thoiGianHoanThanh).toLocaleDateString("vi-VN")}
+                      </MDTypography>
+                    </Grid>
+                  )}
+                  <Grid item xs={12} md={12}>
+                    <MDBox
+                      display="flex"
+                      alignItems="center"
+                      p={1.5}
+                      bgColor="grey-100"
+                      borderRadius="md"
+                      mt={1}
+                    >
+                      <Icon color="info" fontSize="small" sx={{ mr: 1 }}>
+                        person
+                      </Icon>
+                      <MDTypography variant="button" fontWeight="bold" color="text">
+                        Cán bộ thụ lý:
+                      </MDTypography>
+                      <MDTypography variant="body2" fontWeight="bold" ml={1} color="dark">
+                        {data.canBoPhuTrach && data.canBoPhuTrach.nhanKhau ? (
+                          `${data.canBoPhuTrach.nhanKhau.hoTen} (${data.canBoPhuTrach.cccd})`
+                        ) : (
+                          <span style={{ color: "#999", fontStyle: "italic" }}>Chưa phân công</span>
+                        )}
+                      </MDTypography>
+                    </MDBox>
+                  </Grid>
                 </Grid>
 
-                {/* --- PHẦN NỘI DUNG & ẢNH --- */}
                 <MDBox bgColor="grey-100" p={2} borderRadius="lg" mb={3}>
                   <MDTypography variant="h6" gutterBottom>
                     Nội dung phản ánh:
                   </MDTypography>
-
                   <MDTypography variant="body2" style={{ whiteSpace: "pre-line" }} color="text">
                     {data.noiDung || "Không có nội dung chi tiết."}
                   </MDTypography>
-
                   {data.tepDinhKems && data.tepDinhKems.length > 0 && (
-                    <MDBox mt={3}>
-                      <MDTypography variant="caption" fontWeight="bold" color="text">
-                        Minh chứng đính kèm:
-                      </MDTypography>
-                      <MDBox mt={1} display="flex" gap={2} flexWrap="wrap">
-                        {data.tepDinhKems.map((tep, index) => (
-                          <MDBox
-                            key={index}
-                            component="img"
-                            src={tep.url}
-                            alt="minh-chung"
-                            width="150px"
-                            height="150px"
-                            borderRadius="lg"
-                            style={{
-                              objectFit: "cover",
-                              border: "1px solid #ddd",
-                              cursor: "pointer",
-                            }}
-                            onClick={() => window.open(tep.url, "_blank")}
-                          />
-                        ))}
-                      </MDBox>
+                    <MDBox mt={3} display="flex" gap={2} flexWrap="wrap">
+                      {data.tepDinhKems.map((tep, index) => (
+                        <MDBox
+                          key={index}
+                          component="img"
+                          src={tep.url}
+                          width="150px"
+                          height="150px"
+                          borderRadius="lg"
+                          style={{
+                            objectFit: "cover",
+                            border: "1px solid #ddd",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => window.open(tep.url, "_blank")}
+                        />
+                      ))}
                     </MDBox>
                   )}
                 </MDBox>
 
                 <Divider />
 
-                {/* --- KẾT QUẢ XỬ LÝ --- */}
                 <MDTypography variant="h6" color="success" gutterBottom mt={3}>
-                  <Icon sx={{ verticalAlign: "middle", mr: 1 }}>check_circle</Icon>
-                  Kết quả xử lý / Phản hồi từ cơ quan:
+                  <MDBox display="flex" alignItems="center">
+                    <Icon sx={{ mr: 1 }}>check_circle</Icon> Kết quả xử lý:
+                  </MDBox>
                 </MDTypography>
 
                 {ketQua ? (
@@ -268,72 +298,148 @@ function ChiTietPhanAnh() {
                   </MDTypography>
                 )}
 
-                {/* --- KHU VỰC ĐÁNH GIÁ --- */}
                 {data.trangThaiHienTai === "DA_XU_LY" && (
-                  <>
-                    <Divider />
-                    <MDBox
-                      mt={3}
-                      p={3}
-                      borderRadius="xl"
-                      bgColor={daDanhGia ? "#fff" : "#fff8e1"}
-                      border={daDanhGia ? "" : "1px dashed #ffb300"}
-                    >
-                      <MDTypography
-                        variant="h5"
-                        gutterBottom
-                        color={daDanhGia ? "dark" : "warning"}
+                  <MDBox mt={4}>
+                    <Card sx={{ overflow: "visible" }}>
+                      <MDBox
+                        mx={2}
+                        mt={-3}
+                        py={2}
+                        px={2}
+                        variant="gradient"
+                        borderRadius="lg"
+                        sx={{
+                          background: "linear-gradient(195deg, #0f766e, #115e59)",
+                          boxShadow: "0 4px 20px 0 rgba(0,0,0,0.14)",
+                        }}
                       >
-                        {daDanhGia ? "Đánh giá của bạn:" : "Đánh giá mức độ hài lòng:"}
-                      </MDTypography>
-
-                      <MDBox display="flex" alignItems="center" mb={2}>
-                        <Rating
-                          value={soSao}
-                          onChange={(e, val) => !daDanhGia && val !== null && setSoSao(val)}
-                          readOnly={daDanhGia}
-                          size="large"
-                        />
-                        <MDTypography variant="button" ml={2} fontWeight="bold">
-                          ({soSao} sao)
+                        <MDTypography variant="h6" color="white">
+                          Đánh Giá Chất Lượng
                         </MDTypography>
                       </MDBox>
 
-                      {!daDanhGia ? (
-                        <MDBox>
-                          <TextField
-                            label="Góp ý thêm"
-                            multiline
-                            rows={3}
-                            fullWidth
-                            value={gopY}
-                            onChange={(e) => setGopY(e.target.value)}
-                            sx={{ mb: 2, bgcolor: "white" }}
-                          />
-                          <MDButton
-                            variant="gradient"
-                            color="warning"
-                            onClick={handleGuiDanhGia}
-                            disabled={isSubmitting}
-                          >
-                            {isSubmitting ? "Đang gửi..." : "Gửi Đánh Giá"}
-                          </MDButton>
-                        </MDBox>
-                      ) : (
-                        <MDBox bgColor="grey-100" p={2} borderRadius="lg">
-                          <MDTypography variant="body2">
-                            {gopY || "Không có góp ý thêm."}
-                          </MDTypography>
-                        </MDBox>
-                      )}
-
-                      {thongBao && (
-                        <MDBox mt={2}>
-                          <MDAlert color="success">{thongBao}</MDAlert>
-                        </MDBox>
-                      )}
-                    </MDBox>
-                  </>
+                      <MDBox p={3}>
+                        {isCanBo ? (
+                          daDanhGia ? (
+                            <Grid container spacing={3} alignItems="center">
+                              <Grid
+                                item
+                                xs={12}
+                                md={4}
+                                display="flex"
+                                flexDirection="column"
+                                alignItems="center"
+                              >
+                                <MDTypography variant="h1" color="warning" fontWeight="bold">
+                                  {soSao}
+                                </MDTypography>
+                                <Rating
+                                  value={soSao}
+                                  readOnly
+                                  size="large"
+                                  sx={{ fontSize: "3rem" }}
+                                />
+                              </Grid>
+                              <Grid item xs={12} md={8}>
+                                <MDBox bgColor="grey-100" borderRadius="lg" p={3}>
+                                  <MDTypography variant="subtitle2" fontWeight="bold">
+                                    💬 Ý kiến dân:
+                                  </MDTypography>
+                                  {/* SỬA LỖI Ở DÒNG NÀY: Dùng &quot; thay cho " */}
+                                  <MDTypography variant="body2" fontStyle="italic">
+                                    &quot;{gopY || "Không có lời nhắn"}&quot;
+                                  </MDTypography>
+                                </MDBox>
+                              </Grid>
+                            </Grid>
+                          ) : (
+                            <MDBox display="flex" flexDirection="column" alignItems="center" py={3}>
+                              <Icon
+                                fontSize="large"
+                                color="disabled"
+                                sx={{ fontSize: "4rem !important" }}
+                              >
+                                hourglass_empty
+                              </Icon>
+                              <MDTypography variant="h6" color="text" mt={2}>
+                                Đang chờ công dân đánh giá
+                              </MDTypography>
+                            </MDBox>
+                          )
+                        ) : daDanhGia ? (
+                          <Grid container spacing={3} alignItems="center">
+                            <Grid
+                              item
+                              xs={12}
+                              md={4}
+                              display="flex"
+                              flexDirection="column"
+                              alignItems="center"
+                            >
+                              <MDTypography variant="h1" color="warning" fontWeight="bold">
+                                {soSao}
+                              </MDTypography>
+                              <Rating
+                                value={soSao}
+                                readOnly
+                                size="large"
+                                sx={{ fontSize: "3rem" }}
+                              />
+                              <MDTypography variant="caption" color="text">
+                                Đánh giá của bạn
+                              </MDTypography>
+                            </Grid>
+                            <Grid item xs={12} md={8}>
+                              <MDBox bgColor="grey-100" borderRadius="lg" p={3}>
+                                <MDTypography variant="subtitle2" fontWeight="bold">
+                                  Góp ý của bạn:
+                                </MDTypography>
+                                {/* SỬA LỖI Ở DÒNG NÀY: Dùng &quot; thay cho " */}
+                                <MDTypography variant="body2">
+                                  &quot;{gopY || "Không có lời nhắn"}&quot;
+                                </MDTypography>
+                              </MDBox>
+                            </Grid>
+                          </Grid>
+                        ) : (
+                          <MDBox display="flex" flexDirection="column" alignItems="center">
+                            <MDTypography variant="h6" color="dark" gutterBottom>
+                              Bạn hài lòng với kết quả xử lý chứ?
+                            </MDTypography>
+                            <Rating
+                              name="user-rating"
+                              value={soSao}
+                              onChange={(e, val) => setSoSao(val)}
+                              size="large"
+                              sx={{ fontSize: "3rem", mb: 2 }}
+                            />
+                            <TextField
+                              label="Nhập góp ý..."
+                              multiline
+                              rows={3}
+                              fullWidth
+                              value={gopY}
+                              onChange={(e) => setGopY(e.target.value)}
+                              sx={{ mb: 2 }}
+                            />
+                            <MDButton
+                              variant="gradient"
+                              color="warning"
+                              onClick={handleGuiDanhGia}
+                              disabled={isSubmitting}
+                            >
+                              {isSubmitting ? "Đang gửi..." : "Gửi Đánh Giá"}
+                            </MDButton>
+                            {thongBao && (
+                              <MDBox mt={2}>
+                                <MDAlert color="success">{thongBao}</MDAlert>
+                              </MDBox>
+                            )}
+                          </MDBox>
+                        )}
+                      </MDBox>
+                    </Card>
+                  </MDBox>
                 )}
               </MDBox>
             </Card>
