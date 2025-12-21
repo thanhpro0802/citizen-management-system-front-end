@@ -60,6 +60,7 @@ const routes = [
     route: "/dashboard",
     component: <Dashboard />,
     requireAuth: true,
+    requiredRole: "CAN_BO",
   },
   {
     type: "collapse",
@@ -69,6 +70,7 @@ const routes = [
     route: "/thong-ke",
     component: <ThongKe />,
     requireAuth: true,
+    requiredRole: "CAN_BO",
   },
   {
     type: "collapse",
