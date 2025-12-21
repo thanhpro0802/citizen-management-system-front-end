@@ -19,7 +19,7 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDBadge from "components/MDBadge";
 import MDButton from "components/MDButton";
-import MDInput from "components/MDInput"; // <--- IMPORT INPUT
+import MDInput from "components/MDInput";
 
 // Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -35,11 +35,9 @@ function QuanLyPhanAnh() {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  // --- STATE TÌM KIẾM ---
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Helpers (Giữ nguyên)
+  // Helpers
   const getMucDoLabel = (m) => {
     if (m === "CAO") return "Cao";
     if (m === "TRUNG_BINH") return "TB";
@@ -50,12 +48,8 @@ function QuanLyPhanAnh() {
     if (m === "TRUNG_BINH") return "warning";
     return "success";
   };
-  const getStatusColor = (s) =>
-    s === "DA_XU_LY" ? "success" : s === "DANG_XU_LY" ? "info" : "secondary";
-  const getStatusLabel = (s) =>
-    s === "DA_XU_LY" ? "Đã Xử Lý" : s === "DANG_XU_LY" ? "Đang Xử Lý" : "Chờ Tiếp Nhận";
+
   const getLinhVucLabel = (c) => {
-    // (Giữ nguyên logic cũ)
     switch (c) {
       case "AN_NINH_TRAT_TU":
         return "An ninh trật tự";
@@ -75,7 +69,50 @@ function QuanLyPhanAnh() {
   };
   const formatDate = (d) => (d ? new Date(d).toLocaleDateString("vi-VN") : "");
 
-  // Check quyền (Giữ nguyên)
+  // --- 1. LOGIC KIỂM TRA QUÁ HẠN (MỚI) ---
+  const checkQuaHan = (thoiHan, trangThai) => {
+    if (!thoiHan) return false; // Chưa giao deadline thì ko tính
+    if (trangThai === "DA_XU_LY") return false; // Đã xong thì ko tính quá hạn
+
+    const deadlineDate = new Date(thoiHan);
+    const today = new Date();
+    // Reset giờ phút về 0 để so sánh ngày chuẩn hơn
+    today.setHours(0, 0, 0, 0);
+    deadlineDate.setHours(0, 0, 0, 0);
+
+    return today > deadlineDate; // Nếu hôm nay lớn hơn deadline -> QUÁ HẠN
+  };
+  // ----------------------------------------
+
+  // Helper hiển thị trạng thái (Cập nhật để hiện chữ Quá hạn)
+  const renderTrangThai = (row) => {
+    const isOverdue = checkQuaHan(row.thoiHanXuLy, row.trangThaiHienTai);
+
+    if (isOverdue) {
+      return (
+        <MDBox display="flex" flexDirection="column" alignItems="center">
+          <MDBadge badgeContent="Đang Xử Lý" color="info" variant="gradient" size="sm" />
+          <MDTypography variant="caption" color="error" fontWeight="bold" mt={0.5}>
+            ⚠️ QUÁ HẠN
+          </MDTypography>
+        </MDBox>
+      );
+    }
+
+    // Bình thường
+    let label = "Chờ Tiếp Nhận";
+    let color = "secondary";
+    if (row.trangThaiHienTai === "DA_XU_LY") {
+      label = "Đã Xử Lý";
+      color = "success";
+    } else if (row.trangThaiHienTai === "DANG_XU_LY") {
+      label = "Đang Xử Lý";
+      color = "info";
+    }
+
+    return <MDBadge badgeContent={label} color={color} variant="gradient" size="sm" />;
+  };
+
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (!userStr) {
@@ -91,9 +128,14 @@ function QuanLyPhanAnh() {
     }
   }, [navigate]);
 
-  // Logic sắp xếp (Giữ nguyên)
+  // Logic Sắp xếp: Ưu tiên Quá hạn lên trên cùng -> Chưa xong -> Mức độ -> Mới nhất
   const sortPhanAnh = (data) => {
     return data.sort((a, b) => {
+      // 0. Ưu tiên QUÁ HẠN lên đầu
+      const overA = checkQuaHan(a.thoiHanXuLy, a.trangThaiHienTai);
+      const overB = checkQuaHan(b.thoiHanXuLy, b.trangThaiHienTai);
+      if (overA !== overB) return overA ? -1 : 1; // Quá hạn (true) lên trước
+
       const statusScore = { CHO: 1, DANG_XU_LY: 2, DA_XU_LY: 3 };
       const scoreA = statusScore[a.trangThaiHienTai] || 4;
       const scoreB = statusScore[b.trangThaiHienTai] || 4;
@@ -128,7 +170,6 @@ function QuanLyPhanAnh() {
     setPage(0);
   };
 
-  // --- XỬ LÝ TÌM KIẾM ---
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     setPage(0);
@@ -137,18 +178,14 @@ function QuanLyPhanAnh() {
   const filteredList = danhSach.filter((item) => {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
-
-    // Lấy thông tin người gửi an toàn
     const tenNguoiGui = item.nguoiGui ? (item.nguoiGui.hoTen || "").toLowerCase() : "";
     const cccdNguoiGui = item.nguoiGui ? (item.nguoiGui.cccd || "").toLowerCase() : "";
-
     return (
       (item.tieuDe && item.tieuDe.toLowerCase().includes(term)) ||
-      tenNguoiGui.includes(term) || // Tìm theo tên người gửi
-      cccdNguoiGui.includes(term) // Tìm theo CCCD
+      tenNguoiGui.includes(term) ||
+      cccdNguoiGui.includes(term)
     );
   });
-  // ---------------------
 
   return (
     <DashboardLayout>
@@ -173,16 +210,14 @@ function QuanLyPhanAnh() {
               </MDBox>
 
               <MDBox pt={3}>
-                {/* --- THANH TÌM KIẾM --- */}
                 <MDBox px={3} mb={2}>
                   <MDInput
-                    label="Tìm kiếm (Tiêu đề, Người gửi, CCCD)..."
+                    label="Tìm kiếm..."
                     fullWidth
                     value={searchTerm}
                     onChange={handleSearch}
                   />
                 </MDBox>
-                {/* ---------------------- */}
 
                 <TableContainer>
                   <Table>
@@ -190,9 +225,9 @@ function QuanLyPhanAnh() {
                       <TableRow>
                         <TableCell>Người Gửi / Ngày</TableCell>
                         <TableCell>Tiêu đề / Lĩnh vực</TableCell>
+                        <TableCell align="center">Deadline</TableCell> {/* CỘT MỚI */}
                         <TableCell align="center">Mức độ</TableCell>
                         <TableCell align="center">Trạng thái</TableCell>
-                        <TableCell align="center">Đánh giá</TableCell>
                         <TableCell align="center">Tác vụ</TableCell>
                       </TableRow>
                     </TableHead>
@@ -200,65 +235,79 @@ function QuanLyPhanAnh() {
                       {filteredList.length > 0 ? (
                         filteredList
                           .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((row) => (
-                            <TableRow key={row.maPhanAnh}>
-                              <TableCell>
-                                <MDTypography variant="caption" fontWeight="bold" display="block">
-                                  {row.nguoiGui
-                                    ? row.nguoiGui.hoTen || row.nguoiGui.cccd
-                                    : "Ẩn danh"}
-                                </MDTypography>
-                                <MDTypography variant="caption" color="text">
-                                  📅 {formatDate(row.thoiGianTao)}
-                                </MDTypography>
-                              </TableCell>
-                              <TableCell style={{ maxWidth: "250px" }}>
-                                <MDTypography variant="button" fontWeight="medium" display="block">
-                                  {row.tieuDe}
-                                </MDTypography>
-                                <MDTypography variant="caption" color="info" fontWeight="regular">
-                                  📂 {getLinhVucLabel(row.linhVuc)}
-                                </MDTypography>
-                              </TableCell>
-                              <TableCell align="center">
-                                <MDBadge
-                                  badgeContent={getMucDoLabel(row.mucDoKhanCap)}
-                                  color={getMucDoColor(row.mucDoKhanCap)}
-                                  variant="gradient"
-                                  size="sm"
-                                />
-                              </TableCell>
-                              <TableCell align="center">
-                                <MDBadge
-                                  badgeContent={getStatusLabel(row.trangThaiHienTai)}
-                                  color={getStatusColor(row.trangThaiHienTai)}
-                                  variant="gradient"
-                                  size="sm"
-                                />
-                              </TableCell>
-                              <TableCell align="center">
-                                {row.danhGiaHaiLong ? (
-                                  <Rating value={row.danhGiaHaiLong} readOnly size="small" />
-                                ) : (
-                                  <MDTypography variant="caption" color="text">
-                                    -
+                          .map((row) => {
+                            // Kiểm tra quá hạn để đổi màu chữ deadline
+                            const isOverdue = checkQuaHan(row.thoiHanXuLy, row.trangThaiHienTai);
+
+                            return (
+                              <TableRow key={row.maPhanAnh}>
+                                <TableCell>
+                                  <MDTypography variant="caption" fontWeight="bold" display="block">
+                                    {row.nguoiGui
+                                      ? row.nguoiGui.hoTen || row.nguoiGui.cccd
+                                      : "Ẩn danh"}
                                   </MDTypography>
-                                )}
-                              </TableCell>
-                              <TableCell align="center">
-                                <MDBox display="flex" justifyContent="center" gap={1}>
-                                  <MDButton
-                                    variant="gradient"
-                                    color="warning"
-                                    size="small"
-                                    onClick={() => navigate(`/xu-ly-phan-anh/${row.maPhanAnh}`)}
+                                  <MDTypography variant="caption" color="text">
+                                    📅 {formatDate(row.thoiGianTao)}
+                                  </MDTypography>
+                                </TableCell>
+                                <TableCell style={{ maxWidth: "200px" }}>
+                                  <MDTypography
+                                    variant="button"
+                                    fontWeight="medium"
+                                    display="block"
                                   >
-                                    <Icon>edit</Icon>&nbsp;Xử lý
-                                  </MDButton>
-                                </MDBox>
-                              </TableCell>
-                            </TableRow>
-                          ))
+                                    {row.tieuDe}
+                                  </MDTypography>
+                                  <MDTypography variant="caption" color="info" fontWeight="regular">
+                                    📂 {getLinhVucLabel(row.linhVuc)}
+                                  </MDTypography>
+                                </TableCell>
+
+                                {/* HIỂN THỊ DEADLINE */}
+                                <TableCell align="center">
+                                  {row.thoiHanXuLy ? (
+                                    <MDTypography
+                                      variant="caption"
+                                      fontWeight="bold"
+                                      color={isOverdue ? "error" : "dark"} // Quá hạn thì màu đỏ
+                                    >
+                                      {formatDate(row.thoiHanXuLy)}
+                                    </MDTypography>
+                                  ) : (
+                                    <MDTypography variant="caption" color="text">
+                                      _
+                                    </MDTypography>
+                                  )}
+                                </TableCell>
+
+                                <TableCell align="center">
+                                  <MDBadge
+                                    badgeContent={getMucDoLabel(row.mucDoKhanCap)}
+                                    color={getMucDoColor(row.mucDoKhanCap)}
+                                    variant="gradient"
+                                    size="sm"
+                                  />
+                                </TableCell>
+
+                                {/* TRẠNG THÁI (Có cảnh báo quá hạn) */}
+                                <TableCell align="center">{renderTrangThai(row)}</TableCell>
+
+                                <TableCell align="center">
+                                  <MDBox display="flex" justifyContent="center" gap={1}>
+                                    <MDButton
+                                      variant="gradient"
+                                      color="warning"
+                                      size="small"
+                                      onClick={() => navigate(`/xu-ly-phan-anh/${row.maPhanAnh}`)}
+                                    >
+                                      <Icon>edit</Icon>&nbsp;Xử lý
+                                    </MDButton>
+                                  </MDBox>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })
                       ) : (
                         <TableRow>
                           <TableCell colSpan={6} align="center">
@@ -275,7 +324,7 @@ function QuanLyPhanAnh() {
                 <TablePagination
                   rowsPerPageOptions={[]}
                   component="div"
-                  count={filteredList.length} // SỬA: Đếm trên filteredList
+                  count={filteredList.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}

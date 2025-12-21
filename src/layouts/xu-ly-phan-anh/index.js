@@ -281,6 +281,8 @@ function XuLyPhanAnh() {
                       <Grid item xs={12} md={6}>
                         <MDInput
                           type="date"
+                          label="Hạn chót xử lý (Deadline)"
+                          InputLabelProps={{ shrink: true }}
                           fullWidth
                           value={thoiHan}
                           onChange={(e) => setThoiHan(e.target.value)}
