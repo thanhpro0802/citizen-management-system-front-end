@@ -9,11 +9,10 @@ import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import MenuItem from "@mui/material/MenuItem";
 
-// --- THÊM CÁC IMPORT NÀY ĐỂ SỬA LỖI GIAO DIỆN ---
+// Import để sửa lỗi giao diện Select
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
-// ------------------------------------------------
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -30,13 +29,18 @@ import Footer from "examples/Footer";
 import { guiPhanAnhMoi } from "services/phanAnhService";
 import { uploadToCloudinary } from "services/uploadService";
 
-// Danh sách lĩnh vực
+// --- CẬP NHẬT: DANH SÁCH ĐẦY ĐỦ KHỚP VỚI BỘ LỌC ---
 const linhVucs = [
   { value: "AN_NINH_TRAT_TU", label: "An ninh trật tự" },
-  { value: "VE_SINH_MOI_TRUONG", label: "Vệ sinh môi trường" },
   { value: "HA_TANG_DO_THI", label: "Hạ tầng đô thị" },
+  { value: "MOI_TRUONG", label: "Môi trường" }, // Sửa VE_SINH_MOI_TRUONG thành MOI_TRUONG cho đồng bộ
+  { value: "Y_TE", label: "Y tế" },
+  { value: "GIAO_DUC", label: "Giáo dục" },
+  { value: "GIAO_THONG", label: "Giao thông" },
+  { value: "HANH_CHINH_CONG", label: "Hành chính công" },
   { value: "KHAC", label: "Khác" },
 ];
+// --------------------------------------------------
 
 function GuiPhanAnh() {
   const navigate = useNavigate();
@@ -44,7 +48,7 @@ function GuiPhanAnh() {
   // State Form
   const [tieuDe, setTieuDe] = useState("");
   const [noiDung, setNoiDung] = useState("");
-  const [linhVuc, setLinhVuc] = useState("AN_NINH_TRAT_TU"); // Mặc định chọn cái đầu tiên cho đẹp
+  const [linhVuc, setLinhVuc] = useState("AN_NINH_TRAT_TU");
 
   // State File & Loading
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -75,16 +79,9 @@ function GuiPhanAnh() {
       // BƯỚC A: Upload file
       const listUrlAnh = [];
       if (selectedFiles.length > 0) {
-        console.log("Bắt đầu upload...", selectedFiles.length, "file"); // <--- LOG 1
-
         const uploadPromises = selectedFiles.map((file) => uploadToCloudinary(file));
         const urls = await Promise.all(uploadPromises);
-
-        console.log("Kết quả từ Cloudinary:", urls); // <--- LOG 2: QUAN TRỌNG NHẤT
-
         listUrlAnh.push(...urls);
-      } else {
-        console.log("Không có file nào được chọn!"); // <--- LOG 3
       }
 
       // BƯỚC B: Gọi API Backend
@@ -144,7 +141,7 @@ function GuiPhanAnh() {
                     </MDBox>
                   )}
 
-                  {/* --- ĐÃ SỬA LẠI PHẦN NÀY --- */}
+                  {/* SELECT BOX LĨNH VỰC */}
                   <MDBox mb={2}>
                     <FormControl fullWidth>
                       <InputLabel id="linh-vuc-label">Lĩnh Vực</InputLabel>
@@ -154,8 +151,9 @@ function GuiPhanAnh() {
                         value={linhVuc}
                         label="Lĩnh Vực"
                         onChange={(e) => setLinhVuc(e.target.value)}
-                        sx={{ height: 45 }} // Chỉnh chiều cao cho thoáng
+                        sx={{ height: 45 }}
                       >
+                        {/* Render từ danh sách đã cập nhật */}
                         {linhVucs.map((option) => (
                           <MenuItem key={option.value} value={option.value}>
                             {option.label}
@@ -164,7 +162,6 @@ function GuiPhanAnh() {
                       </Select>
                     </FormControl>
                   </MDBox>
-                  {/* --------------------------- */}
 
                   <MDBox mb={2}>
                     <TextField
@@ -186,12 +183,11 @@ function GuiPhanAnh() {
                     />
                   </MDBox>
 
-                  {/* --- KHU VỰC CHỌN ẢNH & PREVIEW --- */}
+                  {/* KHU VỰC ẢNH */}
                   <MDBox mb={2}>
                     <MDTypography variant="caption" fontWeight="bold" display="block" mb={1}>
                       Hình ảnh đính kèm (Nếu có):
                     </MDTypography>
-
                     <input
                       accept="image/*"
                       style={{ display: "none" }}
@@ -223,7 +219,6 @@ function GuiPhanAnh() {
                               alt="preview"
                               style={{ width: "100%", height: "100%", objectFit: "cover" }}
                             />
-
                             <MDBox
                               position="absolute"
                               top={0}
