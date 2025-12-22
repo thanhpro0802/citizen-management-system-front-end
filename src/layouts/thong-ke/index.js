@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { Box, Grid, Typography, useTheme } from "@mui/material";
 import MDBox from "components/MDBox";
 import ButtonMenu from "./components/ButtonMenu";
-import ThongKeDoTuoi from "./components/thongke/ThongKeDoTuoi";
-import ThongKeGioiTinh from "./components/thongke/ThongKeGioiTinh";
-import ThongKeQueQuan from "./components/thongke/ThongKeQueQuan";
+
+import ThongKePhanAnh from "./components/thongke/ThongKePhanAnh";
+import ThongKeNhanKhau from "./components/thongke/ThongKeNhanKhau";
+import TongNhanKhau from "./components/TongNK";
 import ThongKeSoThanhVien from "./components/thongke/ThongKeSoThanhVien";
+import TongHoKhau from "./components/TongHK";
+
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import TongNhanKhau from "./components/TongNK";
-import TongHoKhau from "./components/TongHK";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
@@ -25,7 +26,7 @@ function ThongKe() {
         <Grid container spacing={3}>
           <Grid item xs={12} md={6} lg={6}>
             <MDBox mb={1.5}>
-              <TongNhanKhau />
+              <TongNhanKhau type="TONG_NK" />
             </MDBox>
           </Grid>
 
@@ -54,9 +55,9 @@ function ThongKe() {
                   />
                 </MDBox>
 
-                {typeNK === "age" && <ThongKeDoTuoi />}
-                {typeNK === "gender" && <ThongKeGioiTinh />}
-                {typeNK === "province" && <ThongKeQueQuan />}
+                {typeNK === "age" && <ThongKeNhanKhau type={"DO_TUOI"} />}
+                {typeNK === "gender" && <ThongKeNhanKhau type={"GIOI_TINH"} />}
+                {typeNK === "province" && <ThongKeNhanKhau type={"QUE_QUAN"} />}
               </MDBox>
             </Grid>
 
@@ -66,16 +67,22 @@ function ThongKe() {
                   <ButtonMenu
                     color="success"
                     title="Chọn thống kê"
-                    items={[
-                      { value: "mem-count", label: "Thống kê số thành viên" },
-                      { value: "gender", label: "Thống kê giới tính" },
-                      { value: "province", label: "Thống kê quê quán" },
-                    ]}
+                    items={[{ value: "mem-count", label: "Thống kê số thành viên" }]}
                     onSelect={(value) => setTypeHK(value)}
                   />
                 </MDBox>
 
                 {typeHK === "mem-count" && <ThongKeSoThanhVien color="success" />}
+              </MDBox>
+            </Grid>
+          </Grid>
+        </MDBox>
+
+        <MDBox mt={4.5}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6} lg={6}>
+              <MDBox mb={3}>
+                <ThongKePhanAnh startDate="2025-12-25" />
               </MDBox>
             </Grid>
           </Grid>
