@@ -13,3 +13,4 @@ export const deleteHoKhau = (maHoKhau) => api.delete(`${API_URL}/${maHoKhau}`);
 export const tachHo = (maHoKhauCu, data) => api.post(`${API_URL}/${maHoKhauCu}/tach-ho`, data);
 export const nhapHo = (maHoNhapVao, data) => api.post(`${API_URL}/${maHoNhapVao}/nhap-ho`, data);
 export const thayDoiChuHo = (maHoKhau, data) => api.put(`${API_URL}/${maHoKhau}/doi-chu-ho`, data);
+export const fetchMyHoKhau = () => api.get(`${API_URL}/cua-toi`);

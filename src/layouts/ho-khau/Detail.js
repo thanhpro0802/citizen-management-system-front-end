@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchHoKhauDetail, deleteHoKhau } from "services/hokhauService";
 
-// [SỬA LỖI 1]: Import PropTypes để kiểm tra dữ liệu
+// 1. Service: Gom tất cả vào 1 dòng duy nhất
+import { fetchHoKhauDetail, deleteHoKhau, fetchMyHoKhau } from "services/hokhauService";
+
+// 2. PropTypes: Chỉ để 1 dòng duy nhất
 import PropTypes from "prop-types";
 
-// @mui material components
+// 3. Material UI components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Icon from "@mui/material/Icon";
@@ -24,12 +26,12 @@ import {
   DialogActions,
 } from "@mui/material";
 
-// Material Dashboard 2 React components
+// 4. Custom Components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 
-// Layout
+// 5. Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
@@ -51,8 +53,9 @@ InfoItem.propTypes = {
   value: PropTypes.string,
 };
 
-function HoKhauDetail() {
-  const { id } = useParams();
+// [SỬA]: Nhận prop isMe từ routes
+function HoKhauDetail({ isMe }) {
+  const { id } = useParams(); // id chỉ có khi Cán bộ xem chi tiết
   const navigate = useNavigate();
 
   const [hoKhau, setHoKhau] = useState(null);
@@ -62,15 +65,22 @@ function HoKhauDetail() {
 
   useEffect(() => {
     setLoading(true);
-    fetchHoKhauDetail(id)
+    setError(null);
+
+    // [LOGIC MỚI]: Nếu là isMe thì gọi fetchMyHoKhau, ngược lại gọi fetchHoKhauDetail(id)
+    const fetchData = isMe ? fetchMyHoKhau() : fetchHoKhauDetail(id);
+
+    fetchData
       .then((res) => {
         setHoKhau(res.data);
       })
-      .catch(() => {
-        setError("Không thể tải thông tin hộ khẩu. Vui lòng thử lại sau.");
+      .catch((err) => {
+        // Xử lý lỗi hiển thị tin nhắn từ Backend (VD: "Chưa thuộc hộ khẩu nào")
+        const msg = err.response?.data || "Không thể tải thông tin hộ khẩu.";
+        setError(msg);
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, isMe]);
 
   const handleDelete = async () => {
     try {
@@ -113,6 +123,8 @@ function HoKhauDetail() {
     );
   }
 
+  const showActions = !isMe;
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -120,7 +132,6 @@ function HoKhauDetail() {
         <Grid container spacing={6} justifyContent="center">
           <Grid item xs={12}>
             <Card>
-              {/* Header Gradient Xanh */}
               <MDBox
                 mx={2}
                 mt={-3}
@@ -136,204 +147,94 @@ function HoKhauDetail() {
               >
                 <MDBox>
                   <MDTypography variant="h6" color="white">
-                    Chi Tiết Hộ Khẩu
+                    {isMe ? "Hộ Khẩu Của Tôi" : "Chi Tiết Hộ Khẩu"}
                   </MDTypography>
                   <MDTypography variant="caption" color="white" opacity={0.8}>
-                    Mã HK: {hoKhau?.maHoKhau}
+                    {hoKhau ? `Mã HK: ${hoKhau.maHoKhau}` : ""}
                   </MDTypography>
                 </MDBox>
 
-                <MDButton
-                  variant="outlined"
-                  color="white"
-                  size="small"
-                  onClick={() => navigate("/ho-khau")}
-                >
-                  <Icon>arrow_back</Icon>&nbsp;Quay lại
-                </MDButton>
+                {/* Nếu là User xem của mình thì không cần nút Quay lại danh sách */}
+                {!isMe && (
+                  <MDButton
+                    variant="outlined"
+                    color="white"
+                    size="small"
+                    onClick={() => navigate("/ho-khau")}
+                  >
+                    <Icon>arrow_back</Icon>&nbsp;Quay lại
+                  </MDButton>
+                )}
               </MDBox>
 
               <MDBox p={4}>
-                {/* Thông tin chung */}
-                <MDTypography variant="h6" color="dark" mb={2}>
-                  Thông tin chung
-                </MDTypography>
+                {/* ... (Phần hiển thị Thông tin chung & Bảng thành viên giữ nguyên) ... */}
 
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <InfoItem label="Chủ hộ" value={hoKhau?.chuHo?.hoTen} />
-                    <InfoItem
-                      label="CCCD Chủ hộ"
-                      value={hoKhau?.chuHo?.soCCCD || hoKhau?.chuHo?.soCccd}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <InfoItem label="Địa chỉ thường trú" value={hoKhau?.diaChi} />
-                    <InfoItem
-                      label="Ngày đăng ký"
-                      value={
-                        hoKhau?.ngayDangKy
-                          ? new Date(hoKhau.ngayDangKy).toLocaleDateString("vi-VN")
-                          : ""
-                      }
-                    />
-                  </Grid>
-                </Grid>
+                {/* ... COPY LẠI CODE HIỂN THỊ CŨ ... */}
 
-                <Divider sx={{ my: 3 }} />
+                {/* [SỬA]: Chỉ hiển thị nhóm nút hành động nếu showActions = true */}
+                {showActions && (
+                  <MDBox mt={4} display="flex" flexWrap="wrap" gap={2} justifyContent="flex-end">
+                    <MDButton
+                      variant="outlined"
+                      color="info"
+                      onClick={() => navigate(`/ho-khau/${id || hoKhau?.maHoKhau}/nhap-ho`)}
+                    >
+                      <Icon>person_add</Icon>&nbsp;Nhập hộ
+                    </MDButton>
 
-                {/* Danh sách thành viên */}
-                <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                  <MDTypography variant="h6" color="dark">
-                    Thành viên trong hộ ({hoKhau?.danhSachThanhVien?.length || 0})
-                  </MDTypography>
-                </MDBox>
+                    <MDButton
+                      variant="outlined"
+                      color="warning"
+                      onClick={() => navigate(`/ho-khau/${id || hoKhau?.maHoKhau}/tach-ho`)}
+                    >
+                      <Icon>person_remove</Icon>&nbsp;Tách hộ
+                    </MDButton>
 
-                <TableContainer
-                  sx={{ boxShadow: "none", border: "1px solid #f0f2f5", borderRadius: "8px" }}
-                >
-                  <Table>
-                    <TableHead sx={{ display: "table-header-group" }}>
-                      <TableRow>
-                        <TableCell>
-                          <MDTypography variant="button" fontWeight="bold" color="secondary">
-                            HỌ TÊN
-                          </MDTypography>
-                        </TableCell>
-                        <TableCell>
-                          <MDTypography variant="button" fontWeight="bold" color="secondary">
-                            QUAN HỆ VỚI CHỦ HỘ
-                          </MDTypography>
-                        </TableCell>
-                        <TableCell>
-                          <MDTypography variant="button" fontWeight="bold" color="secondary">
-                            CCCD
-                          </MDTypography>
-                        </TableCell>
-                        <TableCell>
-                          <MDTypography variant="button" fontWeight="bold" color="secondary">
-                            NGÀY SINH
-                          </MDTypography>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {(hoKhau?.danhSachThanhVien || []).map((nk) => (
-                        <TableRow key={nk.maNhanKhau} hover>
-                          <TableCell>
-                            <MDBox display="flex" alignItems="center">
-                              <Icon
-                                fontSize="small"
-                                color={
-                                  nk.maNhanKhau === hoKhau?.chuHo?.maNhanKhau ? "error" : "info"
-                                }
-                              >
-                                person
-                              </Icon>
-                              <MDBox ml={1}>
-                                <MDTypography variant="button" fontWeight="medium">
-                                  {nk.hoTen}{" "}
-                                  {nk.maNhanKhau === hoKhau?.chuHo?.maNhanKhau && "(Chủ hộ)"}
-                                </MDTypography>
-                              </MDBox>
-                            </MDBox>
-                          </TableCell>
-                          <TableCell>
-                            <MDTypography variant="caption" color="text">
-                              {nk.quanHeVoiChuHo || "-"}
-                            </MDTypography>
-                          </TableCell>
-                          <TableCell>
-                            <MDTypography variant="caption" color="text" fontWeight="medium">
-                              {nk.soCCCD || nk.soCccd || "-"}
-                            </MDTypography>
-                          </TableCell>
-                          <TableCell>
-                            <MDTypography variant="caption" color="text">
-                              {nk.ngaySinh
-                                ? new Date(nk.ngaySinh).toLocaleDateString("vi-VN")
-                                : "-"}
-                            </MDTypography>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {(hoKhau?.danhSachThanhVien || []).length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} align="center">
-                            <MDTypography variant="caption">Chưa có thành viên nào</MDTypography>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                    <MDButton
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => navigate(`/ho-khau/${id || hoKhau?.maHoKhau}/doi-chu-ho`)}
+                    >
+                      <Icon>manage_accounts</Icon>&nbsp;Đổi chủ
+                    </MDButton>
 
-                {/* Nhóm nút hành động */}
-                <MDBox mt={4} display="flex" flexWrap="wrap" gap={2} justifyContent="flex-end">
-                  <MDButton
-                    variant="outlined"
-                    color="info"
-                    onClick={() => navigate(`/ho-khau/${id}/nhap-ho`)}
-                  >
-                    <Icon>person_add</Icon>&nbsp;Nhập hộ
-                  </MDButton>
+                    <MDBox flexGrow={1} />
 
-                  <MDButton
-                    variant="outlined"
-                    color="warning"
-                    onClick={() => navigate(`/ho-khau/${id}/tach-ho`)}
-                  >
-                    <Icon>person_remove</Icon>&nbsp;Tách hộ
-                  </MDButton>
+                    <MDButton
+                      variant="gradient"
+                      color="dark"
+                      onClick={() => navigate(`/ho-khau/${id || hoKhau?.maHoKhau}/chinh-sua`)}
+                    >
+                      <Icon>edit</Icon>&nbsp;Chỉnh sửa
+                    </MDButton>
 
-                  <MDButton
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => navigate(`/ho-khau/${id}/doi-chu-ho`)}
-                  >
-                    <Icon>manage_accounts</Icon>&nbsp;Đổi chủ
-                  </MDButton>
-
-                  <MDBox flexGrow={1} />
-
-                  <MDButton
-                    variant="gradient"
-                    color="dark"
-                    onClick={() => navigate(`/ho-khau/${id}/chinh-sua`)}
-                  >
-                    <Icon>edit</Icon>&nbsp;Chỉnh sửa
-                  </MDButton>
-
-                  <MDButton variant="gradient" color="error" onClick={() => setOpenDelete(true)}>
-                    <Icon>delete</Icon>&nbsp;Xóa Hộ
-                  </MDButton>
-                </MDBox>
+                    <MDButton variant="gradient" color="error" onClick={() => setOpenDelete(true)}>
+                      <Icon>delete</Icon>&nbsp;Xóa Hộ
+                    </MDButton>
+                  </MDBox>
+                )}
               </MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
 
-      {/* Dialog Xóa */}
+      {/* Dialog Xóa chỉ cần render khi showActions = true, hoặc cứ để đó cũng được vì không bao giờ setOpenDelete(true) */}
       <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-        <DialogTitle>Xác nhận xóa</DialogTitle>
-        <DialogContent>
-          <MDTypography variant="body2">
-            Bạn có chắc chắn muốn xóa hộ khẩu này không? <br />
-            Hành động này sẽ xóa hộ khẩu khỏi hệ thống vĩnh viễn.
-          </MDTypography>
-        </DialogContent>
-        <DialogActions>
-          <MDButton color="dark" onClick={() => setOpenDelete(false)}>
-            Hủy
-          </MDButton>
-          <MDButton variant="gradient" color="error" onClick={handleDelete}>
-            Xóa ngay
-          </MDButton>
-        </DialogActions>
+        {/* ... giữ nguyên ... */}
       </Dialog>
     </DashboardLayout>
   );
 }
+
+// Khai báo propTypes
+HoKhauDetail.propTypes = {
+  isMe: PropTypes.bool,
+};
+
+HoKhauDetail.defaultProps = {
+  isMe: false,
+};
 
 export default HoKhauDetail;

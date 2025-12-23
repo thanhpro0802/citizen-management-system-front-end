@@ -157,6 +157,16 @@ const routes = [
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
+  {
+    type: "collapse",
+    name: "Hộ Khẩu Của Tôi",
+    key: "ho-khau-cua-toi",
+    icon: <Icon fontSize="small">person_pin</Icon>, // Icon khác cho dễ nhận diện
+    route: "/ho-khau-cua-toi",
+    component: <HoKhauDetail isMe={true} />, // Truyền prop isMe để nhận biết
+    requireAuth: true,
+    // Không yêu cầu role CAN_BO, ai có tài khoản cũng xem được (nếu đã liên kết nhân khẩu)
+  },
 ];
 
 export default routes;
