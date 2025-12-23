@@ -7,7 +7,7 @@ export const getTongHoKhau = () => axiosClient.get("/ho-khau?types=TONG_HK");
 export const getThongKeSoThanhVien = () => axiosClient.get("/ho-khau?types=SO_THANH_VIEN");
 
 export const getThongKePhanAnh = (startDate) =>
-  axiosClient.get("/phan-anh", {
+  axiosClient.get("phan-anh", {
     params: {
       types: "TUAN",
       startDate: startDate,
@@ -15,15 +15,8 @@ export const getThongKePhanAnh = (startDate) =>
   });
 
 export const getThongKeNhanKhau = (type) =>
-  axiosClient.get("/nhan-khau", {
+  axiosClient.get("nhan-khau", {
     params: {
       types: type,
-    },
-  });
-
-export const getThongKePhanAnhTheoTuan = (startDate) =>
-  axiosClient.get("phan-anh-tuan", {
-    params: {
-      startDate: startDate,
     },
   });

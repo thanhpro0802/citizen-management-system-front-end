@@ -13,12 +13,14 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
-// import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
-import ThongKePhanAnhTheoTuan from "./components/thongke/test";
+import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
+import dayjs from "dayjs";
+import BasicDatePicker from "./components/Calendar/DatePicker";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
   const [typeHK, setTypeHK] = useState("mem-count");
+  const [startDate, setStartDate] = useState(dayjs);
 
   return (
     <DashboardLayout>
@@ -84,13 +86,12 @@ function ThongKe() {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={6}>
               <MDBox mb={3}>
-                <ThongKePhanAnh startDate="2025-12-25" />
-              </MDBox>
-            </Grid>
-
-            <Grid item xs={12} md={6} lg={6}>
-              <MDBox mb={3}>
-                <ThongKePhanAnhTheoTuan startDate="2025-12-22" />
+                <BasicDatePicker
+                  label="Chọn ngày"
+                  value={startDate}
+                  onChange={(date) => setStartDate(date)}
+                />
+                {startDate && <ThongKePhanAnhTheoTuan startDate={startDate.format("YYYY-MM-DD")} />}
               </MDBox>
             </Grid>
           </Grid>

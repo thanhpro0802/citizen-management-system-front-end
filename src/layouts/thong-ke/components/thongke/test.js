@@ -1,56 +1,53 @@
-import * as React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { BarChart } from "@mui/x-charts/BarChart";
+import StackedBarChart from "examples/Charts/BarCharts/ReportsBarChart";
 import { getThongKePhanAnhTheoTuan } from "layouts/thong-ke/services/ThongKeService";
 
 const ThongKePhanAnhTheoTuan = ({ startDate }) => {
-  const [labels, setLabels] = useState([]);
-  const [series, setSeries] = useState([]);
+  const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
     getThongKePhanAnhTheoTuan(startDate)
       .then((res) => {
+        console.log("RAW API:", res);
         const apiData = res.data;
+        // console.log("choXuLy:", apiData.datasets[1].data);
 
-        setLabels(apiData.labels);
-
-        setSeries([
-          {
-            data: apiData.datasets[0].data,
-            label: "Chờ xử lý",
-            stack: "total",
-          },
-          {
-            data: apiData.datasets[1].data,
-            label: "Đang xử lý",
-            stack: "total",
-          },
-          {
-            data: apiData.datasets[2].data,
-            label: "Đã xử lý",
-            stack: "total",
-          },
-        ]);
+        setChartData({
+          labels: apiData.labels,
+          datasets: [
+            {
+              label: "Chờ xử lý",
+              data: apiData.datasets[0].data,
+              backgroundColor: "rgba(244, 67, 54, 0.8)",
+            },
+            {
+              label: "Đang xử lý",
+              data: apiData.datasets[1].data,
+              backgroundColor: "rgba(255, 193, 7, 0.8)",
+            },
+            {
+              label: "Đã xử lý",
+              data: apiData.datasets[2].data,
+              backgroundColor: "rgba(76, 175, 80, 0.8)",
+            },
+          ],
+        });
       })
       .catch((err) => {
         console.error("API ERROR:", err.response || err);
       });
   }, [startDate]);
 
-  if (!labels.length) return null;
+  if (!chartData) return null;
 
   return (
-    <BarChart
-      width={600}
-      height={350}
-      series={series}
-      xAxis={[
-        {
-          data: labels,
-          scaleType: "band",
-        },
-      ]}
+    <StackedBarChart
+      color="info"
+      title="Thống kê phản ánh theo tuần"
+      description="Phân loại theo trạng thái"
+      date="Cập nhật mới nhất"
+      chart={chartData}
     />
   );
 };
