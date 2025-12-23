@@ -27,3 +27,11 @@ export const getThongKePhanAnhTheoNam = (year) =>
       year: year,
     },
   });
+
+export const getThongKeTamTruTamVang = ({ type, startDate }) =>
+  axiosClient.get("tam-tru-tam-vang", {
+    params: {
+      types: type,
+      startDate: startDate,
+    },
+  });

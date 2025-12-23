@@ -9,6 +9,7 @@ import ThongKeNhanKhau from "./components/thongke/ThongKeNhanKhau";
 import TongNhanKhau from "./components/TongNK";
 import ThongKeSoThanhVien from "./components/thongke/ThongKeSoThanhVien";
 import TongHoKhau from "./components/TongHK";
+import ThongKeTamTruTamVang from "./components/thongke/ThongKeTamTruTamVang";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -34,13 +35,33 @@ function ThongKe() {
       <MDBox py={3}>
         {/* Phần đầu */}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} lg={6}>
+          <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <TongNhanKhau type="TONG_NK" />
             </MDBox>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={6}>
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <ThongKeTamTruTamVang
+                type="TAM_TRU"
+                startDate={startDate.format("YYYY-MM-DD")}
+                color="error"
+              />
+            </MDBox>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={3}>
+            <MDBox mb={1.5}>
+              <ThongKeTamTruTamVang
+                type="TAM_VANG"
+                startDate={startDate.format("YYYY-MM-DD")}
+                color="dark"
+              />
+            </MDBox>
+          </Grid>
+
+          <Grid item xs={12} md={6} lg={3}>
             <MDBox mb={1.5}>
               <TongHoKhau />
             </MDBox>
