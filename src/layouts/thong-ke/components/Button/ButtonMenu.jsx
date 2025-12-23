@@ -13,15 +13,7 @@ const ButtonMenu = ({ color, title = "Menu", items = [], onSelect }) => {
 
   return (
     <>
-      <MDButton
-        color={color}
-        variant="gradient"
-        onClick={handleClick}
-        startIcon={<BarChartIcon />}
-        sx={{
-          boxShadow: "0 4px 20px rgba(26, 115, 232, 0.6)",
-        }}
-      >
+      <MDButton color={color} variant="outlined" onClick={handleClick} startIcon={<BarChartIcon />}>
         {title}
       </MDButton>
 

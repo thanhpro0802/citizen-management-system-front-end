@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Box, Grid, Typography, useTheme } from "@mui/material";
+import { Box, Card, Grid, Typography, useTheme } from "@mui/material";
 import MDBox from "components/MDBox";
-import ButtonMenu from "./components/ButtonMenu";
+import ButtonMenu from "./components/Button/ButtonMenu";
 
 import ThongKePhanAnh from "./components/thongke/ThongKePhanAnh";
+import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
 import ThongKeNhanKhau from "./components/thongke/ThongKeNhanKhau";
 import TongNhanKhau from "./components/TongNK";
 import ThongKeSoThanhVien from "./components/thongke/ThongKeSoThanhVien";
@@ -13,14 +14,19 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
-import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
 import dayjs from "dayjs";
 import BasicDatePicker from "./components/Calendar/DatePicker";
+import YearPicker from "./components/Calendar/YearPicker";
+import ThongKePhanAnhTheoNam from "./components/thongke/ThongKePhanAnhTheoNam";
+import ThongKeModeMenu from "./components/Menu";
+import MDTypography from "components/MDTypography";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
   const [typeHK, setTypeHK] = useState("mem-count");
   const [startDate, setStartDate] = useState(dayjs);
+  const [mode, setMode] = useState("week");
+  const [year, setYear] = useState(dayjs().year());
 
   return (
     <DashboardLayout>
@@ -51,9 +57,9 @@ function ThongKe() {
                     color="info"
                     title="Chọn thống kê"
                     items={[
-                      { value: "age", label: "Thống kê độ tuổi" },
-                      { value: "gender", label: "Thống kê giới tính" },
-                      { value: "province", label: "Thống kê quê quán" },
+                      { value: "age", label: "Độ tuổi" },
+                      { value: "gender", label: "Giới tính" },
+                      { value: "province", label: "Quê quán" },
                     ]}
                     onSelect={(value) => setTypeNK(value)}
                   />
@@ -71,7 +77,7 @@ function ThongKe() {
                   <ButtonMenu
                     color="success"
                     title="Chọn thống kê"
-                    items={[{ value: "mem-count", label: "Thống kê số thành viên" }]}
+                    items={[{ value: "mem-count", label: "Số thành viên" }]}
                     onSelect={(value) => setTypeHK(value)}
                   />
                 </MDBox>
@@ -81,18 +87,48 @@ function ThongKe() {
             </Grid>
           </Grid>
         </MDBox>
-
-        <MDBox mt={4.5}>
+        <MDBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={6}>
-              <MDBox mb={3}>
-                <BasicDatePicker
-                  label="Chọn ngày"
-                  value={startDate}
-                  onChange={(date) => setStartDate(date)}
-                />
-                {startDate && <ThongKePhanAnhTheoTuan startDate={startDate.format("YYYY-MM-DD")} />}
-              </MDBox>
+              <Card>
+                {/* HEADER */}
+                <MDBox
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  px={3}
+                  pt={3}
+                >
+                  <MDTypography variant="h6" fontWeight="medium">
+                    Thống Kê Phản Ánh
+                  </MDTypography>
+                </MDBox>
+
+                {/* FILTER */}
+                <MDBox px={3} pt={2}>
+                  <MDBox position="absolute" right={16} zIndex={10}>
+                    <ThongKeModeMenu mode={mode} onChange={setMode} />
+                  </MDBox>
+                  {mode === "week" && (
+                    <BasicDatePicker
+                      label="Chọn ngày"
+                      value={startDate}
+                      onChange={(date) => setStartDate(date)}
+                    />
+                  )}
+
+                  {mode === "year" && <YearPicker value={year} onChange={setYear} />}
+                </MDBox>
+
+                {/* CHART */}
+                <MDBox px={2} pb={3} pt={2}>
+                  {mode === "week" && startDate && (
+                    <ThongKePhanAnhTheoTuan startDate={startDate.format("YYYY-MM-DD")} />
+                  )}
+
+                  {mode === "year" && year && <ThongKePhanAnhTheoNam year={year} />}
+                </MDBox>
+              </Card>
             </Grid>
           </Grid>
         </MDBox>
@@ -101,10 +137,10 @@ function ThongKe() {
         <MDBox>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={8}>
-              <Projects />
+              {/* <Projects /> */}
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <OrdersOverview />
+              {/* <OrdersOverview /> */}
             </Grid>
           </Grid>
         </MDBox>

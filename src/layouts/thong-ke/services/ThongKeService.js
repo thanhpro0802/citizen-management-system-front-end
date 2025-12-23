@@ -20,3 +20,10 @@ export const getThongKeNhanKhau = (type) =>
       types: type,
     },
   });
+
+export const getThongKePhanAnhTheoNam = (year) =>
+  axiosClient.get("phan-anh-nam", {
+    params: {
+      year: year,
+    },
+  });
