@@ -13,7 +13,8 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
-import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
+// import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
+import ThongKePhanAnhTheoTuan from "./components/thongke/test";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
