@@ -13,6 +13,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Projects from "layouts/dashboard/components/Projects";
 import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
+import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
@@ -83,6 +84,12 @@ function ThongKe() {
             <Grid item xs={12} md={6} lg={6}>
               <MDBox mb={3}>
                 <ThongKePhanAnh startDate="2025-12-25" />
+              </MDBox>
+            </Grid>
+
+            <Grid item xs={12} md={6} lg={6}>
+              <MDBox mb={3}>
+                <ThongKePhanAnhTheoTuan startDate="2025-12-22" />
               </MDBox>
             </Grid>
           </Grid>
