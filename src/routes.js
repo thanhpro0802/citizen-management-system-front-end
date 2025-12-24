@@ -19,7 +19,9 @@ import HoKhauCuaToi from "layouts/ho-khau-cua-toi";
 import QuanLyHoKhau from "layouts/quan-ly-ho-khau";
 import ChiTietHoKhau from "layouts/chi-tiet-ho-khau";
 import FormHoKhau from "layouts/form-ho-khau";
-
+import TachHo from "layouts/tach-ho";
+import NhapHo from "layouts/nhap-ho";
+import DoiChuHo from "layouts/doi-chu-ho";
 import Forbidden from "layouts/forbidden";
 
 // @mui icons
@@ -149,6 +151,28 @@ const routes = [
     key: "forbidden",
     route: "/forbidden",
     component: <Forbidden />,
+  },
+
+  {
+    type: "route", // type route nghĩa là chỉ định tuyến, không hiện lên sidebar
+    name: "Tách Hộ",
+    key: "tach-ho",
+    route: "/tach-ho/:id",
+    component: <TachHo />,
+  },
+  {
+    type: "route",
+    name: "Nhập Hộ",
+    key: "nhap-ho",
+    route: "/nhap-ho/:id",
+    component: <NhapHo />,
+  },
+  {
+    type: "route",
+    name: "Đổi Chủ Hộ",
+    key: "doi-chu-ho",
+    route: "/doi-chu-ho/:id",
+    component: <DoiChuHo />,
   },
 ];
 

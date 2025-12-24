@@ -40,7 +40,16 @@ const hoKhauService = {
       params: { diaChi: keyword },
       headers: getAuthHeaders(),
     }),
-
+  searchByChuHo: (keyword) =>
+    axios.get(`${API_URL}/tim-kiem-chu-ho`, {
+      params: { keyword: keyword },
+      headers: getAuthHeaders(),
+    }),
+  searchGeneral: (keyword) =>
+    axios.get(`${API_URL}/tim-kiem-tong-hop`, {
+      params: { keyword: keyword },
+      headers: getAuthHeaders(),
+    }),
   // Create new household (CAN_BO only)
   create: (data) => axios.post(API_URL, data, { headers: getAuthHeaders() }),
 

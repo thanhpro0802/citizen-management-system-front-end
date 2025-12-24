@@ -45,11 +45,9 @@ function QuanLyHoKhau() {
   // Search state
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Delete confirmation dialog
+  // Dialog & Message state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedHoKhau, setSelectedHoKhau] = useState(null);
-
-  // Message state
   const [message, setMessage] = useState({ type: "", content: "" });
 
   const formatDate = (dateString) => {
@@ -66,9 +64,7 @@ function QuanLyHoKhau() {
     }
     const user = JSON.parse(userStr);
     const role = user.vaiTro || (user.roles ? user.roles[0] : "");
-    const isCanBo = Array.isArray(user.roles)
-      ? user.roles.includes("CAN_BO")
-      : role === "CAN_BO";
+    const isCanBo = Array.isArray(user.roles) ? user.roles.includes("CAN_BO") : role === "CAN_BO";
     if (!isCanBo) {
       alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
       navigate("/ho-khau-cua-toi");
@@ -88,34 +84,55 @@ function QuanLyHoKhau() {
         setFilteredList(response.data);
       }
     } catch (error) {
-      console.error("Lỗi khi tải danh sách hộ khẩu:", error);
-      setMessage({ type: "error", content: "Không thể tải danh sách hộ khẩu" });
+      console.error("Lỗi khi tải danh sách:", error);
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        alert("Phiên đăng nhập hết hạn.");
+        localStorage.clear();
+        navigate("/authentication/sign-in");
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // --- HÀM TÌM KIẾM TỔNG HỢP ---
   const handleSearch = async (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     setPage(0);
 
     if (!value.trim()) {
-      setFilteredList(danhSach);
+      setFilteredList(danhSach); // Nếu ô tìm kiếm trống, hiện tất cả
       return;
     }
 
     try {
-      const response = await hoKhauService.searchByDiaChi(value);
-      if (Array.isArray(response.data)) {
-        setFilteredList(response.data);
+      // Gọi API tìm kiếm tổng hợp (nếu Backend đã cập nhật)
+      if (hoKhauService.searchGeneral) {
+        const response = await hoKhauService.searchGeneral(value);
+        if (Array.isArray(response.data)) {
+          setFilteredList(response.data);
+          return;
+        }
       }
+      // Nếu chưa có API searchGeneral, ném lỗi để chạy xuống fallback client-side
+      throw new Error("API searchGeneral not implemented");
     } catch (error) {
-      console.error("Lỗi khi tìm kiếm:", error);
-      // Fallback to client-side filtering
-      const filtered = danhSach.filter((item) =>
-        item.diaChi?.toLowerCase().includes(value.toLowerCase())
-      );
+      // Fallback: Tìm kiếm thủ công phía Client (gõ gì tìm nấy)
+      console.warn("Dùng bộ lọc Client:", error.message);
+      const lowerValue = value.toLowerCase();
+
+      const filtered = danhSach.filter((item) => {
+        // Kiểm tra Địa chỉ
+        const matchDiaChi = item.diaChi?.toLowerCase().includes(lowerValue);
+        // Kiểm tra Tên chủ hộ
+        const matchTen = item.chuHo?.hoTen?.toLowerCase().includes(lowerValue);
+        // Kiểm tra CCCD
+        const matchCCCD = item.chuHo?.soCCCD?.includes(value);
+
+        // Trả về true nếu thỏa mãn BẤT KỲ điều kiện nào
+        return matchDiaChi || matchTen || matchCCCD;
+      });
       setFilteredList(filtered);
     }
   };
@@ -126,30 +143,24 @@ function QuanLyHoKhau() {
     setPage(0);
   };
 
+  // ... (Giữ nguyên logic Delete Dialog như cũ) ...
   const handleOpenDeleteDialog = (hoKhau) => {
     setSelectedHoKhau(hoKhau);
     setDeleteDialogOpen(true);
   };
-
   const handleCloseDeleteDialog = () => {
     setDeleteDialogOpen(false);
     setSelectedHoKhau(null);
   };
-
   const handleDelete = async () => {
     if (!selectedHoKhau) return;
-
     try {
       await hoKhauService.delete(selectedHoKhau.maHoKhau);
-      setMessage({ type: "success", content: "Xóa hộ khẩu thành công!" });
+      setMessage({ type: "success", content: "Xóa thành công!" });
       handleCloseDeleteDialog();
-      fetchData(); // Reload data
+      fetchData();
     } catch (error) {
-      console.error("Lỗi khi xóa hộ khẩu:", error);
-      setMessage({
-        type: "error",
-        content: error.response?.data?.message || "Không thể xóa hộ khẩu",
-      });
+      setMessage({ type: "error", content: "Lỗi xóa hộ khẩu" });
       handleCloseDeleteDialog();
     }
   };
@@ -158,7 +169,7 @@ function QuanLyHoKhau() {
     return (
       <DashboardLayout>
         <DashboardNavbar />
-        <MDBox pt={6} pb={3} display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <MDBox pt={6} pb={3} display="flex" justifyContent="center">
           <CircularProgress color="info" />
         </MDBox>
         <Footer />
@@ -184,11 +195,7 @@ function QuanLyHoKhau() {
                 variant="gradient"
                 borderRadius="lg"
                 coloredShadow="none"
-                sx={{
-                  background: "linear-gradient(195deg, #42424a, #191919)",
-                  boxShadow:
-                    "0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(66, 66, 74, 0.4)",
-                }}
+                sx={{ background: "linear-gradient(195deg, #42424a, #191919)" }}
               >
                 <MDBox display="flex" justifyContent="space-between" alignItems="center">
                   <MDTypography variant="h6" color="white">
@@ -218,13 +225,17 @@ function QuanLyHoKhau() {
                   </MDBox>
                 )}
 
+                {/* --- 1 Ô TÌM KIẾM DUY NHẤT --- */}
                 <Grid container spacing={2} mb={3}>
                   <Grid item xs={12} md={6}>
                     <MDInput
-                      label="Tìm kiếm theo địa chỉ..."
+                      label="Tìm kiếm (Địa chỉ, Tên chủ hộ, CCCD)..."
                       fullWidth
                       value={searchTerm}
                       onChange={handleSearch}
+                      InputProps={{
+                        startAdornment: <Icon sx={{ mr: 1 }}>search</Icon>,
+                      }}
                     />
                   </Grid>
                 </Grid>
@@ -237,7 +248,7 @@ function QuanLyHoKhau() {
                         <TableCell>Địa Chỉ</TableCell>
                         <TableCell>Chủ Hộ</TableCell>
                         <TableCell align="center">Số Thành Viên</TableCell>
-                        <TableCell>Ngày Tạo</TableCell>
+                        <TableCell>Ngày Đăng Ký</TableCell>
                         <TableCell align="center">Tác Vụ</TableCell>
                       </TableRow>
                     </TableHead>
@@ -257,21 +268,21 @@ function QuanLyHoKhau() {
                               </TableCell>
                               <TableCell>
                                 <MDTypography variant="button" fontWeight="medium">
-                                  {row.chuHo ? row.chuHo.hoTen : ""}
+                                  {row.chuHo?.hoTen || ""}
                                 </MDTypography>
                                 <br />
                                 <MDTypography variant="caption" color="text">
-                                  {row.chuHo ? row.chuHo.cccd : ""}
+                                  {row.chuHo?.soCCCD || ""}
                                 </MDTypography>
                               </TableCell>
                               <TableCell align="center">
                                 <MDTypography variant="button">
-                                  {row.thanhVien?.length || 0}
+                                  {row.danhSachThanhVien?.length || 0}
                                 </MDTypography>
                               </TableCell>
                               <TableCell>
                                 <MDTypography variant="caption">
-                                  {formatDate(row.ngayTao)}
+                                  {formatDate(row.ngayDangKy)}
                                 </MDTypography>
                               </TableCell>
                               <TableCell align="center">
@@ -280,10 +291,9 @@ function QuanLyHoKhau() {
                                     variant="gradient"
                                     color="info"
                                     size="small"
-                                    iconOnly={true}
+                                    iconOnly
                                     circular
                                     onClick={() => navigate(`/chi-tiet-ho-khau/${row.maHoKhau}`)}
-                                    title="Xem chi tiết"
                                   >
                                     <Icon>visibility</Icon>
                                   </MDButton>
@@ -291,10 +301,9 @@ function QuanLyHoKhau() {
                                     variant="gradient"
                                     color="warning"
                                     size="small"
-                                    iconOnly={true}
+                                    iconOnly
                                     circular
                                     onClick={() => navigate(`/sua-ho-khau/${row.maHoKhau}`)}
-                                    title="Sửa"
                                   >
                                     <Icon>edit</Icon>
                                   </MDButton>
@@ -302,10 +311,9 @@ function QuanLyHoKhau() {
                                     variant="gradient"
                                     color="error"
                                     size="small"
-                                    iconOnly={true}
+                                    iconOnly
                                     circular
                                     onClick={() => handleOpenDeleteDialog(row)}
-                                    title="Xóa"
                                   >
                                     <Icon>delete</Icon>
                                   </MDButton>
@@ -334,10 +342,8 @@ function QuanLyHoKhau() {
                   page={page}
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
-                  labelDisplayedRows={({ from, to, count }) =>
-                    `${from}–${to} trong tổng số ${count}`
-                  }
-                  labelRowsPerPage="Số dòng mỗi trang:"
+                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count}`}
+                  labelRowsPerPage="Số dòng:"
                 />
               </MDBox>
             </Card>
@@ -345,16 +351,12 @@ function QuanLyHoKhau() {
         </Grid>
       </MDBox>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Xác Nhận Xóa</DialogTitle>
         <DialogContent>
           <MDTypography variant="body2">
-            Bạn có chắc chắn muốn xóa hộ khẩu <strong>{selectedHoKhau?.maHoKhau}</strong> tại địa
-            chỉ <strong>{selectedHoKhau?.diaChi}</strong>?
-          </MDTypography>
-          <MDTypography variant="body2" color="error" mt={1}>
-            Hành động này không thể hoàn tác!
+            Bạn có chắc muốn xóa hộ khẩu <strong>{selectedHoKhau?.maHoKhau}</strong>?
           </MDTypography>
         </DialogContent>
         <DialogActions>

@@ -56,6 +56,13 @@ function ChiTietHoKhau() {
       setHoKhau(response.data);
     } catch (err) {
       console.error("Lỗi khi tải chi tiết hộ khẩu:", err);
+      if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/authentication/sign-in");
+        return;
+      }
       setError("Không thể tải thông tin hộ khẩu");
     } finally {
       setLoading(false);
@@ -70,11 +77,21 @@ function ChiTietHoKhau() {
   const getQuanHeLabel = (quanHe) => {
     const mapping = {
       CHU_HO: "Chủ hộ",
-      VO_CHONG: "Vợ/Chồng",
+      VO: "Vợ",
+      CHONG: "Chồng",
+      VO_CHONG: "Vợ/Chồng", // Giữ lại để tương thích dữ liệu cũ nếu có
       CON: "Con",
-      CHA_ME: "Cha/Mẹ",
-      ANH_CHI_EM: "Anh/Chị/Em",
-      ONG_BA: "Ông/Bà",
+      CHA: "Cha",
+      ME: "Mẹ",
+      CHA_ME: "Cha/Mẹ", // Giữ lại tương thích
+      ANH_TRAI: "Anh trai",
+      CHI_GAI: "Chị gái",
+      EM_TRAI: "Em trai",
+      EM_GAI: "Em gái",
+      ANH_CHI_EM: "Anh/Chị/Em", // Giữ lại tương thích
+      ONG: "Ông",
+      BA: "Bà",
+      ONG_BA: "Ông/Bà", // Giữ lại tương thích
       CHAU: "Cháu",
       KHAC: "Khác",
     };
@@ -85,7 +102,14 @@ function ChiTietHoKhau() {
     return (
       <DashboardLayout>
         <DashboardNavbar />
-        <MDBox pt={6} pb={3} display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <MDBox
+          pt={6}
+          pb={3}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="60vh"
+        >
           <CircularProgress color="info" />
         </MDBox>
         <Footer />
@@ -132,7 +156,12 @@ function ChiTietHoKhau() {
                   <>
                     {/* Household Information */}
                     <MDBox mb={3}>
-                      <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                      <MDBox
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={2}
+                      >
                         <MDTypography variant="h6">Thông Tin Hộ Khẩu</MDTypography>
                         {isCanBo && (
                           <MDBox display="flex" gap={1}>
@@ -168,11 +197,11 @@ function ChiTietHoKhau() {
                                 <MDBox display="flex" alignItems="center" mb={0.5}>
                                   <Icon sx={{ mr: 1, fontSize: "1.2rem" }}>calendar_today</Icon>
                                   <MDTypography variant="button" fontWeight="bold">
-                                    Ngày tạo
+                                    Ngày đăng ký
                                   </MDTypography>
                                 </MDBox>
                                 <MDTypography variant="body2" pl={3.5}>
-                                  {formatDate(hoKhau.ngayTao)}
+                                  {formatDate(hoKhau.ngayDangKy)}
                                 </MDTypography>
                               </MDBox>
                             </Grid>
@@ -202,7 +231,7 @@ function ChiTietHoKhau() {
                                     {hoKhau.chuHo.hoTen}
                                   </MDTypography>
                                   <MDTypography variant="caption" color="text" pl={3.5}>
-                                    CCCD: {hoKhau.chuHo.cccd}
+                                    CCCD: {hoKhau.chuHo.soCCCD}
                                   </MDTypography>
                                 </MDBox>
                               </Grid>
@@ -214,7 +243,7 @@ function ChiTietHoKhau() {
 
                     <Divider />
 
-                    {/* CAN_BO Actions */}
+                    {/* SỬA: Đã xóa nút Đổi Chủ Hộ ở đây */}
                     {isCanBo && (
                       <>
                         <MDBox my={3}>
@@ -222,16 +251,41 @@ function ChiTietHoKhau() {
                             Chức Năng Quản Lý
                           </MDTypography>
                           <MDBox display="flex" gap={2} flexWrap="wrap">
-                            <MDButton variant="gradient" color="primary" size="small">
+                            <MDButton
+                              variant="gradient"
+                              color="primary"
+                              size="small"
+                              disabled={hoKhau.danhSachThanhVien?.length <= 1}
+                              onClick={() => {
+                                if (hoKhau.danhSachThanhVien?.length <= 1) {
+                                  alert(
+                                    "Hộ khẩu chỉ có 1 thành viên nên không thể tách hộ. Vui lòng dùng chức năng 'Sửa' nếu muốn thay đổi địa chỉ."
+                                  );
+                                  return;
+                                }
+                                navigate(`/tach-ho/${id}`);
+                              }}
+                            >
                               <Icon>splitscreen</Icon>&nbsp; Tách Hộ
                             </MDButton>
-                            <MDButton variant="gradient" color="secondary" size="small">
+
+                            <MDButton
+                              variant="gradient"
+                              color="secondary"
+                              size="small"
+                              onClick={() => navigate(`/nhap-ho/${id}`)}
+                            >
                               <Icon>merge</Icon>&nbsp; Nhập Hộ
                             </MDButton>
-                            <MDButton variant="gradient" color="dark" size="small">
-                              <Icon>swap_horiz</Icon>&nbsp; Đổi Chủ Hộ
-                            </MDButton>
+
+                            {/* ĐÃ XÓA NÚT ĐỔI CHỦ HỘ */}
                           </MDBox>
+
+                          {hoKhau.danhSachThanhVien?.length <= 1 && (
+                            <MDTypography variant="caption" color="text" mt={1} display="block">
+                              * Chức năng Tách Hộ bị khóa vì hộ khẩu chỉ có 1 thành viên.
+                            </MDTypography>
+                          )}
                         </MDBox>
                         <Divider />
                       </>
@@ -240,45 +294,50 @@ function ChiTietHoKhau() {
                     {/* Members List */}
                     <MDBox mt={3}>
                       <MDTypography variant="h6" mb={2}>
-                        Danh Sách Thành Viên ({hoKhau.thanhVien?.length || 0} người)
+                        Danh Sách Thành Viên ({hoKhau.danhSachThanhVien?.length || 0} người)
                       </MDTypography>
                       <TableContainer>
                         <Table>
                           <TableHead style={{ display: "table-header-group" }}>
                             <TableRow>
-                              <TableCell>Họ Tên</TableCell>
-                              <TableCell>CCCD</TableCell>
-                              <TableCell>Ngày Sinh</TableCell>
-                              <TableCell>Giới Tính</TableCell>
-                              <TableCell>Quan Hệ với Chủ Hộ</TableCell>
+                              <TableCell align="left">Họ Tên</TableCell>
+                              <TableCell align="left">CCCD</TableCell>
+                              <TableCell align="left">Ngày Sinh</TableCell>
+                              <TableCell align="left">Giới Tính</TableCell>
+                              {/* SỬA: Thêm minWidth để cột Quan hệ đồng đều hơn */}
+                              <TableCell align="left" style={{ minWidth: "150px" }}>
+                                Quan Hệ với Chủ Hộ
+                              </TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
-                            {hoKhau.thanhVien && hoKhau.thanhVien.length > 0 ? (
-                              hoKhau.thanhVien.map((tv, index) => (
+                            {hoKhau.danhSachThanhVien && hoKhau.danhSachThanhVien.length > 0 ? (
+                              hoKhau.danhSachThanhVien.map((tv, index) => (
                                 <TableRow key={index}>
-                                  <TableCell>
+                                  <TableCell align="left">
                                     <MDTypography variant="button" fontWeight="medium">
-                                      {tv.nhanKhau?.hoTen || ""}
+                                      {tv.hoTen || ""}
                                     </MDTypography>
                                   </TableCell>
-                                  <TableCell>
+                                  <TableCell align="left">
+                                    <MDTypography variant="caption">{tv.soCCCD || ""}</MDTypography>
+                                  </TableCell>
+                                  <TableCell align="left">
                                     <MDTypography variant="caption">
-                                      {tv.nhanKhau?.cccd || ""}
+                                      {formatDate(tv.ngaySinh)}
                                     </MDTypography>
                                   </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption">
-                                      {formatDate(tv.nhanKhau?.ngaySinh)}
-                                    </MDTypography>
+                                  <TableCell align="left">
+                                    <MDTypography variant="caption">{tv.gioiTinh}</MDTypography>
                                   </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption">
-                                      {tv.nhanKhau?.gioiTinh === "NAM" ? "Nam" : "Nữ"}
-                                    </MDTypography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption">
+                                  <TableCell align="left">
+                                    {/* SỬA: Đảm bảo hiển thị đồng bộ */}
+                                    <MDTypography
+                                      variant="caption"
+                                      fontWeight={
+                                        tv.quanHeVoiChuHo === "CHU_HO" ? "bold" : "regular"
+                                      }
+                                    >
                                       {getQuanHeLabel(tv.quanHeVoiChuHo)}
                                     </MDTypography>
                                   </TableCell>

@@ -50,6 +50,15 @@ function HoKhauCuaToi() {
       setHoKhau(response.data);
     } catch (err) {
       console.error("Lỗi khi tải thông tin hộ khẩu:", err);
+      // Xử lý lỗi 403 (Hết phiên đăng nhập)
+      if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+        alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/authentication/sign-in");
+        return;
+      }
+
       setError(
         err.response?.status === 404
           ? "Bạn chưa có hộ khẩu trong hệ thống"
@@ -68,11 +77,21 @@ function HoKhauCuaToi() {
   const getQuanHeLabel = (quanHe) => {
     const mapping = {
       CHU_HO: "Chủ hộ",
-      VO_CHONG: "Vợ/Chồng",
+      VO: "Vợ",
+      CHONG: "Chồng",
+      VO_CHONG: "Vợ/Chồng", // Giữ lại để tương thích dữ liệu cũ nếu có
       CON: "Con",
-      CHA_ME: "Cha/Mẹ",
-      ANH_CHI_EM: "Anh/Chị/Em",
-      ONG_BA: "Ông/Bà",
+      CHA: "Cha",
+      ME: "Mẹ",
+      CHA_ME: "Cha/Mẹ", // Giữ lại tương thích
+      ANH_TRAI: "Anh trai",
+      CHI_GAI: "Chị gái",
+      EM_TRAI: "Em trai",
+      EM_GAI: "Em gái",
+      ANH_CHI_EM: "Anh/Chị/Em", // Giữ lại tương thích
+      ONG: "Ông",
+      BA: "Bà",
+      ONG_BA: "Ông/Bà", // Giữ lại tương thích
       CHAU: "Cháu",
       KHAC: "Khác",
     };
@@ -83,7 +102,14 @@ function HoKhauCuaToi() {
     return (
       <DashboardLayout>
         <DashboardNavbar />
-        <MDBox pt={6} pb={3} display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+        <MDBox
+          pt={6}
+          pb={3}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="60vh"
+        >
           <CircularProgress color="info" />
         </MDBox>
         <Footer />
@@ -140,7 +166,7 @@ function HoKhauCuaToi() {
                               Ngày tạo:
                             </MDTypography>
                             <MDTypography variant="button">
-                              {formatDate(hoKhau.ngayTao)}
+                              {formatDate(hoKhau.ngayDangKy)}
                             </MDTypography>
                           </MDBox>
                         </Grid>
@@ -161,7 +187,7 @@ function HoKhauCuaToi() {
                                 Chủ hộ:
                               </MDTypography>
                               <MDTypography variant="button">
-                                {hoKhau.chuHo.hoTen} ({hoKhau.chuHo.cccd})
+                                {hoKhau.chuHo.hoTen} ({hoKhau.chuHo.soCCCD})
                               </MDTypography>
                             </MDBox>
                           </Grid>
@@ -172,7 +198,7 @@ function HoKhauCuaToi() {
                     {/* Members List */}
                     <MDBox>
                       <MDTypography variant="h6" mb={2}>
-                        Danh Sách Thành Viên ({hoKhau.thanhVien?.length || 0} người)
+                        Danh Sách Thành Viên ({hoKhau.danhSachThanhVien?.length || 0} người)
                       </MDTypography>
                       <TableContainer>
                         <Table>
@@ -186,27 +212,27 @@ function HoKhauCuaToi() {
                             </TableRow>
                           </TableHead>
                           <TableBody>
-                            {hoKhau.thanhVien && hoKhau.thanhVien.length > 0 ? (
-                              hoKhau.thanhVien.map((tv, index) => (
+                            {hoKhau.danhSachThanhVien && hoKhau.danhSachThanhVien.length > 0 ? (
+                              hoKhau.danhSachThanhVien.map((tv, index) => (
                                 <TableRow key={index}>
                                   <TableCell>
                                     <MDTypography variant="button" fontWeight="medium">
-                                      {tv.nhanKhau?.hoTen || ""}
+                                      {tv.hoTen || ""}
+                                    </MDTypography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <MDTypography variant="caption">{tv.soCCCD || ""}</MDTypography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <MDTypography variant="caption">
+                                      {formatDate(tv.ngaySinh)}
                                     </MDTypography>
                                   </TableCell>
                                   <TableCell>
                                     <MDTypography variant="caption">
-                                      {tv.nhanKhau?.cccd || ""}
-                                    </MDTypography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption">
-                                      {formatDate(tv.nhanKhau?.ngaySinh)}
-                                    </MDTypography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption">
-                                      {tv.nhanKhau?.gioiTinh === "NAM" ? "Nam" : "Nữ"}
+                                      {tv.gioiTinh && tv.gioiTinh.toUpperCase() === "NAM"
+                                        ? "Nam"
+                                        : "Nữ"}
                                     </MDTypography>
                                   </TableCell>
                                   <TableCell>
