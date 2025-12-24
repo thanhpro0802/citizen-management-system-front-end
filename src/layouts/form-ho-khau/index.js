@@ -49,8 +49,8 @@ function FormHoKhau() {
       ? user.roles.includes("CAN_BO")
       : role === "CAN_BO";
     if (!isCanBo) {
-      setMessage({ type: "error", content: "⛔ CẢNH BÁO: Bạn không có quyền truy cập!" });
-      setTimeout(() => navigate("/ho-khau-cua-toi"), 2000);
+      alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập!");
+      navigate("/ho-khau-cua-toi");
       return;
     }
 
