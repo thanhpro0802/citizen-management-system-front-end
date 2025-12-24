@@ -15,6 +15,11 @@ import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
 
+import HoKhauCuaToi from "layouts/ho-khau-cua-toi";
+import QuanLyHoKhau from "layouts/quan-ly-ho-khau";
+import ChiTietHoKhau from "layouts/chi-tiet-ho-khau";
+import FormHoKhau from "layouts/form-ho-khau";
+
 import Forbidden from "layouts/forbidden";
 
 // @mui icons
@@ -61,6 +66,15 @@ const routes = [
     component: <LichSuPhanAnh />,
     requireAuth: true,
   },
+  {
+    type: "collapse",
+    name: "Hộ Khẩu Của Tôi",
+    key: "ho-khau-cua-toi",
+    icon: <Icon fontSize="small">home</Icon>,
+    route: "/ho-khau-cua-toi",
+    component: <HoKhauCuaToi />,
+    requireAuth: true,
+  },
 
   // --- MENU CÁN BỘ ---
   ...(role === "CAN_BO"
@@ -72,6 +86,15 @@ const routes = [
           icon: <Icon fontSize="small">dashboard</Icon>,
           route: "/quan-ly-phan-anh",
           component: <QuanLyPhanAnh />,
+          requireAuth: true,
+        },
+        {
+          type: "collapse",
+          name: "Quản Lý Hộ Khẩu",
+          key: "quan-ly-ho-khau",
+          icon: <Icon fontSize="small">apartment</Icon>,
+          route: "/quan-ly-ho-khau",
+          component: <QuanLyHoKhau />,
           requireAuth: true,
         },
       ]
@@ -95,6 +118,26 @@ const routes = [
     key: "phan-hoi",
     route: "/phan-hoi/:id",
     component: <PhanHoi />, // (Nếu bạn dùng trang này riêng)
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "chi-tiet-ho-khau",
+    route: "/chi-tiet-ho-khau/:id",
+    component: <ChiTietHoKhau />,
+    requireAuth: true,
+  },
+  {
+    key: "them-ho-khau",
+    route: "/them-ho-khau",
+    component: <FormHoKhau />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "sua-ho-khau",
+    route: "/sua-ho-khau/:id",
+    component: <FormHoKhau />,
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
