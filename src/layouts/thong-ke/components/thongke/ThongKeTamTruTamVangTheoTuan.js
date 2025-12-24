@@ -41,7 +41,7 @@ const ThongKeTamTruTamVangTheoTuan = ({ type, startDate }) => {
             data: apiData.datasets[1].data,
             label: "Kết thúc",
             stack: "total",
-            color: theme.palette.warning.main,
+            color: theme.palette.dark.main,
           },
         ]);
       })
