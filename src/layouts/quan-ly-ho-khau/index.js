@@ -70,8 +70,8 @@ function QuanLyHoKhau() {
       ? user.roles.includes("CAN_BO")
       : role === "CAN_BO";
     if (!isCanBo) {
-      alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
-      navigate("/ho-khau-cua-toi");
+      setMessage({ type: "error", content: "⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!" });
+      setTimeout(() => navigate("/ho-khau-cua-toi"), 2000);
     }
   }, [navigate]);
 
