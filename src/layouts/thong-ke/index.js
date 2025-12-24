@@ -10,23 +10,25 @@ import TongNhanKhau from "./components/TongNK";
 import ThongKeSoThanhVien from "./components/thongke/ThongKeSoThanhVien";
 import TongHoKhau from "./components/TongHK";
 import ThongKeTamTruTamVang from "./components/thongke/ThongKeTamTruTamVang";
+import ThongKeTamTruTamVangTheoTuan from "./components/thongke/ThongKeTamTruTamVangTheoTuan";
+import ThongKePhanAnhTheoNam from "./components/thongke/ThongKePhanAnhTheoNam";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Projects from "layouts/dashboard/components/Projects";
-import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 import dayjs from "dayjs";
 import BasicDatePicker from "./components/Calendar/DatePicker";
 import YearPicker from "./components/Calendar/YearPicker";
-import ThongKePhanAnhTheoNam from "./components/thongke/ThongKePhanAnhTheoNam";
 import ThongKeModeMenu from "./components/Menu";
 import MDTypography from "components/MDTypography";
+import CommonMenu from "./components/Menu/CommonMenu";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
   const [typeHK, setTypeHK] = useState("mem-count");
-  const [startDate, setStartDate] = useState(dayjs);
-  const [mode, setMode] = useState("week");
+  const [date, setDate] = useState(dayjs);
+  const [mode, setMode] = useState("tamTru");
+  const [datePA, setDatePA] = useState(dayjs);
+  const [modePA, setModePA] = useState("week");
   const [year, setYear] = useState(dayjs().year());
 
   return (
@@ -45,7 +47,7 @@ function ThongKe() {
             <MDBox mb={1.5}>
               <ThongKeTamTruTamVang
                 type="TAM_TRU"
-                startDate={startDate.format("YYYY-MM-DD")}
+                startDate={date.format("YYYY-MM-DD")}
                 color="error"
               />
             </MDBox>
@@ -55,7 +57,7 @@ function ThongKe() {
             <MDBox mb={1.5}>
               <ThongKeTamTruTamVang
                 type="TAM_VANG"
-                startDate={startDate.format("YYYY-MM-DD")}
+                startDate={date.format("YYYY-MM-DD")}
                 color="dark"
               />
             </MDBox>
@@ -128,40 +130,90 @@ function ThongKe() {
                 {/* FILTER */}
                 <MDBox px={3} pt={2}>
                   <MDBox position="absolute" right={16} zIndex={10}>
-                    <ThongKeModeMenu mode={mode} onChange={setMode} />
+                    <ThongKeModeMenu mode={modePA} onChange={setModePA} />
                   </MDBox>
-                  {mode === "week" && (
+                  {modePA === "week" && (
                     <BasicDatePicker
                       label="Chọn ngày"
-                      value={startDate}
-                      onChange={(date) => setStartDate(date)}
+                      value={datePA}
+                      onChange={(datePA) => setDatePA(datePA)}
                     />
                   )}
 
-                  {mode === "year" && <YearPicker value={year} onChange={setYear} />}
+                  {modePA === "year" && <YearPicker value={year} onChange={setYear} />}
                 </MDBox>
 
                 {/* CHART */}
                 <MDBox px={2} pb={3} pt={2}>
-                  {mode === "week" && startDate && (
-                    <ThongKePhanAnhTheoTuan startDate={startDate.format("YYYY-MM-DD")} />
+                  {modePA === "week" && datePA && (
+                    <ThongKePhanAnhTheoTuan startDate={datePA.format("YYYY-MM-DD")} />
                   )}
 
-                  {mode === "year" && year && <ThongKePhanAnhTheoNam year={year} />}
+                  {modePA === "year" && year && <ThongKePhanAnhTheoNam year={year} />}
                 </MDBox>
               </Card>
             </Grid>
-          </Grid>
-        </MDBox>
+            <Grid item xs={12} md={6} lg={6}>
+              <Card>
+                {/* HEADER */}
+                <MDBox
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  px={3}
+                  pt={3}
+                >
+                  <MDTypography variant="h6" fontWeight="medium">
+                    Thống Kê Tạm Trú / Tạm Vắng
+                  </MDTypography>
+                </MDBox>
 
-        {/* Phần dưới */}
-        <MDBox>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              {/* <Projects /> */}
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              {/* <OrdersOverview /> */}
+                {/* FILTER */}
+                <MDBox px={3} pt={2}>
+                  <MDBox position="absolute" right={16} zIndex={10}>
+                    <CommonMenu
+                      value={mode}
+                      onChange={setMode}
+                      options={[
+                        { value: "tamTru", label: "Tạm trú" },
+                        { value: "tamVang", label: "Tạm vắng" },
+                      ]}
+                    />
+                  </MDBox>
+                  {mode === "tamTru" && (
+                    <BasicDatePicker
+                      label="Chọn ngày"
+                      value={date}
+                      onChange={(date) => setDate(date)}
+                    />
+                  )}
+                  {mode === "tamVang" && (
+                    <BasicDatePicker
+                      label="Chọn ngày"
+                      value={date}
+                      onChange={(date) => setDate(date)}
+                    />
+                  )}
+                </MDBox>
+
+                {/* CHART */}
+                <MDBox px={2} pb={3} pt={2}>
+                  {mode === "tamTru" && date && (
+                    <ThongKeTamTruTamVangTheoTuan
+                      type="TAM_TRU"
+                      startDate={date.format("YYYY-MM-DD")}
+                      color="error"
+                    />
+                  )}
+                  {mode === "tamVang" && date && (
+                    <ThongKeTamTruTamVangTheoTuan
+                      type="TAM_VANG"
+                      startDate={date.format("YYYY-MM-DD")}
+                      color="error"
+                    />
+                  )}
+                </MDBox>
+              </Card>
             </Grid>
           </Grid>
         </MDBox>

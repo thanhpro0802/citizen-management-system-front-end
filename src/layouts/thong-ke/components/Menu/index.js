@@ -1,6 +1,5 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import Button from "@mui/material/Button";
 import MDButton from "components/MDButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
