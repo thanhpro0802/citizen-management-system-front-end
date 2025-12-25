@@ -16,8 +16,6 @@ import Pagination from "@mui/material/Pagination";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-// LƯU Ý: Không dùng Table nữa để tránh lỗi lệch style
-// import Table from "@mui/material/Table"; ... (Bỏ các dòng này)
 
 // Components
 import MDBox from "components/MDBox";
@@ -60,10 +58,11 @@ function XuLyPhanAnh() {
   const [thoiHan, setThoiHan] = useState("");
   const [noiDungXuLy, setNoiDungXuLy] = useState("");
 
-  // --- STATE CHO MODAL ---
+  // --- STATE CHO MODAL (CÓ TÌM KIẾM) ---
   const [openDialog, setOpenDialog] = useState(false);
   const [listCanBo, setListCanBo] = useState([]);
   const [selectedCanBoInfo, setSelectedCanBoInfo] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // Thêm state tìm kiếm
   // -----------------------
 
   // State Phân trang lịch sử
@@ -122,6 +121,7 @@ function XuLyPhanAnh() {
   // --- LOGIC MODAL ---
   const handleOpenSelect = async () => {
     setOpenDialog(true);
+    setSearchTerm(""); // Reset tìm kiếm mỗi khi mở modal
     try {
       const res = await getAllCanBo();
       if (res && res.data) {
@@ -506,7 +506,7 @@ function XuLyPhanAnh() {
       </MDBox>
       <Footer />
 
-      {/* --- DIALOG ĐÃ SỬA DÙNG GRID (ĐẢM BẢO KHÔNG LỆCH) --- */}
+      {/* --- DIALOG CHỌN CÁN BỘ (GRID + TÌM KIẾM + SCROLL) --- */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
         <MDBox
           p={2}
@@ -517,7 +517,7 @@ function XuLyPhanAnh() {
           alignItems="center"
         >
           <MDTypography variant="h6" color="white">
-            Danh Sách Cán Bộ Khả Dụng
+            Danh Sách Cán Bộ ({listCanBo.length})
           </MDTypography>
           <Icon onClick={() => setOpenDialog(false)} sx={{ color: "white", cursor: "pointer" }}>
             close
@@ -525,13 +525,21 @@ function XuLyPhanAnh() {
         </MDBox>
 
         <DialogContent dividers>
-          {/* 1. PHẦN TIÊU ĐỀ (HEADER) */}
-          <MDBox
-            p={2}
-            mb={1}
-            borderRadius="lg"
-            bgColor="grey-200" // Màu nền header phân biệt
-          >
+          {/* 1. Ô TÌM KIẾM NHANH */}
+          <MDBox mb={2}>
+            <MDInput
+              fullWidth
+              placeholder="Nhập tên hoặc mã cán bộ để tìm..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: <Icon sx={{ mr: 1 }}>search</Icon>,
+              }}
+            />
+          </MDBox>
+
+          {/* 2. HEADER (DÙNG GRID ĐỂ THẲNG HÀNG) */}
+          <MDBox p={2} mb={1} borderRadius="lg" bgColor="grey-200">
             <Grid container alignItems="center">
               <Grid item xs={5}>
                 <MDTypography variant="button" fontWeight="bold" color="dark">
@@ -556,94 +564,120 @@ function XuLyPhanAnh() {
             </Grid>
           </MDBox>
 
-          {/* 2. PHẦN DANH SÁCH (LIST BODY) */}
-          <MDBox display="flex" flexDirection="column" gap={1}>
-            {listCanBo.length > 0 ? (
-              listCanBo.map((cb, index) => {
-                const hoTenHienThi =
-                  cb.hoTen || (cb.nhanKhau && cb.nhanKhau.hoTen) || "Chưa cập nhật";
-                const sdtHienThi =
-                  cb.soDienThoai || cb.sdt || (cb.nhanKhau && cb.nhanKhau.soDienThoai) || "";
-                const chucVuHienThi = cb.vaiTro === "CAN_BO" ? "Cán bộ" : cb.vaiTro || "N/A";
+          {/* 3. DANH SÁCH (CÓ SCROLLBAR VÀ LOGIC FILTER) */}
+          <MDBox
+            display="flex"
+            flexDirection="column"
+            gap={1}
+            // Tạo thanh cuộn nếu danh sách dài quá 400px
+            sx={{ maxHeight: "400px", overflowY: "auto", pr: 1 }}
+          >
+            {listCanBo
+              // BƯỚC 1: LỌC THEO TỪ KHÓA
+              .filter((cb) => {
+                const term = searchTerm.toLowerCase();
+                const name = (cb.hoTen || cb.nhanKhau?.hoTen || "").toLowerCase();
+                const code = (cb.maTaiKhoan || cb.soCccd || "").toLowerCase();
+                return name.includes(term) || code.includes(term);
+              }).length > 0 ? (
+              // BƯỚC 2: RENDER RA DANH SÁCH ĐÃ LỌC
+              listCanBo
+                .filter((cb) => {
+                  const term = searchTerm.toLowerCase();
+                  const name = (cb.hoTen || cb.nhanKhau?.hoTen || "").toLowerCase();
+                  const code = (cb.maTaiKhoan || cb.soCccd || "").toLowerCase();
+                  return name.includes(term) || code.includes(term);
+                })
+                .map((cb, index) => {
+                  const hoTenHienThi =
+                    cb.hoTen || (cb.nhanKhau && cb.nhanKhau.hoTen) || "Chưa cập nhật";
+                  const sdtHienThi =
+                    cb.soDienThoai || cb.sdt || (cb.nhanKhau && cb.nhanKhau.soDienThoai) || "";
+                  const chucVuHienThi = cb.vaiTro === "CAN_BO" ? "Cán bộ" : cb.vaiTro || "N/A";
 
-                let maRaw = cb.maTaiKhoan || cb.soCccd || cb.id || "";
-                let maHienThi = maRaw.length > 15 ? `${maRaw.substring(0, 8)}...` : maRaw;
+                  let maRaw = cb.maTaiKhoan || cb.soCccd || cb.id || "";
+                  let maHienThi = maRaw.length > 15 ? `${maRaw.substring(0, 8)}...` : maRaw;
 
-                return (
-                  <Card key={index} sx={{ border: "1px solid #eee", boxShadow: "none" }}>
-                    <MDBox p={2}>
-                      <Grid container alignItems="center">
-                        {/* Cột 1: Tên (xs=5 khớp với header) */}
-                        <Grid item xs={5}>
-                          <MDBox display="flex" flexDirection="column">
-                            <MDTypography variant="body2" fontWeight="medium" color="dark">
-                              {hoTenHienThi}
-                            </MDTypography>
-                            <MDBox
-                              bgColor="grey-100"
-                              borderRadius="md"
-                              px={1}
-                              py={0.5}
-                              mt={0.5}
-                              width="fit-content"
-                              display="flex"
-                              alignItems="center"
-                              border="1px solid #ddd"
-                            >
-                              <Icon fontSize="small" sx={{ fontSize: "10px !important", mr: 0.5 }}>
-                                tag
-                              </Icon>
-                              <MDTypography
-                                variant="caption"
-                                fontWeight="bold"
-                                color="text"
-                                sx={{ lineHeight: 1 }}
-                              >
-                                {maHienThi}
+                  return (
+                    <Card key={index} sx={{ border: "1px solid #eee", boxShadow: "none" }}>
+                      <MDBox p={2}>
+                        <Grid container alignItems="center">
+                          {/* Cột 1: Tên (xs=5 khớp với header) */}
+                          <Grid item xs={5}>
+                            <MDBox display="flex" flexDirection="column">
+                              <MDTypography variant="body2" fontWeight="medium" color="dark">
+                                {hoTenHienThi}
                               </MDTypography>
+                              <MDBox
+                                bgColor="grey-100"
+                                borderRadius="md"
+                                px={1}
+                                py={0.5}
+                                mt={0.5}
+                                width="fit-content"
+                                display="flex"
+                                alignItems="center"
+                                border="1px solid #ddd"
+                              >
+                                <Icon
+                                  fontSize="small"
+                                  sx={{ fontSize: "10px !important", mr: 0.5 }}
+                                >
+                                  tag
+                                </Icon>
+                                <MDTypography
+                                  variant="caption"
+                                  fontWeight="bold"
+                                  color="text"
+                                  sx={{ lineHeight: 1 }}
+                                >
+                                  {maHienThi}
+                                </MDTypography>
+                              </MDBox>
                             </MDBox>
-                          </MDBox>
-                        </Grid>
+                          </Grid>
 
-                        {/* Cột 2: Chức vụ (xs=2 khớp với header) */}
-                        <Grid item xs={2}>
-                          <MDTypography variant="caption" color="text">
-                            {chucVuHienThi}
-                          </MDTypography>
-                        </Grid>
+                          {/* Cột 2: Chức vụ (xs=2 khớp với header) */}
+                          <Grid item xs={2}>
+                            <MDTypography variant="caption" color="text">
+                              {chucVuHienThi}
+                            </MDTypography>
+                          </Grid>
 
-                        {/* Cột 3: SĐT (xs=3 khớp với header) */}
-                        <Grid item xs={3}>
-                          <MDTypography variant="caption" color="dark">
-                            {sdtHienThi}
-                          </MDTypography>
-                        </Grid>
+                          {/* Cột 3: SĐT (xs=3 khớp với header) */}
+                          <Grid item xs={3}>
+                            <MDTypography variant="caption" color="dark">
+                              {sdtHienThi}
+                            </MDTypography>
+                          </Grid>
 
-                        {/* Cột 4: Nút (xs=2 khớp với header) */}
-                        <Grid item xs={2} textAlign="center">
-                          <MDButton
-                            variant="gradient"
-                            color="success"
-                            size="small"
-                            onClick={() =>
-                              handleSelectCanBo({
-                                ...cb,
-                                hoTen: hoTenHienThi,
-                                id: maRaw,
-                              })
-                            }
-                          >
-                            Chọn
-                          </MDButton>
+                          {/* Cột 4: Nút (xs=2 khớp với header) */}
+                          <Grid item xs={2} textAlign="center">
+                            <MDButton
+                              variant="gradient"
+                              color="success"
+                              size="small"
+                              onClick={() =>
+                                handleSelectCanBo({
+                                  ...cb,
+                                  hoTen: hoTenHienThi,
+                                  id: maRaw,
+                                })
+                              }
+                            >
+                              Chọn
+                            </MDButton>
+                          </Grid>
                         </Grid>
-                      </Grid>
-                    </MDBox>
-                  </Card>
-                );
-              })
+                      </MDBox>
+                    </Card>
+                  );
+                })
             ) : (
               <MDBox textAlign="center" py={3}>
-                <MDTypography variant="caption">Không tìm thấy dữ liệu.</MDTypography>
+                <MDTypography variant="caption">
+                  Không tìm thấy cán bộ nào khớp với &quot;{searchTerm}&quot;
+                </MDTypography>
               </MDBox>
             )}
           </MDBox>

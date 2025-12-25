@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" afterDir="false" />
-    </list>
+    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -171,7 +168,7 @@
       <workItem from="1766391763991" duration="1962000" />
       <workItem from="1766581925301" duration="3971000" />
       <workItem from="1766591983484" duration="124000" />
-      <workItem from="1766678109609" duration="317000" />
+      <workItem from="1766678109609" duration="661000" />
     </task>
     <servers />
   </component>
