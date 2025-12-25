@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/chi-tiet-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/chi-tiet-phan-anh/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/quan-ly-phan-anh/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/xu-ly-phan-anh/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,12 +16,12 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="com.intellij.reactbuddy.palette" />
         <option value="com.intellij.reactbuddy.previews" />
         <option value="com.intellij.reactbuddy.index" />
         <option value="com.intellij.reactbuddy.useInitial" />
         <option value="com.intellij.reactbuddy.README" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -68,7 +66,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#15 on feature/feedback-management&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/feedback-management&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end&quot;,
@@ -169,7 +167,11 @@
       <workItem from="1766061206014" duration="4954000" />
       <workItem from="1766283202023" duration="791000" />
       <workItem from="1766304089512" duration="7000" />
-      <workItem from="1766307878130" duration="6167000" />
+      <workItem from="1766307878130" duration="7041000" />
+      <workItem from="1766391763991" duration="1962000" />
+      <workItem from="1766581925301" duration="3971000" />
+      <workItem from="1766591983484" duration="124000" />
+      <workItem from="1766678109609" duration="317000" />
     </task>
     <servers />
   </component>

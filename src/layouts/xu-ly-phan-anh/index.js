@@ -10,7 +10,14 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import Pagination from "@mui/material/Pagination"; // 1. Import Pagination
+import Pagination from "@mui/material/Pagination";
+
+// Import cho Modal
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+// LƯU Ý: Không dùng Table nữa để tránh lỗi lệch style
+// import Table from "@mui/material/Table"; ... (Bỏ các dòng này)
 
 // Components
 import MDBox from "components/MDBox";
@@ -34,26 +41,36 @@ import {
   updateMucDoKhanCap,
 } from "services/phanAnhService";
 
+import { getAllCanBo } from "services/userService";
+
 function XuLyPhanAnh() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // State dữ liệu chính
   const [data, setData] = useState(null);
   const [lichSu, setLichSu] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState({ type: "", content: "" });
 
-  // State Form
+  // State Form xử lý
   const [mucDo, setMucDo] = useState("THAP");
   const [maCanBo, setMaCanBo] = useState("");
   const [thoiHan, setThoiHan] = useState("");
   const [noiDungXuLy, setNoiDungXuLy] = useState("");
 
-  // 2. State Phân trang
+  // --- STATE CHO MODAL ---
+  const [openDialog, setOpenDialog] = useState(false);
+  const [listCanBo, setListCanBo] = useState([]);
+  const [selectedCanBoInfo, setSelectedCanBoInfo] = useState(null);
+  // -----------------------
+
+  // State Phân trang lịch sử
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
 
+  // --- HELPER FUNCTIONS ---
   const getStatusLabel = (s) =>
     s === "DA_XU_LY" ? "Đã xong" : s === "DANG_XU_LY" ? "Đang xử lý" : "Chờ xử lý";
 
@@ -75,6 +92,7 @@ function XuLyPhanAnh() {
     return new Date(dateString).toLocaleString("vi-VN");
   };
 
+  // --- FETCH DATA ---
   const fetchData = async () => {
     try {
       const [resDetail, resHistory] = await Promise.all([
@@ -101,7 +119,29 @@ function XuLyPhanAnh() {
     fetchData();
   }, [id]);
 
-  // Handle actions... (Giữ nguyên các hàm xử lý logic cũ của bạn)
+  // --- LOGIC MODAL ---
+  const handleOpenSelect = async () => {
+    setOpenDialog(true);
+    try {
+      const res = await getAllCanBo();
+      if (res && res.data) {
+        const list = Array.isArray(res.data) ? res.data : res.data.content || [];
+        setListCanBo(list);
+      }
+    } catch (err) {
+      console.error("Lỗi tải danh sách cán bộ:", err);
+      setMessage({ type: "error", content: "Không tải được danh sách cán bộ." });
+    }
+  };
+
+  const handleSelectCanBo = (canBoInfo) => {
+    setMaCanBo(canBoInfo.id || canBoInfo.maTaiKhoan);
+    setSelectedCanBoInfo(canBoInfo);
+    setOpenDialog(false);
+  };
+  // -------------------
+
+  // --- HANDLERS ---
   const handleChangeMucDo = async (event) => {
     const newMucDo = event.target.value;
     setMucDo(newMucDo);
@@ -110,18 +150,21 @@ function XuLyPhanAnh() {
       setMessage({ type: "success", content: `Đã đổi mức độ thành: ${getMucDoLabel(newMucDo)}` });
       fetchData();
     } catch (e) {
-      if (e.response && e.response.status === 403) {
-        setMessage({ type: "error", content: "⛔ LỖI QUYỀN (403): Bạn chưa được phân công!" });
-      } else {
-        setMessage({ type: "error", content: "Lỗi kết nối Server" });
-      }
+      setMessage({ type: "error", content: "Lỗi cập nhật mức độ." });
     }
   };
 
   const handlePhanCong = async () => {
+    if (!maCanBo) {
+      setMessage({ type: "error", content: "Vui lòng chọn cán bộ trước!" });
+      return;
+    }
     try {
       await phanCongXuLy(id, maCanBo, thoiHan);
-      setMessage({ type: "success", content: `Đã phân công: ${maCanBo}` });
+      setMessage({
+        type: "success",
+        content: `Đã phân công cho: ${selectedCanBoInfo?.hoTen || maCanBo}`,
+      });
       fetchData();
     } catch (e) {
       setMessage({ type: "error", content: "Lỗi phân công!" });
@@ -134,14 +177,9 @@ function XuLyPhanAnh() {
       setMessage({ type: "success", content: "Đã lưu nhật ký." });
       setNoiDungXuLy("");
       fetchData();
-      // Reset về trang 1 khi có log mới để user thấy ngay
       setPage(1);
     } catch (e) {
-      if (e.response && e.response.status === 403) {
-        setMessage({ type: "error", content: "⛔ Không có quyền ghi nhật ký." });
-      } else {
-        setMessage({ type: "error", content: "Lỗi lưu dữ liệu." });
-      }
+      setMessage({ type: "error", content: "Lỗi lưu dữ liệu." });
     }
   };
 
@@ -156,11 +194,8 @@ function XuLyPhanAnh() {
     }
   };
 
-  // 3. Xử lý cắt mảng dữ liệu
-  const handlePageChange = (event, value) => {
-    setPage(value);
-  };
-
+  // Pagination logic
+  const handlePageChange = (event, value) => setPage(value);
   const indexOfLastRow = page * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = lichSu.slice(indexOfFirstRow, indexOfLastRow);
@@ -223,7 +258,6 @@ function XuLyPhanAnh() {
                   </MDBox>
                 )}
 
-                {/* --- KHU VỰC THÔNG TIN CHUNG --- */}
                 <MDBox
                   mb={3}
                   display="flex"
@@ -263,7 +297,6 @@ function XuLyPhanAnh() {
                 </MDBox>
                 <Divider />
 
-                {/* --- KHU VỰC FORM --- */}
                 {data.trangThaiHienTai === "CHO" && (
                   <MDBox mt={2}>
                     <MDTypography variant="h6" color="info" gutterBottom>
@@ -271,18 +304,44 @@ function XuLyPhanAnh() {
                     </MDTypography>
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
-                        <MDInput
-                          label="Mã Cán Bộ"
-                          fullWidth
-                          value={maCanBo}
-                          onChange={(e) => setMaCanBo(e.target.value)}
-                        />
+                        <MDBox mb={1}>
+                          <MDTypography variant="caption" fontWeight="bold" color="text">
+                            Cán bộ phụ trách:
+                          </MDTypography>
+                        </MDBox>
+                        <MDBox display="flex" gap={1}>
+                          <MDInput
+                            fullWidth
+                            value={
+                              selectedCanBoInfo
+                                ? `${selectedCanBoInfo.hoTen} (${selectedCanBoInfo.id || "..."})`
+                                : maCanBo
+                            }
+                            placeholder="Chưa chọn cán bộ..."
+                            disabled
+                            InputProps={{
+                              startAdornment: <Icon sx={{ mr: 1 }}>person</Icon>,
+                            }}
+                          />
+                          <MDButton
+                            variant="gradient"
+                            color="info"
+                            onClick={handleOpenSelect}
+                            sx={{ minWidth: "110px", px: 1 }}
+                          >
+                            <Icon>list</Icon>&nbsp;Chọn
+                          </MDButton>
+                        </MDBox>
                       </Grid>
+
                       <Grid item xs={12} md={6}>
+                        <MDBox mb={1}>
+                          <MDTypography variant="caption" fontWeight="bold" color="text">
+                            Hạn chót xử lý (Deadline):
+                          </MDTypography>
+                        </MDBox>
                         <MDInput
                           type="date"
-                          label="Hạn chót xử lý (Deadline)"
-                          InputLabelProps={{ shrink: true }}
                           fullWidth
                           value={thoiHan}
                           onChange={(e) => setThoiHan(e.target.value)}
@@ -331,7 +390,6 @@ function XuLyPhanAnh() {
 
                 <Divider sx={{ my: 4 }} />
 
-                {/* --- KHU VỰC LỊCH SỬ (Đã phân trang) --- */}
                 <MDBox>
                   <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <MDTypography variant="h5" color="dark">
@@ -346,7 +404,6 @@ function XuLyPhanAnh() {
                     </MDTypography>
                   ) : (
                     <MDBox display="flex" flexDirection="column" gap={2}>
-                      {/* 4. Render mảng currentRows thay vì lichSu */}
                       {currentRows.map((item, index) => {
                         let actionLabel = item.hanhDong;
                         let actionColor = "dark";
@@ -374,7 +431,6 @@ function XuLyPhanAnh() {
                           default:
                             break;
                         }
-
                         return (
                           <MDBox
                             key={index}
@@ -430,8 +486,6 @@ function XuLyPhanAnh() {
                       })}
                     </MDBox>
                   )}
-
-                  {/* 5. Thanh Phân Trang */}
                   {lichSu.length > rowsPerPage && (
                     <MDBox display="flex" justifyContent="center" mt={3}>
                       <Pagination
@@ -451,6 +505,155 @@ function XuLyPhanAnh() {
         </Grid>
       </MDBox>
       <Footer />
+
+      {/* --- DIALOG ĐÃ SỬA DÙNG GRID (ĐẢM BẢO KHÔNG LỆCH) --- */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
+        <MDBox
+          p={2}
+          variant="gradient"
+          sx={{ background: "linear-gradient(195deg, #0f766e, #115e59)" }}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <MDTypography variant="h6" color="white">
+            Danh Sách Cán Bộ Khả Dụng
+          </MDTypography>
+          <Icon onClick={() => setOpenDialog(false)} sx={{ color: "white", cursor: "pointer" }}>
+            close
+          </Icon>
+        </MDBox>
+
+        <DialogContent dividers>
+          {/* 1. PHẦN TIÊU ĐỀ (HEADER) */}
+          <MDBox
+            p={2}
+            mb={1}
+            borderRadius="lg"
+            bgColor="grey-200" // Màu nền header phân biệt
+          >
+            <Grid container alignItems="center">
+              <Grid item xs={5}>
+                <MDTypography variant="button" fontWeight="bold" color="dark">
+                  Thông tin Cán bộ
+                </MDTypography>
+              </Grid>
+              <Grid item xs={2}>
+                <MDTypography variant="button" fontWeight="bold" color="dark">
+                  Chức vụ
+                </MDTypography>
+              </Grid>
+              <Grid item xs={3}>
+                <MDTypography variant="button" fontWeight="bold" color="dark">
+                  SĐT
+                </MDTypography>
+              </Grid>
+              <Grid item xs={2} textAlign="center">
+                <MDTypography variant="button" fontWeight="bold" color="dark">
+                  Thao tác
+                </MDTypography>
+              </Grid>
+            </Grid>
+          </MDBox>
+
+          {/* 2. PHẦN DANH SÁCH (LIST BODY) */}
+          <MDBox display="flex" flexDirection="column" gap={1}>
+            {listCanBo.length > 0 ? (
+              listCanBo.map((cb, index) => {
+                const hoTenHienThi =
+                  cb.hoTen || (cb.nhanKhau && cb.nhanKhau.hoTen) || "Chưa cập nhật";
+                const sdtHienThi =
+                  cb.soDienThoai || cb.sdt || (cb.nhanKhau && cb.nhanKhau.soDienThoai) || "";
+                const chucVuHienThi = cb.vaiTro === "CAN_BO" ? "Cán bộ" : cb.vaiTro || "N/A";
+
+                let maRaw = cb.maTaiKhoan || cb.soCccd || cb.id || "";
+                let maHienThi = maRaw.length > 15 ? `${maRaw.substring(0, 8)}...` : maRaw;
+
+                return (
+                  <Card key={index} sx={{ border: "1px solid #eee", boxShadow: "none" }}>
+                    <MDBox p={2}>
+                      <Grid container alignItems="center">
+                        {/* Cột 1: Tên (xs=5 khớp với header) */}
+                        <Grid item xs={5}>
+                          <MDBox display="flex" flexDirection="column">
+                            <MDTypography variant="body2" fontWeight="medium" color="dark">
+                              {hoTenHienThi}
+                            </MDTypography>
+                            <MDBox
+                              bgColor="grey-100"
+                              borderRadius="md"
+                              px={1}
+                              py={0.5}
+                              mt={0.5}
+                              width="fit-content"
+                              display="flex"
+                              alignItems="center"
+                              border="1px solid #ddd"
+                            >
+                              <Icon fontSize="small" sx={{ fontSize: "10px !important", mr: 0.5 }}>
+                                tag
+                              </Icon>
+                              <MDTypography
+                                variant="caption"
+                                fontWeight="bold"
+                                color="text"
+                                sx={{ lineHeight: 1 }}
+                              >
+                                {maHienThi}
+                              </MDTypography>
+                            </MDBox>
+                          </MDBox>
+                        </Grid>
+
+                        {/* Cột 2: Chức vụ (xs=2 khớp với header) */}
+                        <Grid item xs={2}>
+                          <MDTypography variant="caption" color="text">
+                            {chucVuHienThi}
+                          </MDTypography>
+                        </Grid>
+
+                        {/* Cột 3: SĐT (xs=3 khớp với header) */}
+                        <Grid item xs={3}>
+                          <MDTypography variant="caption" color="dark">
+                            {sdtHienThi}
+                          </MDTypography>
+                        </Grid>
+
+                        {/* Cột 4: Nút (xs=2 khớp với header) */}
+                        <Grid item xs={2} textAlign="center">
+                          <MDButton
+                            variant="gradient"
+                            color="success"
+                            size="small"
+                            onClick={() =>
+                              handleSelectCanBo({
+                                ...cb,
+                                hoTen: hoTenHienThi,
+                                id: maRaw,
+                              })
+                            }
+                          >
+                            Chọn
+                          </MDButton>
+                        </Grid>
+                      </Grid>
+                    </MDBox>
+                  </Card>
+                );
+              })
+            ) : (
+              <MDBox textAlign="center" py={3}>
+                <MDTypography variant="caption">Không tìm thấy dữ liệu.</MDTypography>
+              </MDBox>
+            )}
+          </MDBox>
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={() => setOpenDialog(false)} color="dark">
+            Đóng
+          </MDButton>
+        </DialogActions>
+      </Dialog>
     </DashboardLayout>
   );
 }
