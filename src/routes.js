@@ -34,7 +34,6 @@ import HoKhauDetail from "layouts/ho-khau/Detail";
 import HoKhauForm from "layouts/ho-khau/Form";
 import TachHo from "layouts/ho-khau/TachHo";
 import NhapHo from "layouts/ho-khau/NhapHo";
-import ThayDoiChuHo from "layouts/ho-khau/DoiChuHo";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -148,12 +147,6 @@ const routes = [
   {
     route: "/ho-khau/:id/nhap-ho",
     component: <NhapHo />,
-    requireAuth: true,
-    requiredRole: "CAN_BO",
-  },
-  {
-    route: "/ho-khau/:id/doi-chu-ho",
-    component: <ThayDoiChuHo />,
     requireAuth: true,
     requiredRole: "CAN_BO",
   },

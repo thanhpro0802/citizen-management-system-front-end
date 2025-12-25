@@ -14,13 +14,16 @@ import {
   TableHead,
   TableRow,
   Divider,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete"; // Icon thùng rác
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
-import MDInput from "components/MDInput"; // Input đẹp của template
+import MDInput from "components/MDInput";
 import MDAlert from "components/MDAlert";
 
 // Layout
@@ -28,19 +31,18 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
 function HoKhauForm() {
-  const { id } = useParams(); // id = maHoKhau
+  const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
   const [form, setForm] = useState({
     diaChi: "",
-    maNhanKhauChuHo: "",
+    cccdChuHo: "",
     ngayDangKy: new Date().toISOString().slice(0, 10),
   });
 
-  // Lưu danh sách thành viên để hiển thị (chỉ xem)
+  const [initialOwner, setInitialOwner] = useState(null); // Lưu thông tin chủ hộ gốc
   const [members, setMembers] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -50,35 +52,100 @@ function HoKhauForm() {
     fetchHoKhauDetail(id)
       .then((res) => {
         const hk = res.data;
+        const currentOwner = hk.chuHo;
         setForm({
           diaChi: hk.diaChi || "",
-          maNhanKhauChuHo: hk.chuHo?.maNhanKhau || "", // Lấy ID chủ hộ hiện tại
-          ngayDangKy: hk.ngayDangKy
-            ? String(hk.ngayDangKy).slice(0, 10)
-            : new Date().toISOString().slice(0, 10),
+          cccdChuHo: currentOwner?.soCCCD || "",
+          ngayDangKy: hk.ngayDangKy ? String(hk.ngayDangKy).slice(0, 10) : "",
         });
-        // Lưu danh sách thành viên để hiển thị bên dưới
-        setMembers(hk.danhSachThanhVien || []);
+        setInitialOwner(currentOwner);
+
+        // Lọc chủ hộ ra khỏi danh sách thành viên ban đầu để tránh lặp
+        const rawMembers = hk.danhSachThanhVien || [];
+        const filteredMembers = rawMembers.filter((m) => m.soCCCD !== currentOwner?.soCCCD);
+        setMembers(filteredMembers);
       })
-      .catch((err) => {
-        setError("Không thể tải thông tin hộ khẩu.");
-      })
+      .catch((err) => setError("Không thể tải thông tin hộ khẩu."))
       .finally(() => setLoading(false));
   }, [id, isEdit]);
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  // --- LOGIC HOÁN ĐỔI CHỦ HỘ ---
+  const handleOwnerCCCDChange = (e) => {
+    const newCCCD = e.target.value;
+    setForm((prev) => ({ ...prev, cccdChuHo: newCCCD }));
+
+    // 1. Kiểm tra xem CCCD mới có thuộc về một thành viên đang trong danh sách không
+    const memberToPromoteIndex = members.findIndex((m) => m.soCCCD === newCCCD);
+
+    if (memberToPromoteIndex !== -1) {
+      // TÌM THẤY: Người này đang là thành viên -> Đẩy lên làm chủ hộ
+      const newMembers = [...members];
+      const memberPromoted = newMembers[memberToPromoteIndex];
+
+      // Xóa người này khỏi danh sách thành viên
+      newMembers.splice(memberToPromoteIndex, 1);
+
+      // Đẩy chủ hộ CŨ xuống làm thành viên (nếu chưa có trong list)
+      // Chỉ đẩy xuống nếu chủ hộ cũ tồn tại và khác chủ hộ mới
+      if (initialOwner && initialOwner.soCCCD !== newCCCD) {
+        // Kiểm tra xem chủ hộ cũ đã có trong list chưa (tránh add nhiều lần)
+        const oldOwnerExists = newMembers.find((m) => m.soCCCD === initialOwner.soCCCD);
+        if (!oldOwnerExists) {
+          newMembers.unshift({
+            ...initialOwner,
+            quanHeVoiChuHo: "", // Reset quan hệ để bắt buộc nhập
+            isOldOwner: true, // Đánh dấu để highlight
+          });
+        }
+      }
+      setMembers(newMembers);
+    }
+    // 2. Nếu người dùng xóa CCCD hoặc nhập CCCD người lạ -> Nếu CCCD TRÙNG chủ hộ GỐC
+    else if (initialOwner && newCCCD === initialOwner.soCCCD) {
+      // Khôi phục: Xóa chủ hộ gốc khỏi danh sách thành viên (vì họ đã quay lại làm chủ)
+      const newMembers = members.filter((m) => m.soCCCD !== initialOwner.soCCCD);
+      // (Lưu ý: Nếu trước đó đã promote ai đó, người đó sẽ bị mất khỏi list.
+      // Logic đơn giản nhất ở đây là chỉ xóa oldOwner khỏi list thôi)
+      setMembers(newMembers);
+    }
+  };
+
+  const handleMemberRelationChange = (index, newValue) => {
+    const newMembers = [...members];
+    newMembers[index].quanHeVoiChuHo = newValue;
+    setMembers(newMembers);
+  };
+
+  // Hàm xóa thành viên khỏi danh sách (Dùng cho cả việc xóa chủ hộ cũ)
+  const handleDeleteMember = (index) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa người này khỏi hộ khẩu?")) {
+      const newMembers = [...members];
+      newMembers.splice(index, 1);
+      setMembers(newMembers);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    // Payload gửi đi
+    // Validate: Nếu có người là OldOwner trong list mà chưa nhập quan hệ
+    const missingRelation = members.find((m) => m.isOldOwner && !m.quanHeVoiChuHo);
+    if (missingRelation) {
+      setError(`Vui lòng nhập quan hệ mới cho chủ hộ cũ (${missingRelation.hoTen}).`);
+      setLoading(false);
+      return;
+    }
+
     const reqBody = {
       diaChi: form.diaChi,
       ngayDangKy: form.ngayDangKy,
-      // Nếu có nhập mã chủ hộ thì gửi object, ko thì null
-      chuHo: form.maNhanKhauChuHo ? { maNhanKhau: form.maNhanKhauChuHo.trim() } : null,
+      chuHo: form.cccdChuHo ? { soCCCD: form.cccdChuHo.trim() } : null,
+      danhSachThanhVien: members.map((m) => ({
+        maNhanKhau: m.maNhanKhau,
+        quanHeVoiChuHo: m.quanHeVoiChuHo,
+      })),
     };
 
     try {
@@ -89,10 +156,10 @@ function HoKhauForm() {
         await createHoKhau(reqBody);
         alert("Tạo mới thành công!");
       }
-      navigate("/ho-khau");
+      navigate(`/ho-khau/${id}`); // Quay về trang chi tiết
     } catch (err) {
       console.error(err);
-      setError("Có lỗi xảy ra. Vui lòng kiểm tra mã chủ hộ (UUID) có tồn tại không.");
+      setError("Có lỗi xảy ra. Vui lòng kiểm tra CCCD chủ hộ có tồn tại không.");
     } finally {
       setLoading(false);
     }
@@ -105,7 +172,6 @@ function HoKhauForm() {
         <Grid container spacing={6} justifyContent="center">
           <Grid item xs={12} md={10} lg={8}>
             <Card>
-              {/* Header Gradient Xanh */}
               <MDBox
                 mx={2}
                 mt={-3}
@@ -122,7 +188,6 @@ function HoKhauForm() {
                 <MDTypography variant="h6" color="white">
                   {isEdit ? "Cập Nhật Hộ Khẩu" : "Thêm Mới Hộ Khẩu"}
                 </MDTypography>
-                {/* Nút quay lại */}
                 <MDButton
                   variant="outlined"
                   color="white"
@@ -141,35 +206,30 @@ function HoKhauForm() {
                     </MDAlert>
                   </MDBox>
                 )}
-
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={3}>
-                    {/* Hàng 1: Địa chỉ (Full width) */}
                     <Grid item xs={12}>
                       <MDInput
                         label="Địa chỉ thường trú"
                         name="diaChi"
                         value={form.diaChi}
-                        onChange={handleChange}
+                        onChange={(e) => setForm({ ...form, diaChi: e.target.value })}
                         fullWidth
                         required
-                        variant="outlined"
                       />
                     </Grid>
 
-                    {/* Hàng 2: Mã Chủ hộ & Ngày đăng ký */}
                     <Grid item xs={12} md={8}>
                       <MDInput
-                        label="Mã nhân khẩu chủ hộ (UUID)"
-                        name="maNhanKhauChuHo"
-                        value={form.maNhanKhauChuHo}
-                        onChange={handleChange}
+                        label="Số CCCD Chủ hộ"
+                        name="cccdChuHo"
+                        value={form.cccdChuHo}
+                        onChange={handleOwnerCCCDChange} // Dùng hàm xử lý riêng
                         fullWidth
-                        placeholder="Nhập UUID của nhân khẩu làm chủ hộ..."
+                        required
+                        placeholder="Nhập CCCD..."
                         helperText={
-                          isEdit
-                            ? "Để trống nếu không muốn đổi chủ hộ tại đây"
-                            : "Bắt buộc khi tạo mới"
+                          isEdit ? "Nhập CCCD của thành viên để đưa họ lên làm chủ hộ." : ""
                         }
                       />
                     </Grid>
@@ -180,14 +240,13 @@ function HoKhauForm() {
                         name="ngayDangKy"
                         type="date"
                         value={form.ngayDangKy}
-                        onChange={handleChange}
+                        onChange={(e) => setForm({ ...form, ngayDangKy: e.target.value })}
                         fullWidth
                         InputLabelProps={{ shrink: true }}
                       />
                     </Grid>
                   </Grid>
 
-                  {/* Phần hiển thị danh sách thành viên (Chỉ hiện khi Edit) */}
                   {isEdit && (
                     <MDBox mt={4}>
                       <Divider />
@@ -198,7 +257,7 @@ function HoKhauForm() {
                         mb={1}
                       >
                         <MDTypography variant="h6" color="dark">
-                          Thành viên hiện tại ({members.length})
+                          Thành viên ({members.length})
                         </MDTypography>
                         <MDButton
                           size="small"
@@ -206,7 +265,7 @@ function HoKhauForm() {
                           variant="text"
                           onClick={() => navigate(`/ho-khau/${id}/nhap-ho`)}
                         >
-                          <Icon>person_add</Icon>&nbsp;Thêm thành viên
+                          <Icon>person_add</Icon>&nbsp;Thêm người
                         </MDButton>
                       </MDBox>
 
@@ -215,51 +274,84 @@ function HoKhauForm() {
                           <TableHead>
                             <TableRow>
                               <TableCell>Họ tên</TableCell>
-                              <TableCell>Quan hệ với chủ hộ</TableCell>
-                              <TableCell>CCCD</TableCell>
+                              <TableCell width="40%">Quan hệ với chủ hộ</TableCell>
+                              <TableCell align="center">CCCD</TableCell>
+                              <TableCell align="center">Xóa</TableCell>
                             </TableRow>
                           </TableHead>
                           <TableBody>
                             {members.length > 0 ? (
-                              members.map((mem) => (
-                                <TableRow key={mem.maNhanKhau}>
-                                  <TableCell>
-                                    <MDTypography variant="button" fontWeight="medium">
-                                      {mem.hoTen}
-                                    </MDTypography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption" color="text">
-                                      {mem.quanHeVoiChuHo || "Chưa cập nhật"}
-                                    </MDTypography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <MDTypography variant="caption" color="text">
-                                      {mem.soCCCD || mem.soCccd || "-"}
-                                    </MDTypography>
-                                  </TableCell>
-                                </TableRow>
-                              ))
+                              members.map((mem, index) => {
+                                // Highlight nếu là chủ hộ cũ bị đẩy xuống
+                                const needsUpdate = mem.isOldOwner;
+                                return (
+                                  <TableRow
+                                    key={mem.maNhanKhau}
+                                    sx={needsUpdate ? { backgroundColor: "#fff3cd" } : {}}
+                                  >
+                                    <TableCell>
+                                      <MDTypography variant="button" fontWeight="medium">
+                                        {mem.hoTen}
+                                      </MDTypography>
+                                      {needsUpdate && (
+                                        <MDTypography
+                                          variant="caption"
+                                          display="block"
+                                          color="error"
+                                          fontWeight="bold"
+                                        >
+                                          (Chủ hộ cũ - Cần cập nhật)
+                                        </MDTypography>
+                                      )}
+                                    </TableCell>
+                                    <TableCell>
+                                      <MDInput
+                                        value={mem.quanHeVoiChuHo || ""}
+                                        onChange={(e) =>
+                                          handleMemberRelationChange(index, e.target.value)
+                                        }
+                                        placeholder={
+                                          needsUpdate
+                                            ? "NHẬP QUAN HỆ MỚI (VD: Bố, Mẹ)"
+                                            : "VD: Con, Vợ..."
+                                        }
+                                        fullWidth
+                                        size="small"
+                                        error={needsUpdate && !mem.quanHeVoiChuHo}
+                                        autoFocus={needsUpdate}
+                                      />
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      <MDTypography variant="caption" color="text">
+                                        {mem.soCCCD || mem.soCccd || "-"}
+                                      </MDTypography>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                      <Tooltip title="Xóa người này khỏi hộ">
+                                        <IconButton
+                                          color="error"
+                                          onClick={() => handleDeleteMember(index)}
+                                        >
+                                          <DeleteIcon />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })
                             ) : (
                               <TableRow>
-                                <TableCell colSpan={3} align="center">
-                                  <MDTypography variant="caption">
-                                    Chưa có thành viên nào
-                                  </MDTypography>
+                                <TableCell colSpan={4} align="center">
+                                  Chưa có thành viên phụ.
                                 </TableCell>
                               </TableRow>
                             )}
                           </TableBody>
                         </Table>
                       </TableContainer>
-                      <MDTypography variant="caption" color="text" sx={{ mt: 1, display: "block" }}>
-                        * Để xóa hoặc tách thành viên, vui lòng sử dụng chức năng <b>Tách hộ</b> ở
-                        trang danh sách.
-                      </MDTypography>
                     </MDBox>
                   )}
 
-                  {/* Nút hành động */}
                   <MDBox mt={4} display="flex" justifyContent="flex-end">
                     <MDButton
                       variant="gradient"

@@ -19,14 +19,17 @@ import {
   TableRow,
   CircularProgress,
   Dialog,
-  Avatar, // Dùng avatar cho đẹp
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Avatar,
 } from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
-import MDAlert from "components/MDAlert"; // Nếu bạn có component này
+import MDAlert from "components/MDAlert";
 
 // Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -86,7 +89,7 @@ function HoKhauDetail({ isMe }) {
         setHoKhau(res.data);
       })
       .catch((err) => {
-        const msg = err.response?.data || "Không thể tải thông tin hộ khẩu.";
+        const msg = err.response?.data?.message || "Không thể tải thông tin hộ khẩu.";
         setError(msg);
       })
       .finally(() => setLoading(false));
@@ -139,7 +142,20 @@ function HoKhauDetail({ isMe }) {
 
   const showActions = !isMe;
   const chuHo = hoKhau?.chuHo;
-  const thanhVien = hoKhau?.danhSachThanhVien || [];
+
+  // --- LOGIC QUAN TRỌNG: LỌC DANH SÁCH THÀNH VIÊN ---
+  // Lấy danh sách gốc từ API
+  const rawMembers = hoKhau?.danhSachThanhVien || [];
+
+  // 1. Danh sách hiển thị trong bảng (Loại bỏ Chủ hộ để không bị lặp)
+  const membersToDisplay = rawMembers.filter(
+    (tv) => tv.soCCCD !== chuHo?.soCCCD && tv.maNhanKhau !== chuHo?.maNhanKhau
+  );
+
+  // 2. Tổng số thành viên (Dùng cho ô thống kê)
+  // Nếu danh sách raw đã bao gồm chủ hộ thì dùng length, nếu không thì +1
+  // Theo logic backend JPA thường trả về, chủ hộ cũng nằm trong danh sách thành viên
+  const totalMemberCount = rawMembers.length;
 
   return (
     <DashboardLayout>
@@ -229,10 +245,10 @@ function HoKhauDetail({ isMe }) {
                       minHeight="150px"
                     >
                       <MDTypography variant="h1" color="info" fontWeight="bold">
-                        {thanhVien.length}
+                        {totalMemberCount}
                       </MDTypography>
                       <MDTypography variant="button" color="text" fontWeight="regular">
-                        Thành viên trong hộ
+                        Tổng nhân khẩu
                       </MDTypography>
                     </MDBox>
                   </Grid>
@@ -243,7 +259,7 @@ function HoKhauDetail({ isMe }) {
                 {/* --- DANH SÁCH THÀNH VIÊN --- */}
                 <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                   <MDTypography variant="h6" fontWeight="medium" textTransform="uppercase">
-                    Danh sách thành viên
+                    Danh sách thành viên khác
                   </MDTypography>
                 </MDBox>
 
@@ -251,8 +267,6 @@ function HoKhauDetail({ isMe }) {
                   sx={{ boxShadow: "none", border: "1px solid #f0f2f5", borderRadius: "8px" }}
                 >
                   <Table sx={{ minWidth: 900 }}>
-                    {" "}
-                    {/* Đặt minWidth để không bị vỡ trên màn hình nhỏ */}
                     <TableHead sx={{ display: "table-header-group" }}>
                       <TableRow>
                         {/* Cột 1: Thành viên (40%) */}
@@ -260,30 +274,30 @@ function HoKhauDetail({ isMe }) {
                           Thành viên
                         </TableCell>
 
-                        {/* Cột 2: Quan hệ (20%) - Căn trái cho đẹp */}
+                        {/* Cột 2: Quan hệ (20%) */}
                         <TableCell width="20%" align="left">
                           Quan hệ với chủ hộ
                         </TableCell>
 
-                        {/* Cột 3: Ngày sinh (15%) - Căn giữa */}
+                        {/* Cột 3: Ngày sinh (15%) */}
                         <TableCell width="15%" align="center">
                           Ngày sinh
                         </TableCell>
 
-                        {/* Cột 4: Giới tính (10%) - Căn giữa */}
+                        {/* Cột 4: Giới tính (10%) */}
                         <TableCell width="10%" align="center">
                           Giới tính
                         </TableCell>
 
-                        {/* Cột 5: CCCD (15%) - Căn giữa */}
+                        {/* Cột 5: CCCD (15%) */}
                         <TableCell width="15%" align="center">
                           CCCD
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {thanhVien.length > 0 ? (
-                        thanhVien.map((tv) => (
+                      {membersToDisplay.length > 0 ? (
+                        membersToDisplay.map((tv) => (
                           <TableRow key={tv.maNhanKhau} hover>
                             {/* Dữ liệu Cột 1: Avatar + Tên */}
                             <TableCell align="left" sx={{ pl: 3 }}>
@@ -308,21 +322,13 @@ function HoKhauDetail({ isMe }) {
                               </MDBox>
                             </TableCell>
 
-                            {/* Dữ liệu Cột 2: Quan hệ (Căn trái giống tiêu đề) */}
+                            {/* Dữ liệu Cột 2: Quan hệ */}
                             <TableCell align="left">
                               <MDTypography
                                 variant="caption"
                                 fontWeight="bold"
-                                color={tv.quanHeVoiChuHo === "Chủ hộ" ? "error" : "dark"}
-                                sx={{
-                                  textTransform: "uppercase",
-                                  bgcolor:
-                                    tv.quanHeVoiChuHo === "Chủ hộ"
-                                      ? "rgba(244, 67, 53, 0.1)"
-                                      : "transparent",
-                                  p: tv.quanHeVoiChuHo === "Chủ hộ" ? "4px 8px" : 0,
-                                  borderRadius: "4px",
-                                }}
+                                color="dark"
+                                sx={{ textTransform: "uppercase" }}
                               >
                                 {tv.quanHeVoiChuHo || "---"}
                               </MDTypography>
@@ -356,7 +362,7 @@ function HoKhauDetail({ isMe }) {
                         <TableRow>
                           <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                             <MDTypography variant="button" color="text">
-                              Không có thành viên nào.
+                              Không có thành viên khác ngoài chủ hộ.
                             </MDTypography>
                           </TableCell>
                         </TableRow>
@@ -384,14 +390,6 @@ function HoKhauDetail({ isMe }) {
                       <Icon>person_remove</Icon>&nbsp;Tách hộ
                     </MDButton>
 
-                    <MDButton
-                      variant="outlined"
-                      color="secondary"
-                      onClick={() => navigate(`/ho-khau/${id || hoKhau?.maHoKhau}/doi-chu-ho`)}
-                    >
-                      <Icon>manage_accounts</Icon>&nbsp;Đổi chủ
-                    </MDButton>
-
                     <MDBox flexGrow={1} />
 
                     <MDButton
@@ -415,7 +413,20 @@ function HoKhauDetail({ isMe }) {
 
       {/* Dialog Xóa */}
       <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
-        {/* Giữ nguyên phần Dialog của bạn nếu cần, hoặc xóa nếu trang user không dùng */}
+        <DialogTitle>Xác nhận xóa</DialogTitle>
+        <DialogContent>
+          <MDTypography variant="body2">
+            Bạn có chắc chắn muốn xóa hộ khẩu này? Hành động này không thể hoàn tác.
+          </MDTypography>
+        </DialogContent>
+        <DialogActions>
+          <MDButton onClick={() => setOpenDelete(false)} color="dark">
+            Hủy
+          </MDButton>
+          <MDButton onClick={handleDelete} color="error" variant="gradient">
+            Xóa ngay
+          </MDButton>
+        </DialogActions>
       </Dialog>
     </DashboardLayout>
   );

@@ -34,7 +34,6 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1"; // Nhập hộ
 import PersonRemoveIcon from "@mui/icons-material/PersonRemove"; // Tách hộ
-import ManageAccountsIcon from "@mui/icons-material/ManageAccounts"; // Đổi chủ
 import SearchIcon from "@mui/icons-material/Search";
 
 import { fetchHoKhauList, deleteHoKhau } from "services/hokhauService";
@@ -264,15 +263,6 @@ function HoKhauList() {
                                 </Tooltip>
 
                                 {/* Nhóm chức năng nghiệp vụ */}
-                                <Tooltip title="Đổi chủ hộ">
-                                  <IconButton
-                                    color="secondary"
-                                    size="small"
-                                    onClick={() => navigate(`/ho-khau/${row.maHoKhau}/doi-chu-ho`)}
-                                  >
-                                    <ManageAccountsIcon fontSize="small" />
-                                  </IconButton>
-                                </Tooltip>
 
                                 <Tooltip title="Tách hộ">
                                   <IconButton
