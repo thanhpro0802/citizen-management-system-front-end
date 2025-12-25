@@ -35,7 +35,6 @@ import MDAlert from "components/MDAlert";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 
-// Component con để hiển thị từng dòng thông tin (Label - Value)
 const InfoRow = ({ icon, label, value }) => (
   <MDBox display="flex" alignItems="center" mb={1.5}>
     <MDBox
@@ -81,13 +80,10 @@ function HoKhauDetail({ isMe }) {
   useEffect(() => {
     setLoading(true);
     setError(null);
-
     const fetchData = isMe ? fetchMyHoKhau() : fetchHoKhauDetail(id);
 
     fetchData
-      .then((res) => {
-        setHoKhau(res.data);
-      })
+      .then((res) => setHoKhau(res.data))
       .catch((err) => {
         const msg = err.response?.data?.message || "Không thể tải thông tin hộ khẩu.";
         setError(msg);
@@ -104,7 +100,6 @@ function HoKhauDetail({ isMe }) {
     }
   };
 
-  // --- XỬ LÝ Loading ---
   if (loading) {
     return (
       <DashboardLayout>
@@ -116,25 +111,12 @@ function HoKhauDetail({ isMe }) {
     );
   }
 
-  // --- XỬ LÝ Lỗi ---
   if (error) {
     return (
       <DashboardLayout>
         <DashboardNavbar />
         <MDBox pt={6} pb={3} px={3}>
-          <Grid container justifyContent="center">
-            <Grid item xs={12} md={8}>
-              <MDAlert color="error">{error}</MDAlert>
-              <MDButton
-                variant="outlined"
-                color="info"
-                onClick={() => navigate("/ho-khau")}
-                sx={{ mt: 2 }}
-              >
-                Quay lại danh sách
-              </MDButton>
-            </Grid>
-          </Grid>
+          <MDAlert color="error">{error}</MDAlert>
         </MDBox>
       </DashboardLayout>
     );
@@ -142,30 +124,25 @@ function HoKhauDetail({ isMe }) {
 
   const showActions = !isMe;
   const chuHo = hoKhau?.chuHo;
-
-  // --- LOGIC QUAN TRỌNG: LỌC DANH SÁCH THÀNH VIÊN ---
-  // Lấy danh sách gốc từ API
   const rawMembers = hoKhau?.danhSachThanhVien || [];
 
-  // 1. Danh sách hiển thị trong bảng (Loại bỏ Chủ hộ để không bị lặp)
-  const membersToDisplay = rawMembers.filter(
-    (tv) => tv.soCCCD !== chuHo?.soCCCD && tv.maNhanKhau !== chuHo?.maNhanKhau
-  );
+  // --- LOGIC LỌC HIỂN THỊ QUAN TRỌNG ---
+  // Lọc ra những người KHÔNG PHẢI là chủ hộ hiện tại (so sánh theo ID cho chính xác)
+  const membersToDisplay = rawMembers.filter((tv) => tv.maNhanKhau !== chuHo?.maNhanKhau);
 
-  // 2. Tổng số thành viên (Dùng cho ô thống kê)
-  // Nếu danh sách raw đã bao gồm chủ hộ thì dùng length, nếu không thì +1
-  // Theo logic backend JPA thường trả về, chủ hộ cũng nằm trong danh sách thành viên
-  const totalMemberCount = rawMembers.length;
+  // Tính tổng số người thực tế (dựa vào danh sách DB trả về)
+  // Nếu backend trả về list bao gồm cả chủ hộ thì dùng length.
+  // Nếu list backend không chứa chủ hộ thì + 1.
+  // Với code backend hiện tại, JPA thường trả về cả chủ hộ trong list thành viên.
+  const totalCount = rawMembers.length;
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
-        {/* CARD CHÍNH */}
         <Grid container spacing={6} justifyContent="center">
           <Grid item xs={12}>
             <Card>
-              {/* --- HEADER CARD: Gradient Xanh --- */}
               <MDBox
                 mx={2}
                 mt={-3}
@@ -187,8 +164,6 @@ function HoKhauDetail({ isMe }) {
                     Mã số: {hoKhau?.maHoKhau}
                   </MDTypography>
                 </MDBox>
-
-                {/* Nút quay lại (chỉ hiện khi không phải 'isMe') */}
                 {!isMe && (
                   <MDButton
                     variant="outlined"
@@ -201,10 +176,8 @@ function HoKhauDetail({ isMe }) {
                 )}
               </MDBox>
 
-              {/* --- BODY CARD --- */}
               <MDBox p={3}>
                 <Grid container spacing={3}>
-                  {/* Cột Trái: Thông tin chung */}
                   <Grid item xs={12} md={6}>
                     <MDTypography variant="h6" fontWeight="medium" textTransform="uppercase" mb={2}>
                       Thông tin chung
@@ -221,15 +194,10 @@ function HoKhauDetail({ isMe }) {
                         }
                       />
                       <InfoRow icon="badge" label="Chủ Hộ" value={chuHo?.hoTen} />
-                      <InfoRow
-                        icon="fingerprint"
-                        label="CCCD Chủ Hộ"
-                        value={chuHo?.soCCCD || chuHo?.soCccd}
-                      />
+                      <InfoRow icon="fingerprint" label="CCCD Chủ Hộ" value={chuHo?.soCCCD} />
                     </MDBox>
                   </Grid>
 
-                  {/* Cột Phải: Thống kê / Ghi chú */}
                   <Grid item xs={12} md={6}>
                     <MDTypography variant="h6" fontWeight="medium" textTransform="uppercase" mb={2}>
                       Thống kê
@@ -245,7 +213,7 @@ function HoKhauDetail({ isMe }) {
                       minHeight="150px"
                     >
                       <MDTypography variant="h1" color="info" fontWeight="bold">
-                        {totalMemberCount}
+                        {totalCount}
                       </MDTypography>
                       <MDTypography variant="button" color="text" fontWeight="regular">
                         Tổng nhân khẩu
@@ -256,7 +224,6 @@ function HoKhauDetail({ isMe }) {
 
                 <Divider sx={{ my: 4 }} />
 
-                {/* --- DANH SÁCH THÀNH VIÊN --- */}
                 <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                   <MDTypography variant="h6" fontWeight="medium" textTransform="uppercase">
                     Danh sách thành viên khác
@@ -269,27 +236,18 @@ function HoKhauDetail({ isMe }) {
                   <Table sx={{ minWidth: 900 }}>
                     <TableHead sx={{ display: "table-header-group" }}>
                       <TableRow>
-                        {/* Cột 1: Thành viên (40%) */}
                         <TableCell width="40%" align="left" sx={{ pl: 3 }}>
                           Thành viên
                         </TableCell>
-
-                        {/* Cột 2: Quan hệ (20%) */}
                         <TableCell width="20%" align="left">
                           Quan hệ với chủ hộ
                         </TableCell>
-
-                        {/* Cột 3: Ngày sinh (15%) */}
                         <TableCell width="15%" align="center">
                           Ngày sinh
                         </TableCell>
-
-                        {/* Cột 4: Giới tính (10%) */}
                         <TableCell width="10%" align="center">
                           Giới tính
                         </TableCell>
-
-                        {/* Cột 5: CCCD (15%) */}
                         <TableCell width="15%" align="center">
                           CCCD
                         </TableCell>
@@ -299,12 +257,11 @@ function HoKhauDetail({ isMe }) {
                       {membersToDisplay.length > 0 ? (
                         membersToDisplay.map((tv) => (
                           <TableRow key={tv.maNhanKhau} hover>
-                            {/* Dữ liệu Cột 1: Avatar + Tên */}
                             <TableCell align="left" sx={{ pl: 3 }}>
                               <MDBox display="flex" alignItems="center">
                                 <Avatar
-                                  src=""
                                   alt={tv.hoTen}
+                                  src=""
                                   size="sm"
                                   shadow="sm"
                                   sx={{ mr: 2, bgcolor: "info.main", color: "white" }}
@@ -321,20 +278,19 @@ function HoKhauDetail({ isMe }) {
                                 </MDBox>
                               </MDBox>
                             </TableCell>
-
-                            {/* Dữ liệu Cột 2: Quan hệ */}
                             <TableCell align="left">
+                              {/* Nếu dữ liệu cũ vẫn để là Chủ hộ thì highlight đỏ để biết lỗi */}
                               <MDTypography
                                 variant="caption"
                                 fontWeight="bold"
-                                color="dark"
+                                color={
+                                  tv.quanHeVoiChuHo?.toUpperCase() === "CHỦ HỘ" ? "error" : "dark"
+                                }
                                 sx={{ textTransform: "uppercase" }}
                               >
                                 {tv.quanHeVoiChuHo || "---"}
                               </MDTypography>
                             </TableCell>
-
-                            {/* Dữ liệu Cột 3: Ngày sinh */}
                             <TableCell align="center">
                               <MDTypography variant="caption" color="text" fontWeight="medium">
                                 {tv.ngaySinh
@@ -342,18 +298,14 @@ function HoKhauDetail({ isMe }) {
                                   : "---"}
                               </MDTypography>
                             </TableCell>
-
-                            {/* Dữ liệu Cột 4: Giới tính */}
                             <TableCell align="center">
                               <MDTypography variant="caption" color="text" fontWeight="regular">
                                 {tv.gioiTinh}
                               </MDTypography>
                             </TableCell>
-
-                            {/* Dữ liệu Cột 5: CCCD */}
                             <TableCell align="center">
                               <MDTypography variant="caption" color="text" fontWeight="bold">
-                                {tv.soCCCD || tv.soCccd || "---"}
+                                {tv.soCCCD || "---"}
                               </MDTypography>
                             </TableCell>
                           </TableRow>
@@ -371,7 +323,6 @@ function HoKhauDetail({ isMe }) {
                   </Table>
                 </TableContainer>
 
-                {/* --- ACTIONS BUTTONS (Chỉ hiện với Cán bộ) --- */}
                 {showActions && (
                   <MDBox mt={4} display="flex" flexWrap="wrap" gap={2} justifyContent="flex-end">
                     <MDButton
@@ -381,7 +332,6 @@ function HoKhauDetail({ isMe }) {
                     >
                       <Icon>person_add</Icon>&nbsp;Nhập hộ
                     </MDButton>
-
                     <MDButton
                       variant="outlined"
                       color="warning"
@@ -389,9 +339,7 @@ function HoKhauDetail({ isMe }) {
                     >
                       <Icon>person_remove</Icon>&nbsp;Tách hộ
                     </MDButton>
-
                     <MDBox flexGrow={1} />
-
                     <MDButton
                       variant="gradient"
                       color="dark"
@@ -399,7 +347,6 @@ function HoKhauDetail({ isMe }) {
                     >
                       <Icon>edit</Icon>&nbsp;Chỉnh sửa
                     </MDButton>
-
                     <MDButton variant="gradient" color="error" onClick={() => setOpenDelete(true)}>
                       <Icon>delete</Icon>&nbsp;Xóa Hộ
                     </MDButton>
@@ -411,7 +358,6 @@ function HoKhauDetail({ isMe }) {
         </Grid>
       </MDBox>
 
-      {/* Dialog Xóa */}
       <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
         <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
@@ -432,12 +378,7 @@ function HoKhauDetail({ isMe }) {
   );
 }
 
-HoKhauDetail.propTypes = {
-  isMe: PropTypes.bool,
-};
-
-HoKhauDetail.defaultProps = {
-  isMe: false,
-};
+HoKhauDetail.propTypes = { isMe: PropTypes.bool };
+HoKhauDetail.defaultProps = { isMe: false };
 
 export default HoKhauDetail;
