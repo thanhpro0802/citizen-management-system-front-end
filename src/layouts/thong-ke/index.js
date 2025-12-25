@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Box, Card, Grid, Typography, useTheme } from "@mui/material";
+import { Card, Grid } from "@mui/material";
 import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
 import ButtonMenu from "./components/Button/ButtonMenu";
 
-import ThongKePhanAnh from "./components/thongke/ThongKePhanAnh";
 import ThongKePhanAnhTheoTuan from "./components/thongke/ThongKePhanAnhTheoTuan";
 import ThongKeNhanKhau from "./components/thongke/ThongKeNhanKhau";
 import TongNhanKhau from "./components/TongNK";
@@ -15,12 +15,11 @@ import ThongKePhanAnhTheoNam from "./components/thongke/ThongKePhanAnhTheoNam";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import dayjs from "dayjs";
 import BasicDatePicker from "./components/Calendar/DatePicker";
 import YearPicker from "./components/Calendar/YearPicker";
 import ThongKeModeMenu from "./components/Menu";
-import MDTypography from "components/MDTypography";
 import CommonMenu from "./components/Menu/CommonMenu";
+import dayjs from "dayjs";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");

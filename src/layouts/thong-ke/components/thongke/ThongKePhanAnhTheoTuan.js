@@ -2,7 +2,6 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { getThongKePhanAnhTheoTuan } from "layouts/thong-ke/services/ThongKeService";
 import { getThongKePhanAnh } from "layouts/thong-ke/services/ThongKeService";
 import { useTheme } from "@mui/material/styles";
 

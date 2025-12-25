@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { useTheme, Button, Menu, MenuItem } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
 import MDButton from "components/MDButton";
 import BarChartIcon from "@mui/icons-material/BarChart";
 
