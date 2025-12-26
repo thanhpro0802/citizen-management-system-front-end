@@ -39,6 +39,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { fetchHoKhauList, deleteHoKhau } from "services/hokhauService";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer";
 
 function HoKhauList() {
   const navigate = useNavigate();
@@ -352,6 +353,7 @@ function HoKhauList() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <Footer />
     </DashboardLayout>
   );
 }

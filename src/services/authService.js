@@ -141,7 +141,7 @@ export const taoUserTuJWTResponse = (jwtResponse) => {
 
   let user = {
     id: jwtResponse.id,
-    cccd: jwtResponse.username,
+    cccd: jwtResponse.username || jwtResponse.cccd, // Backend trả username, không phải cccd
     roles: jwtResponse.roles || [],
   };
 
