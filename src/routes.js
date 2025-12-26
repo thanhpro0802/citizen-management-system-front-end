@@ -6,7 +6,6 @@
 
 // @mui icons
 import Icon from "@mui/material/Icon";
-import Dashboard from "layouts/dashboard";
 
 // ================== AUTH ==================
 import SignIn from "layouts/authentication/sign-in";
