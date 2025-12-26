@@ -1,0 +1,77 @@
+import * as React from "react";
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { getThongKePhanAnh } from "layouts/thong-ke/services/ThongKeService";
+import { useTheme } from "@mui/material/styles";
+
+const ThongKePhanAnhTheoTuan = ({ startDate }) => {
+  const [labels, setLabels] = useState([]);
+  const [series, setSeries] = useState([]);
+  const theme = useTheme();
+
+  useEffect(() => {
+    getThongKePhanAnh(startDate)
+      .then((res) => {
+        const apiData = res.data.tuan;
+
+        setLabels(apiData.labels);
+
+        setSeries([
+          {
+            data: apiData.datasets[0].data,
+            label: "Chờ xử lý",
+            stack: "total",
+            color: theme.palette.error.main,
+          },
+          {
+            data: apiData.datasets[1].data,
+            label: "Đang xử lý",
+            stack: "total",
+            color: theme.palette.warning.main,
+          },
+          {
+            data: apiData.datasets[2].data,
+            label: "Đã xử lý",
+            stack: "total",
+            color: theme.palette.success.main,
+          },
+        ]);
+      })
+      .catch((err) => {
+        console.error("API ERROR:", err.response || err);
+      });
+  }, [startDate]);
+
+  if (!labels.length) return null;
+
+  return (
+    <BarChart
+      width={750}
+      height={350}
+      series={series}
+      xAxis={[
+        {
+          data: labels,
+          scaleType: "band",
+        },
+      ]}
+    />
+  );
+};
+
+ThongKePhanAnhTheoTuan.propTypes = {
+  color: PropTypes.oneOf([
+    "primary",
+    "secondary",
+    "info",
+    "success",
+    "warning",
+    "error",
+    "light",
+    "dark",
+  ]),
+  startDate: PropTypes.string.isRequired,
+};
+
+export default ThongKePhanAnhTheoTuan;

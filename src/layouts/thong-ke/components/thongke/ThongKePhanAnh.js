@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import { getThongKeQueQuan } from "layouts/thong-ke/services/ThongKeService";
 import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
+import { getThongKePhanAnh } from "layouts/thong-ke/services/ThongKeService";
+import PropTypes from "prop-types";
 
-const ThongKeQueQuan = ({ color = "info" }) => {
+const ThongKePhanAnh = ({ color = "warning", startDate }) => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
-    getThongKeQueQuan()
+    getThongKePhanAnh(startDate)
       .then((res) => {
         console.log("RAW API: ", res);
-        const apiData = res.data.queQuan;
+        const apiData = res.data.ngay;
 
         setChartData({
           labels: apiData.labels,
@@ -23,22 +23,22 @@ const ThongKeQueQuan = ({ color = "info" }) => {
       .catch((err) => {
         console.error("API ERROR:", err.response || err);
       });
-  }, []);
+  }, [startDate]);
 
   if (!chartData) return null;
 
   return (
     <ReportsBarChart
       color={color}
-      title="Thống kê quê quán"
-      description="Cấp: Tỉnh / Thành phố"
+      title="Thống kê phản ánh"
+      description={`Từ ngày ${startDate}`}
       date="Cập nhật mới nhất"
       chart={chartData}
     />
   );
 };
 
-ThongKeQueQuan.propTypes = {
+ThongKePhanAnh.propTypes = {
   color: PropTypes.oneOf([
     "primary",
     "secondary",
@@ -49,6 +49,7 @@ ThongKeQueQuan.propTypes = {
     "light",
     "dark",
   ]),
+  startDate: PropTypes.string.isRequired,
 };
 
-export default ThongKeQueQuan;
+export default ThongKePhanAnh;

@@ -11,7 +11,7 @@ function configs(labels, datasets) {
           borderSkipped: false,
           backgroundColor: "rgba(255, 255, 255, 0.8)",
           data: datasets.data,
-          maxBarThickness: 6,
+          maxBarThickness: 10,
         },
       ],
     },

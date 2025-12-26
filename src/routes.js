@@ -82,21 +82,13 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
-    icon: <Icon fontSize="small">equalizer</Icon>,
-    route: "/dashboard",
-    component: <Dashboard />,
-    requireAuth: true,
-  },
-  {
-    type: "collapse",
     name: "Thống kê",
     key: "thong-ke",
     icon: <Icon fontSize="small">equalizer</Icon>,
     route: "/thong-ke",
     component: <ThongKe />,
     requireAuth: true,
+    requiredRole: "CAN_BO",
   },
   {
     type: "collapse",

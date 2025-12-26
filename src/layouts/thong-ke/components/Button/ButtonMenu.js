@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { useTheme, Button, Menu, MenuItem } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
 import MDButton from "components/MDButton";
 import BarChartIcon from "@mui/icons-material/BarChart";
 
@@ -13,15 +13,7 @@ const ButtonMenu = ({ color, title = "Menu", items = [], onSelect }) => {
 
   return (
     <>
-      <MDButton
-        color={color}
-        variant="gradient"
-        onClick={handleClick}
-        startIcon={<BarChartIcon />}
-        sx={{
-          boxShadow: "0 4px 20px rgba(26, 115, 232, 0.6)",
-        }}
-      >
+      <MDButton color={color} variant="outlined" onClick={handleClick} startIcon={<BarChartIcon />}>
         {title}
       </MDButton>
 
