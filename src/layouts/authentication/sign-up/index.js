@@ -1,244 +1,99 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
-import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
-import MDButton from "components/MDButton";
-import BasicLayout from "layouts/authentication/components/BasicLayout";
-import bgImage from "assets/images/bg-sign-up-cover.jpeg";
-import { dangKy, luuToken, luuThongTinNguoiDung } from "services/authService";
-import { useAuth, setLogin } from "context/authContext";
-// import { isValidEmail } from "utils/validation"; // Không dùng email nữa
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
 
-function SignUp() {
-  const navigate = useNavigate();
-  const [, dispatch] = useAuth();
+* Product Page: https://www.creative-tim.com/product/material-dashboard-react
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
 
-  const [formData, setFormData] = useState({
-    hoTen: "",
-    cccd: "", // SỬA: email -> cccd
-    soDienThoai: "",
-    matKhau: "",
-    xacNhanMatKhau: "",
-  });
+Coded by www.creative-tim.com
 
-  const [agreeTerms, setAgreeTerms] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [errors, setErrors] = useState({});
+ =========================================================
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
 
-    // SỬA: Nếu là nhập CCCD thì chỉ cho nhập số
-    if (name === "cccd" && !/^\d*$/.test(value)) return;
+// react-router-dom components
+import { Link } from 'react-router-dom';
 
-    setFormData({ ...formData, [name]: value });
+// @mui material components
+import Card from '@mui/material/Card';
+import Checkbox from '@mui/material/Checkbox';
 
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: "" });
-    }
-  };
+// Material Dashboard 2 React components
+import MDBox from 'components/MDBox';
+import MDTypography from 'components/MDTypography';
+import MDInput from 'components/MDInput';
+import MDButton from 'components/MDButton';
 
-  const validateForm = () => {
-    const newErrors = {};
+// Authentication layout components
+import CoverLayout from 'layouts/authentication/components/CoverLayout';
 
-    if (!formData.hoTen.trim()) newErrors.hoTen = "Họ tên không được để trống";
+// Images
+import bgImage from 'assets/images/bg-sign-up-cover.jpeg';
 
-    // SỬA: Validate CCCD 12 số
-    if (!formData.cccd) {
-      newErrors.cccd = "Vui lòng nhập số CCCD";
-    } else if (formData.cccd.length !== 12) {
-      newErrors.cccd = "Số CCCD phải có đúng 12 chữ số";
-    }
-
-    if (formData.matKhau.length < 6) newErrors.matKhau = "Mật khẩu tối thiểu 6 ký tự";
-
-    if (formData.matKhau !== formData.xacNhanMatKhau)
-      newErrors.xacNhanMatKhau = "Mật khẩu không khớp";
-
-    if (!agreeTerms) newErrors.terms = "Bạn phải đồng ý điều khoản";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (!validateForm()) return;
-
-    setLoading(true);
-
-    try {
-      // SỬA: Gọi hàm đăng ký với CCCD
-      const res = await dangKy(
-        formData.hoTen,
-        formData.cccd,
-        formData.matKhau,
-        formData.soDienThoai
-      );
-
-      if (res.data) {
-        // ... (Logic xử lý response giữ nguyên)
-        const { token, user } = res.data; // Đảm bảo JwtResponse trả về đúng
-        // Backend bạn trả về JwtResponse gồm: token, type, id, cccd, roles
-        // Cần lưu ý object "user" để lưu vào localStorage cho đúng
-
-        if (token) {
-          // Giả lập object user từ response để lưu frontend
-          const userToSave = { cccd: res.data.cccd, roles: res.data.roles, id: res.data.id };
-
-          luuToken(token);
-          luuThongTinNguoiDung(userToSave);
-          setLogin(dispatch, userToSave, token);
-          setSuccess("Đăng ký thành công! Đang chuyển hướng...");
-          setTimeout(() => navigate("/gui-phan-anh"), 1500);
-        } else {
-          setSuccess("Đăng ký thành công! Hãy đăng nhập.");
-          setTimeout(() => navigate("/authentication/sign-in"), 1500);
-        }
-      }
-    } catch (err) {
-      if (err.response) {
-        // Back-end trả về Map<String, String> error -> error.message
-        setError(err.response.data.message || "Đăng ký thất bại.");
-      } else {
-        setError("Không thể kết nối đến server.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
+function Cover() {
   return (
-    <BasicLayout image={bgImage}>
+    <CoverLayout image={bgImage}>
       <Card>
         <MDBox
           variant="gradient"
           bgColor="info"
           borderRadius="lg"
+          coloredShadow="success"
           mx={2}
           mt={-3}
-          p={2}
+          p={3}
+          mb={1}
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Đăng Ký
+            Join us today
           </MDTypography>
-          <MDTypography variant="button" color="white" mt={1}>
-            Tạo tài khoản công dân
+          <MDTypography display="block" variant="button" color="white" my={1}>
+            Enter your email and password to register
           </MDTypography>
         </MDBox>
-
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" onSubmit={handleSubmit}>
-            {error && (
-              <MDBox mb={2}>
-                <Alert severity="error">{error}</Alert>
-              </MDBox>
-            )}
-            {success && (
-              <MDBox mb={2}>
-                <Alert severity="success">{success}</Alert>
-              </MDBox>
-            )}
-
+          <MDBox component="form" role="form">
             <MDBox mb={2}>
-              <MDInput
-                label="Họ tên"
-                name="hoTen"
-                value={formData.hoTen}
-                onChange={handleChange}
-                fullWidth
-                error={!!errors.hoTen}
-                helperText={errors.hoTen}
-              />
+              <MDInput type="text" label="Name" variant="standard" fullWidth />
             </MDBox>
-
-            {/* SỬA: Input CCCD */}
             <MDBox mb={2}>
-              <MDInput
-                label="Số CCCD"
-                name="cccd"
-                value={formData.cccd}
-                onChange={handleChange}
-                fullWidth
-                error={!!errors.cccd}
-                helperText={errors.cccd}
-                inputProps={{ maxLength: 12 }}
-              />
+              <MDInput type="email" label="Email" variant="standard" fullWidth />
             </MDBox>
-
             <MDBox mb={2}>
-              <MDInput
-                label="Số điện thoại (tùy chọn)"
-                name="soDienThoai"
-                value={formData.soDienThoai}
-                onChange={handleChange}
-                fullWidth
-              />
+              <MDInput type="password" label="Password" variant="standard" fullWidth />
             </MDBox>
-
-            <MDBox mb={2}>
-              <MDInput
-                type="password"
-                label="Mật khẩu"
-                name="matKhau"
-                value={formData.matKhau}
-                onChange={handleChange}
-                fullWidth
-                error={!!errors.matKhau}
-                helperText={errors.matKhau}
-              />
-            </MDBox>
-
-            <MDBox mb={2}>
-              <MDInput
-                type="password"
-                label="Xác nhận mật khẩu"
-                name="xacNhanMatKhau"
-                value={formData.xacNhanMatKhau}
-                onChange={handleChange}
-                fullWidth
-                error={!!errors.xacNhanMatKhau}
-                helperText={errors.xacNhanMatKhau}
-              />
-            </MDBox>
-
             <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch checked={agreeTerms} onChange={() => setAgreeTerms(!agreeTerms)} />
+              <Checkbox />
               <MDTypography
                 variant="button"
+                fontWeight="regular"
                 color="text"
-                sx={{ cursor: "pointer" }}
-                onClick={() => setAgreeTerms(!agreeTerms)}
+                sx={{ cursor: 'pointer', userSelect: 'none', ml: -1 }}
               >
-                &nbsp;Tôi đồng ý với điều khoản
+                &nbsp;&nbsp;I agree the&nbsp;
+              </MDTypography>
+              <MDTypography
+                component="a"
+                href="#"
+                variant="button"
+                fontWeight="bold"
+                color="info"
+                textGradient
+              >
+                Terms and Conditions
               </MDTypography>
             </MDBox>
-            {errors.terms && (
-              <MDTypography variant="caption" color="error" ml={3}>
-                {errors.terms}
-              </MDTypography>
-            )}
-
             <MDBox mt={4} mb={1}>
-              <MDButton type="submit" variant="gradient" color="info" fullWidth disabled={loading}>
-                {loading ? <CircularProgress size={24} color="inherit" /> : "Đăng ký"}
+              <MDButton variant="gradient" color="info" fullWidth>
+                sign in
               </MDButton>
             </MDBox>
-
-            <MDBox mt={3} textAlign="center">
+            <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
-                Đã có tài khoản?{" "}
+                Already have an account?{' '}
                 <MDTypography
                   component={Link}
                   to="/authentication/sign-in"
@@ -247,15 +102,15 @@ function SignUp() {
                   fontWeight="medium"
                   textGradient
                 >
-                  Đăng nhập
+                  Sign In
                 </MDTypography>
               </MDTypography>
             </MDBox>
           </MDBox>
         </MDBox>
       </Card>
-    </BasicLayout>
+    </CoverLayout>
   );
 }
 
-export default SignUp;
+export default Cover;
