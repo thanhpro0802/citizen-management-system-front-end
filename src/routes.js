@@ -1,7 +1,4 @@
-/**
-=========================================================
 * Material Dashboard 2 React - v2.2.0
-=========================================================
 
 * Product Page: https://www.creative-tim.com/product/material-dashboard-react
 * Copyright 2023 Creative Tim (https://www.creative-tim.com)
@@ -49,9 +46,31 @@ import SignUp from 'layouts/authentication/sign-up';
 import NhanKhauList from 'layouts/nhan-khau';
 import NhanKhauForm from 'layouts/nhan-khau/form';
 import NhanKhauDetail from 'layouts/nhan-khau/detail';
+/** All of the routes for the Material Dashboard 2 React are added here...
+ */
+
+// Material Dashboard 2 React layouts
+import SignIn from "layouts/authentication/sign-in";
+import SignUp from "layouts/authentication/sign-up";
+
+// --- SỬA LẠI CÁC DÒNG IMPORT DƯỚI ĐÂY ---
+// React sẽ tự động tìm file index.js trong các thư mục này
+
+import GuiPhanAnh from "layouts/phan-anh";
+import LichSuPhanAnh from "layouts/lich-su-phan-anh";
+import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
+import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
+import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
+import PhanHoi from "layouts/phan-hoi";
+
+import Forbidden from "layouts/forbidden";
 
 // @mui icons
 import Icon from '@mui/material/Icon';
+
+// Lấy role hiện tại
+const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+const role = user ? user.vaiTro || (user.roles ? user.roles[0] : "") : "";
 
 const routes = [
   {
@@ -70,6 +89,8 @@ const routes = [
     route: '/nhan-khau',
     component: <NhanKhauList />,
   },
+
+  // --- MENU CÔNG DÂN ---
   {
     type: 'route',
     name: 'Thêm nhân khẩu',
@@ -98,54 +119,68 @@ const routes = [
     icon: <Icon fontSize="small">table_view</Icon>,
     route: '/tables',
     component: <Tables />,
+    type: "collapse",
+    name: "Gửi Phản Ánh",
+    key: "gui-phan-anh",
+    icon: <Icon fontSize="small">feedback</Icon>,
+    route: "/gui-phan-anh",
+    component: <GuiPhanAnh />,
+    requireAuth: true,
   },
   {
-    type: 'collapse',
-    name: 'Billing',
-    key: 'billing',
-    icon: <Icon fontSize="small">receipt_long</Icon>,
-    route: '/billing',
-    component: <Billing />,
+    type: "collapse",
+    name: "Lịch Sử Phản Ánh",
+    key: "lich-su-phan-anh",
+    icon: <Icon fontSize="small">history</Icon>,
+    route: "/lich-su-phan-anh",
+    component: <LichSuPhanAnh />,
+    requireAuth: true,
+  },
+
+  // --- MENU CÁN BỘ ---
+  ...(role === "CAN_BO"
+    ? [
+        {
+          type: "collapse",
+          name: "Quản Lý Phản Ánh",
+          key: "quan-ly-phan-anh",
+          icon: <Icon fontSize="small">dashboard</Icon>,
+          route: "/quan-ly-phan-anh",
+          component: <QuanLyPhanAnh />,
+          requireAuth: true,
+        },
+      ]
+    : []),
+
+  // --- CÁC ROUTE ẨN (Cần tham số ID) ---
+  {
+    key: "chi-tiet-phan-anh",
+    route: "/chi-tiet-phan-anh/:id",
+    component: <ChiTietPhanAnh />,
+    requireAuth: true,
   },
   {
-    type: 'collapse',
-    name: 'RTL',
-    key: 'rtl',
-    icon: <Icon fontSize="small">format_textdirection_r_to_l</Icon>,
-    route: '/rtl',
-    component: <RTL />,
+    key: "xu-ly-phan-anh",
+    route: "/xu-ly-phan-anh/:id",
+    component: <XuLyPhanAnh />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
   },
   {
-    type: 'collapse',
-    name: 'Notifications',
-    key: 'notifications',
-    icon: <Icon fontSize="small">notifications</Icon>,
-    route: '/notifications',
-    component: <Notifications />,
+    key: "phan-hoi",
+    route: "/phan-hoi/:id",
+    component: <PhanHoi />, // (Nếu bạn dùng trang này riêng)
+    requireAuth: true,
+    requiredRole: "CAN_BO",
   },
+
+  // Trang lỗi
   {
-    type: 'collapse',
-    name: 'Profile',
-    key: 'profile',
-    icon: <Icon fontSize="small">person</Icon>,
-    route: '/profile',
-    component: <Profile />,
-  },
-  {
-    type: 'collapse',
-    name: 'Sign In',
-    key: 'sign-in',
-    icon: <Icon fontSize="small">login</Icon>,
-    route: '/authentication/sign-in',
-    component: <SignIn />,
-  },
-  {
-    type: 'collapse',
-    name: 'Sign Up',
-    key: 'sign-up',
-    icon: <Icon fontSize="small">assignment</Icon>,
-    route: '/authentication/sign-up',
-    component: <SignUp />,
+    type: "route",
+    name: "Không Có Quyền",
+    key: "forbidden",
+    route: "/forbidden",
+    component: <Forbidden />,
   },
 ];
 

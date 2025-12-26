@@ -41,8 +41,15 @@ import BasicLayout from 'layouts/authentication/components/BasicLayout';
 // Images
 import bgImage from 'assets/images/bg-sign-in-basic.jpeg';
 
-function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
+      // Backend trả về JwtResponse (token, type, id, cccd, roles)
+      const data = response.data;
+
+      // Tạo object user từ response (xử lý cả roles từ response hoặc token)
+      const { taoUserTuJWTResponse } = await import("services/authService");
+      const user = taoUserTuJWTResponse(data);
+
+      luuToken(data.token);
+      luuThongTinNguoiDung(user);
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 

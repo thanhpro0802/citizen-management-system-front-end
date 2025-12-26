@@ -16,17 +16,18 @@ Coded by www.creative-tim.com
 import { useState, useEffect } from 'react';
 
 // react-router components
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from 'prop-types';
 
-// @material-ui core components
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import Icon from '@mui/material/Icon';
+// @mui material components
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import Icon from "@mui/material/Icon";
+import Badge from "@mui/material/Badge"; // Sửa lại import Badge từ @mui
 
 // Material Dashboard 2 React components
 import MDBox from 'components/MDBox';
@@ -51,14 +52,110 @@ import {
   setTransparentNavbar,
   setMiniSidenav,
   setOpenConfigurator,
-} from 'context';
+} from "context";
 
-function DashboardNavbar({ absolute, light, isMini }) {
+// --- IMPORT SERVICE ---
+import { getThongBaoCuaToi, danhDauDaXem } from "services/thongBaoService";
+import { dangXuat, layTenHienThiRole } from "services/authService";
+import { useAuth, setLogout } from "context/authContext";
+
+function DashboardNavbar({ absolute, light, isMini, customTitle }) {
   const [navbarType, setNavbarType] = useState();
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator, darkMode } = controller;
   const [openMenu, setOpenMenu] = useState(false);
-  const route = useLocation().pathname.split('/').slice(1);
+
+  // Lấy đường dẫn hiện tại
+  const route = useLocation().pathname.split("/").slice(1);
+  const navigate = useNavigate();
+
+  // Auth context
+  const [authState, authDispatch] = useAuth();
+  const { isAuthenticated, user } = authState;
+
+  // User menu state
+  const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+
+  // --- STATE CHO THÔNG BÁO ---
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // --- HÀM DỊCH TIÊU ĐỀ MẶC ĐỊNH ---
+  const getVietnameseTitle = (slug) => {
+    switch (slug) {
+      case "gui-phan-anh":
+        return "Gửi Phản Ánh";
+      case "lich-su-phan-anh":
+        return "Lịch Sử Phản Ánh";
+      case "quan-ly-phan-anh": // Thêm cái này
+        return "Quản Lý Phản Ánh";
+      case "xu-ly-phan-anh":
+        return "Cán Bộ Xử Lý";
+      case "phan-hoi":
+        return "Trả Lời Dân";
+      case "chi-tiet-phan-anh":
+        return "Chi Tiết Phản Ánh";
+      default:
+        return slug ? slug.replace("-", " ") : "";
+    }
+  };
+
+  // --- LOGIC XỬ LÝ CUSTOM TITLE ---
+  const displayRoute = [...route];
+  let pageTitle = getVietnameseTitle(displayRoute[displayRoute.length - 1]);
+
+  if (customTitle) {
+    pageTitle = customTitle;
+    displayRoute[displayRoute.length - 1] = customTitle;
+  }
+  // ----------------------------------------------
+
+  const handleNotificationClick = async (notification) => {
+    try {
+      if (!notification.daXem) {
+        await danhDauDaXem(notification.maThongBao);
+        // Cập nhật UI ngay lập tức
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+        setNotifications((prevList) =>
+          prevList.map((item) =>
+            item.maThongBao === notification.maThongBao ? { ...item, daXem: true } : item
+          )
+        );
+      }
+      handleCloseMenu();
+      if (notification.maPhanAnhLienQuan) {
+        navigate(`/chi-tiet-phan-anh/${notification.maPhanAnhLienQuan}`);
+      }
+    } catch (error) {
+      console.error("Lỗi xử lý thông báo:", error);
+    }
+  };
+
+  // --- USE EFFECT: LOAD THÔNG BÁO & AUTO REFRESH ---
+  const fetchNotifications = async () => {
+    try {
+      if (!isAuthenticated) return; // Chỉ gọi khi đã đăng nhập
+
+      const response = await getThongBaoCuaToi();
+      if (Array.isArray(response.data)) {
+        setNotifications(response.data);
+        const count = response.data.filter((n) => !n.daXem).length;
+        setUnreadCount(count);
+      }
+    } catch (error) {
+      // console.error("Lỗi tải thông báo:", error);
+      // Ẩn log lỗi để tránh spam console khi chưa đăng nhập
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications(); // Gọi lần đầu
+
+    // Tự động gọi lại mỗi 15 giây
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]); // Thêm dependency isAuthenticated
+  // -----------------------------------------------------
 
   useEffect(() => {
     // Setting the navbar type
@@ -67,19 +164,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
     } else {
       setNavbarType('static');
     }
-
-    // A function that sets the transparent state of the navbar.
     function handleTransparentNavbar() {
       setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
     }
-
-    /** 
-     The event listener that's calling the handleTransparentNavbar function when 
-     scrolling the window.
-    */
-    window.addEventListener('scroll', handleTransparentNavbar);
-
-    // Call the handleTransparentNavbar function to set the state with the initial value.
+    window.addEventListener("scroll", handleTransparentNavbar);
     handleTransparentNavbar();
 
     // Remove event listener on cleanup
@@ -90,23 +178,48 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+  const handleUserMenuOpen = (event) => setUserMenuAnchor(event.currentTarget);
+  const handleUserMenuClose = () => setUserMenuAnchor(null);
 
-  // Render the notifications menu
+  const handleLogout = () => {
+    dangXuat();
+    setLogout(authDispatch);
+    handleUserMenuClose();
+    navigate("/authentication/sign-in");
+  };
+
   const renderMenu = () => (
     <Menu
       anchorEl={openMenu}
       anchorReference={null}
-      anchorOrigin={{
-        vertical: 'bottom',
-        horizontal: 'left',
-      }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       open={Boolean(openMenu)}
       onClose={handleCloseMenu}
       sx={{ mt: 2 }}
     >
-      <NotificationItem icon={<Icon>email</Icon>} title="Check new messages" />
-      <NotificationItem icon={<Icon>podcasts</Icon>} title="Manage Podcast sessions" />
-      <NotificationItem icon={<Icon>shopping_cart</Icon>} title="Payment successfully completed" />
+      {notifications.length > 0 ? (
+        notifications.map((item) => (
+          <MDBox
+            key={item.maThongBao}
+            onClick={() => handleNotificationClick(item)}
+            sx={{ cursor: "pointer" }}
+          >
+            <NotificationItem
+              icon={<Icon>notifications</Icon>}
+              title={item.noiDung}
+              // Hiển thị đậm nếu chưa xem
+              style={{
+                fontWeight: item.daXem ? "normal" : "bold",
+                color: item.daXem ? "inherit" : "#000",
+              }}
+            />
+          </MDBox>
+        ))
+      ) : (
+        <MDBox p={2}>
+          <span style={{ fontSize: "14px" }}>Không có thông báo mới</span>
+        </MDBox>
+      )}
     </Menu>
   );
 
@@ -114,11 +227,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
-
       if (transparentNavbar && !light) {
         colorValue = darkMode ? rgba(text.main, 0.6) : text.main;
       }
-
       return colorValue;
     },
   });
@@ -131,19 +242,53 @@ function DashboardNavbar({ absolute, light, isMini }) {
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <MDBox color="inherit" mb={{ xs: 1, md: 0 }} sx={(theme) => navbarRow(theme, { isMini })}>
-          <Breadcrumbs icon="home" title={route[route.length - 1]} route={route} light={light} />
+          <Breadcrumbs icon="home" title={pageTitle} route={displayRoute} light={light} />
         </MDBox>
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
             <MDBox pr={1}>
               <MDInput label="Search here" />
             </MDBox>
-            <MDBox color={light ? 'white' : 'inherit'}>
-              <Link to="/authentication/sign-in/basic">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
-                  <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
+            <MDBox color={light ? "white" : "inherit"}>
+              {isAuthenticated ? (
+                <>
+                  <IconButton
+                    sx={navbarIconButton}
+                    size="small"
+                    disableRipple
+                    onClick={handleUserMenuOpen}
+                  >
+                    <Icon sx={iconsStyle}>account_circle</Icon>
+                  </IconButton>
+                  <Menu
+                    anchorEl={userMenuAnchor}
+                    open={Boolean(userMenuAnchor)}
+                    onClose={handleUserMenuClose}
+                    sx={{ mt: 2 }}
+                  >
+                    <MDBox px={2} py={1}>
+                      <MDBox mb={1}>
+                        <strong>CCCD:</strong> {user?.cccd || "N/A"}
+                      </MDBox>
+                      <MDBox mb={1}>
+                        <strong>Vai trò:</strong> {layTenHienThiRole(user?.roles)}
+                      </MDBox>
+                    </MDBox>
+                    <NotificationItem
+                      icon={<Icon>logout</Icon>}
+                      title="Đăng Xuất"
+                      onClick={handleLogout}
+                    />
+                  </Menu>
+                </>
+              ) : (
+                <Link to="/authentication/sign-in">
+                  <IconButton sx={navbarIconButton} size="small" disableRipple>
+                    <Icon sx={iconsStyle}>login</Icon>
+                  </IconButton>
+                </Link>
+              )}
+
               <IconButton
                 size="small"
                 disableRipple
@@ -164,19 +309,26 @@ function DashboardNavbar({ absolute, light, isMini }) {
               >
                 <Icon sx={iconsStyle}>settings</Icon>
               </IconButton>
-              <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={handleOpenMenu}
-              >
-                <Icon sx={iconsStyle}>notifications</Icon>
-              </IconButton>
-              {renderMenu()}
+
+              {isAuthenticated && (
+                <>
+                  <IconButton
+                    size="small"
+                    disableRipple
+                    color="inherit"
+                    sx={navbarIconButton}
+                    aria-controls="notification-menu"
+                    aria-haspopup="true"
+                    variant="contained"
+                    onClick={handleOpenMenu}
+                  >
+                    <Badge badgeContent={unreadCount} color="error" size="small">
+                      <Icon sx={iconsStyle}>notifications</Icon>
+                    </Badge>
+                  </IconButton>
+                  {renderMenu()}
+                </>
+              )}
             </MDBox>
           </MDBox>
         )}
@@ -190,6 +342,7 @@ DashboardNavbar.defaultProps = {
   absolute: false,
   light: false,
   isMini: false,
+  customTitle: "",
 };
 
 // Typechecking props for the DashboardNavbar
@@ -197,6 +350,7 @@ DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,
   isMini: PropTypes.bool,
+  customTitle: PropTypes.string,
 };
 
 export default DashboardNavbar;

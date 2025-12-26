@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getUserFromToken, getRolesFromToken, isTokenExpired } from "utils/jwtUtils";
 
 // SỬA: URL Backend khớp với @RequestMapping("/api/auth")
 const API_URL = "http://localhost:8080/api/auth";
@@ -77,7 +78,93 @@ export const layThongTinNguoiDung = () => {
  * @returns {boolean} True nếu đã đăng nhập
  */
 export const kiemTraDaDangNhap = () => {
-  return layToken() !== null;
+  const token = layToken();
+  if (!token) return false;
+
+  // Kiểm tra token có hết hạn không
+  return !isTokenExpired(token);
+};
+
+/**
+ * Lấy roles của người dùng hiện tại
+ * @returns {array} Mảng các roles
+ */
+export const layRoles = () => {
+  const user = layThongTinNguoiDung();
+  if (user && user.roles) {
+    return user.roles;
+  }
+
+  // Nếu không có trong user, thử decode từ token
+  const token = layToken();
+  if (token) {
+    return getRolesFromToken(token);
+  }
+
+  return [];
+};
+
+/**
+ * Kiểm tra người dùng có role cụ thể không
+ * @param {string} role - Tên role cần kiểm tra
+ * @param {object} userObj - User object (optional, nếu không truyền sẽ lấy từ localStorage)
+ * @returns {boolean} True nếu có role
+ */
+export const coRole = (role, userObj = null) => {
+  // Nếu có truyền user object, kiểm tra trực tiếp
+  if (userObj && userObj.roles) {
+    return userObj.roles.includes(role);
+  }
+
+  // Không thì lấy từ localStorage/token
+  const roles = layRoles();
+  return roles.includes(role);
+};
+
+/**
+ * Kiểm tra người dùng có phải là cán bộ không
+ * @returns {boolean} True nếu là cán bộ
+ */
+export const laCanBo = () => {
+  return coRole("CAN_BO");
+};
+
+/**
+ * Tạo user object từ JWT response, xử lý cả trường hợp roles trong response hoặc trong token
+ * @param {object} jwtResponse - Response từ backend (chứa token, id, cccd, roles)
+ * @returns {object} User object với roles đầy đủ
+ */
+export const taoUserTuJWTResponse = (jwtResponse) => {
+  if (!jwtResponse) {
+    throw new Error("jwtResponse is required");
+  }
+
+  let user = {
+    id: jwtResponse.id,
+    cccd: jwtResponse.cccd,
+    roles: jwtResponse.roles || [],
+  };
+
+  // Nếu roles không có trong response và có token, decode từ JWT token
+  if ((!user.roles || user.roles.length === 0) && jwtResponse.token) {
+    const userFromToken = getUserFromToken(jwtResponse.token);
+    if (userFromToken && userFromToken.roles) {
+      user.roles = userFromToken.roles;
+    }
+  }
+
+  return user;
+};
+
+/**
+ * Lấy tên hiển thị của role (tiếng Việt)
+ * @param {array} roles - Mảng roles
+ * @returns {string} Tên role hiển thị
+ */
+export const layTenHienThiRole = (roles) => {
+  if (!roles || roles.length === 0) return "Người Dân";
+  if (roles.includes("CAN_BO")) return "Cán Bộ";
+  return "Người Dân";
 };
 
 // Cấu hình axios interceptor để tự động thêm token vào headers

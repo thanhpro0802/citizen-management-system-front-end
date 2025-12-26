@@ -53,6 +53,9 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from 'co
 import brandWhite from 'assets/images/logo-ct.png';
 import brandDark from 'assets/images/logo-ct-dark.png';
 
+// Protected Route
+import ProtectedRoute from "components/ProtectedRoute";
+
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const {
@@ -116,35 +119,44 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        // Wrap component with ProtectedRoute if authentication or role is required
+        let element = route.component;
+
+        if (route.requireAuth || route.requiredRole) {
+          element = (
+            <ProtectedRoute requiredRole={route.requiredRole}>{route.component}</ProtectedRoute>
+          );
+        }
+
+        return <Route exact path={route.route} element={element} key={route.key} />;
       }
 
       return null;
     });
 
-  const configsButton = (
-    <MDBox
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      width="3.25rem"
-      height="3.25rem"
-      bgColor="white"
-      shadow="sm"
-      borderRadius="50%"
-      position="fixed"
-      right="2rem"
-      bottom="2rem"
-      zIndex={99}
-      color="dark"
-      sx={{ cursor: 'pointer' }}
-      onClick={handleConfiguratorOpen}
-    >
-      <Icon fontSize="small" color="inherit">
-        settings
-      </Icon>
-    </MDBox>
-  );
+  // const configsButton = (
+  //   <MDBox
+  //     display="flex"
+  //     justifyContent="center"
+  //     alignItems="center"
+  //     width="3.25rem"
+  //     height="3.25rem"
+  //     bgColor="white"
+  //     shadow="sm"
+  //     borderRadius="50%"
+  //     position="fixed"
+  //     right="2rem"
+  //     bottom="2rem"
+  //     zIndex={99}
+  //     color="dark"
+  //     sx={{ cursor: "pointer" }}
+  //     onClick={handleConfiguratorOpen}
+  //   >
+  //     <Icon fontSize="small" color="inherit">
+  //       settings
+  //     </Icon>
+  //   </MDBox>
+  // );
 
   return direction === 'rtl' ? (
     <CacheProvider value={rtlCache}>
@@ -160,8 +172,8 @@ export default function App() {
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
-            <Configurator />
-            {configsButton}
+            {/*<Configurator />*/}
+            {/*{configsButton}*/}
           </>
         )}
         {layout === 'vr' && <Configurator />}
@@ -185,7 +197,7 @@ export default function App() {
             onMouseLeave={handleOnMouseLeave}
           />
           <Configurator />
-          {configsButton}
+          {/*{configsButton}*/}
         </>
       )}
       {layout === 'vr' && <Configurator />}
