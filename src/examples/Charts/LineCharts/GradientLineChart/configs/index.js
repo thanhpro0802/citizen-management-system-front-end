@@ -1,5 +1,20 @@
+/**
+=========================================================
+* NextJS Material Dashboard 2 - v2.1.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/nextjs-material-dashboard-pro
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+
+Coded by www.creative-tim.com
+
+ =========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
 // NextJS Material Dashboard 2 base styles
-import typography from "assets/theme/base/typography";
+import typography from 'assets/theme/base/typography';
 
 function configs(labels, datasets) {
   return {
@@ -17,7 +32,7 @@ function configs(labels, datasets) {
       },
       interaction: {
         intersect: false,
-        mode: "index",
+        mode: 'index',
       },
       scales: {
         y: {
@@ -31,11 +46,11 @@ function configs(labels, datasets) {
           ticks: {
             display: true,
             padding: 10,
-            color: "#b2b9bf",
+            color: '#b2b9bf',
             font: {
               size: 11,
               family: typography.fontFamily,
-              style: "normal",
+              style: 'normal',
               lineHeight: 2,
             },
           },
@@ -50,12 +65,12 @@ function configs(labels, datasets) {
           },
           ticks: {
             display: true,
-            color: "#b2b9bf",
+            color: '#b2b9bf',
             padding: 20,
             font: {
               size: 11,
               family: typography.fontFamily,
-              style: "normal",
+              style: 'normal',
               lineHeight: 2,
             },
           },

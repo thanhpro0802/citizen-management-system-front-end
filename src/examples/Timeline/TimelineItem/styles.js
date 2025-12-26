@@ -5,12 +5,12 @@ function timelineItem(theme, ownerState) {
   const { borderWidth, borderColor } = borders;
 
   return {
-    "&:after": {
+    '&:after': {
       content: !lastItem && "''",
-      position: "absolute",
-      top: "2rem",
-      left: "17px",
-      height: "100%",
+      position: 'absolute',
+      top: '2rem',
+      left: '17px',
+      height: '100%',
       opacity: isDark ? 0.1 : 1,
       borderRight: `${borderWidth[2]} solid ${borderColor}`,
     },
