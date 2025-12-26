@@ -1,35 +1,20 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // @mui material components
-import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid';
-import Icon from '@mui/material/Icon';
-import Tooltip from '@mui/material/Tooltip';
+import Card from "@mui/material/Card";
+import Grid from "@mui/material/Grid";
+import Icon from "@mui/material/Icon";
+import Tooltip from "@mui/material/Tooltip";
 
 // Material Dashboard 2 React components
-import MDBox from 'components/MDBox';
-import MDTypography from 'components/MDTypography';
-import MDButton from 'components/MDButton';
+import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
+import MDButton from "components/MDButton";
 
 // Images
-import masterCardLogo from 'assets/images/logos/mastercard.png';
-import visaLogo from 'assets/images/logos/visa.png';
+import masterCardLogo from "assets/images/logos/mastercard.png";
+import visaLogo from "assets/images/logos/visa.png";
 
 // Material Dashboard 2 React context
-import { useMaterialUIController } from 'context';
+import { useMaterialUIController } from "context";
 
 function PaymentMethod() {
   const [controller] = useMaterialUIController();
@@ -42,7 +27,7 @@ function PaymentMethod() {
           Payment Method
         </MDTypography>
         <MDButton variant="gradient" color="dark">
-          <Icon sx={{ fontWeight: 'bold' }}>add</Icon>
+          <Icon sx={{ fontWeight: "bold" }}>add</Icon>
           &nbsp;add new card
         </MDButton>
       </MDBox>
@@ -64,9 +49,9 @@ function PaymentMethod() {
               <MDTypography variant="h6" fontWeight="medium">
                 ****&nbsp;&nbsp;****&nbsp;&nbsp;****&nbsp;&nbsp;7852
               </MDTypography>
-              <MDBox ml="auto" lineHeight={0} color={darkMode ? 'white' : 'dark'}>
+              <MDBox ml="auto" lineHeight={0} color={darkMode ? "white" : "dark"}>
                 <Tooltip title="Edit Card" placement="top">
-                  <Icon sx={{ cursor: 'pointer' }} fontSize="small">
+                  <Icon sx={{ cursor: "pointer" }} fontSize="small">
                     edit
                   </Icon>
                 </Tooltip>
@@ -89,9 +74,9 @@ function PaymentMethod() {
               <MDTypography variant="h6" fontWeight="medium">
                 ****&nbsp;&nbsp;****&nbsp;&nbsp;****&nbsp;&nbsp;5248
               </MDTypography>
-              <MDBox ml="auto" lineHeight={0} color={darkMode ? 'white' : 'dark'}>
+              <MDBox ml="auto" lineHeight={0} color={darkMode ? "white" : "dark"}>
                 <Tooltip title="Edit Card" placement="top">
-                  <Icon sx={{ cursor: 'pointer' }} fontSize="small">
+                  <Icon sx={{ cursor: "pointer" }} fontSize="small">
                     edit
                   </Icon>
                 </Tooltip>

@@ -1,44 +1,29 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 // @mui material components
-import Grid from '@mui/material/Grid';
+import Grid from "@mui/material/Grid";
 
 // Material Dashboard 2 React components
-import MDBox from 'components/MDBox';
+import MDBox from "components/MDBox";
 
 // Material Dashboard 2 React example components
-import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
-import Footer from 'examples/Footer';
-import ReportsBarChart from 'examples/Charts/BarCharts/ReportsBarChart';
-import ReportsLineChart from 'examples/Charts/LineCharts/ReportsLineChart';
-import ComplexStatisticsCard from 'examples/Cards/StatisticsCards/ComplexStatisticsCard';
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer";
+import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
+import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
+import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
 
 // Data
-import reportsBarChartData from 'layouts/rtl/data/reportsBarChartData';
-import reportsLineChartData from 'layouts/rtl/data/reportsLineChartData';
+import reportsBarChartData from "layouts/rtl/data/reportsBarChartData";
+import reportsLineChartData from "layouts/rtl/data/reportsLineChartData";
 
 // RTL components
-import Projects from 'layouts/rtl/components/Projects';
-import OrdersOverview from 'layouts/rtl/components/OrdersOverview';
+import Projects from "layouts/rtl/components/Projects";
+import OrdersOverview from "layouts/rtl/components/OrdersOverview";
 
 // Material Dashboard 2 React contexts
-import { useMaterialUIController, setDirection } from 'context';
+import { useMaterialUIController, setDirection } from "context";
 
 function RTL() {
   const [, dispatch] = useMaterialUIController();
@@ -46,9 +31,9 @@ function RTL() {
 
   // Changing the direction to rtl
   useEffect(() => {
-    setDirection(dispatch, 'rtl');
+    setDirection(dispatch, "rtl");
 
-    return () => setDirection(dispatch, 'ltr');
+    return () => setDirection(dispatch, "ltr");
   }, []);
 
   return (
@@ -64,9 +49,9 @@ function RTL() {
                 title="أموال اليوم"
                 count={281}
                 percentage={{
-                  color: 'success',
-                  amount: '+55%',
-                  label: 'من الأسبوع الماضي',
+                  color: "success",
+                  amount: "+55%",
+                  label: "من الأسبوع الماضي",
                 }}
               />
             </MDBox>
@@ -78,9 +63,9 @@ function RTL() {
                 title="مستخدمو اليوم"
                 count="2,300"
                 percentage={{
-                  color: 'success',
-                  amount: '+3%',
-                  label: 'من الأسبوع الماضي',
+                  color: "success",
+                  amount: "+3%",
+                  label: "من الأسبوع الماضي",
                 }}
               />
             </MDBox>
@@ -93,9 +78,9 @@ function RTL() {
                 title="عملاء جدد"
                 count="34k"
                 percentage={{
-                  color: 'success',
-                  amount: '+1%',
-                  label: 'من الشهر الماضي',
+                  color: "success",
+                  amount: "+1%",
+                  label: "من الشهر الماضي",
                 }}
               />
             </MDBox>
@@ -108,9 +93,9 @@ function RTL() {
                 title="مبيعات"
                 count="+91"
                 percentage={{
-                  color: 'success',
-                  amount: '',
-                  label: 'مقارنة بيوم أمس',
+                  color: "success",
+                  amount: "",
+                  label: "مقارنة بيوم أمس",
                 }}
               />
             </MDBox>
