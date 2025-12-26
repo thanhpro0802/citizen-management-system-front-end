@@ -5,13 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/dev/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/dev/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/chi-tiet-ho-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/chi-tiet-ho-khau/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/form-ho-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/form-ho-khau/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/ho-khau-cua-toi/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/ho-khau-cua-toi/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/ho-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/ho-khau/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/nhan-khau/detail.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/nhan-khau/detail.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/nhan-khau/form.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/nhan-khau/form.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/nhan-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/nhan-khau/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/quan-ly-ho-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/quan-ly-ho-khau/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/thong-tin-ca-nhan/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/thong-tin-ca-nhan/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/hoKhauService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/hoKhauService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/nhanKhauService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/nhanKhauService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -22,19 +29,19 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="com.intellij.reactbuddy.palette" />
         <option value="com.intellij.reactbuddy.previews" />
         <option value="com.intellij.reactbuddy.index" />
         <option value="com.intellij.reactbuddy.useInitial" />
         <option value="com.intellij.reactbuddy.README" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="nhankhau" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -91,6 +98,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;D:\\20251\\KTPM\\Project\\Frontend\\citizen-management-system-front-end\\node_modules\\prettier&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
@@ -114,17 +122,6 @@
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="citizen-management-system-front-end" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="citizen-management-system-front-end" />
-      <option name="filePath" />
-      <method v="2" />
     </configuration>
     <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
       <module name="citizen-management-system-front-end" />
