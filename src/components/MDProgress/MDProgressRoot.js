@@ -1,21 +1,6 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.2.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
 // @mui material components
-import { styled } from '@mui/material/styles';
-import LinearProgress from '@mui/material/LinearProgress';
+import { styled } from "@mui/material/styles";
+import LinearProgress from "@mui/material/LinearProgress";
 
 export default styled(LinearProgress)(({ theme, ownerState }) => {
   const { palette, functions } = theme;
@@ -27,7 +12,7 @@ export default styled(LinearProgress)(({ theme, ownerState }) => {
   // background value
   let backgroundValue;
 
-  if (variant === 'gradient') {
+  if (variant === "gradient") {
     backgroundValue = gradients[color]
       ? linearGradient(gradients[color].main, gradients[color].state)
       : linearGradient(gradients.info.main, gradients.info.state);
@@ -36,7 +21,7 @@ export default styled(LinearProgress)(({ theme, ownerState }) => {
   }
 
   return {
-    '& .MuiLinearProgress-bar': {
+    "& .MuiLinearProgress-bar": {
       background: backgroundValue,
       width: `${value}%`,
       color: text.main,
