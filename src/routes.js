@@ -4,21 +4,7 @@
 =========================================================
 */
 
-<<<<<<< HEAD
-// Material Dashboard 2 React layouts
-import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
-import GuiPhanAnh from "layouts/phan-anh";
-import LichSuPhanAnh from "layouts/lich-su-phan-anh";
-import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
-import PhanHoi from "layouts/phan-hoi";
-import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
-import Forbidden from "layouts/forbidden";
-import ThongKe from "layouts/thong-ke";
-
 // @mui icons
-=======
->>>>>>> 9e872dd52dc17251d9333152515d9e17b88b9926
 import Icon from "@mui/material/Icon";
 import Dashboard from "layouts/dashboard";
 
@@ -54,6 +40,7 @@ import DoiChuHo from "layouts/doi-chu-ho";
 
 // ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
+import ThongKe from "layouts/thong-ke";
 
 const routes = [
   /* ================= AUTHENTICATION ================= */
