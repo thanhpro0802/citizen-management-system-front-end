@@ -31,169 +31,160 @@ import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 function QuanLyHoKhau() {
-const [hoKhauList, setHoKhauList] = useState([]);
-const [loading, setLoading] = useState(false);
-const [openDialog, setOpenDialog] = useState(false);
-const [formData, setFormData] = useState({
+  const [hoKhauList, setHoKhauList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [formData, setFormData] = useState({
     maHoKhau: "",
     diaChi: "",
     ngayLap: "",
-});
-const [isEdit, setIsEdit] = useState(false);
-const [alert, setAlert] = useState({ show: false, message: "", type: "success" });
-const [searchQuery, setSearchQuery] = useState("");
-const [selectedHoKhau, setSelectedHoKhau] = useState(null);
+  });
+  const [isEdit, setIsEdit] = useState(false);
+  const [alert, setAlert] = useState({ show: false, message: "", type: "success" });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedHoKhau, setSelectedHoKhau] = useState(null);
 
-const API_URL = "http://localhost:8080/api/ho-khau";
+  const API_URL = "http://localhost:8080/api/ho-khau";
 
-// Lấy token từ localStorage
-const token = localStorage.getItem("token");
-const axiosConfig = {
+  // Lấy token từ localStorage
+  const token = localStorage.getItem("token");
+  const axiosConfig = {
     headers: {
-    Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-};
+  };
 
-useEffect(() => {
+  useEffect(() => {
     fetchHoKhau();
-}, []);
+  }, []);
 
-const fetchHoKhau = async () => {
+  const fetchHoKhau = async () => {
     setLoading(true);
     try {
-    const response = await axios.get(API_URL, axiosConfig);
-    setHoKhauList(response.data);
+      const response = await axios.get(API_URL, axiosConfig);
+      setHoKhauList(response.data);
     } catch (error) {
-    showAlert("Lỗi khi tải dữ liệu: " + (error.response?.data?.message || error.message), "error");
+      showAlert(
+        "Lỗi khi tải dữ liệu: " + (error.response?.data?.message || error.message),
+        "error"
+      );
     } finally {
-    setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
-const handleOpenDialog = (hoKhau = null) => {
+  const handleOpenDialog = (hoKhau = null) => {
     if (hoKhau) {
-    setFormData({
+      setFormData({
         maHoKhau: hoKhau.maHoKhau,
         diaChi: hoKhau.diaChi || "",
         ngayLap: hoKhau.ngayLap?.split("T")[0] || "",
-    });
-    setIsEdit(true);
+      });
+      setIsEdit(true);
     } else {
-    setFormData({
+      setFormData({
         maHoKhau: "",
         diaChi: "",
         ngayLap: "",
-    });
-    setIsEdit(false);
+      });
+      setIsEdit(false);
     }
     setOpenDialog(true);
-};
+  };
 
-const handleCloseDialog = () => {
+  const handleCloseDialog = () => {
     setOpenDialog(false);
-};
+  };
 
-const handleInputChange = (e) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-};
+  };
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
     try {
-    if (isEdit) {
+      if (isEdit) {
         await axios.put(`${API_URL}/${formData.maHoKhau}`, formData, axiosConfig);
         showAlert("Cập nhật hộ khẩu thành công!", "success");
-    } else {
+      } else {
         await axios.post(API_URL, formData, axiosConfig);
         showAlert("Thêm hộ khẩu thành công!", "success");
-    }
-    fetchHoKhau();
-    handleCloseDialog();
+      }
+      fetchHoKhau();
+      handleCloseDialog();
     } catch (error) {
-    showAlert(
-        "Lỗi: " + (error.response?.data?.message || error.message),
-        "error"
-    );
+      showAlert("Lỗi: " + (error.response?.data?.message || error.message), "error");
     }
-};
+  };
 
-const handleDelete = async (maHoKhau) => {
+  const handleDelete = async (maHoKhau) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa hộ khẩu này?")) {
-    try {
+      try {
         await axios.delete(`${API_URL}/${maHoKhau}`, axiosConfig);
         showAlert("Xóa hộ khẩu thành công!", "success");
         fetchHoKhau();
-    } catch (error) {
-        showAlert(
-        "Lỗi khi xóa: " + (error.response?.data?.message || error.message),
-        "error"
-        );
+      } catch (error) {
+        showAlert("Lỗi khi xóa: " + (error.response?.data?.message || error.message), "error");
+      }
     }
-    }
-};
+  };
 
-const showAlert = (message, type) => {
+  const showAlert = (message, type) => {
     setAlert({ show: true, message, type });
     setTimeout(() => setAlert({ show: false, message: "", type: "success" }), 3000);
-};
+  };
 
-const filteredData = hoKhauList.filter((item) =>
-    Object.values(item).some((val) =>
-    String(val).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-);
+  const filteredData = hoKhauList.filter((item) =>
+    Object.values(item).some((val) => String(val).toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
-const columns = [
+  const columns = [
     { Header: "Mã hộ khẩu", accessor: "maHoKhau", width: "20%" },
     { Header: "Địa chỉ", accessor: "diaChi", width: "40%" },
     { Header: "Ngày lập", accessor: "ngayLap", width: "15%" },
     { Header: "Số thành viên", accessor: "soThanhVien", width: "15%" },
     { Header: "Hành động", accessor: "action", width: "10%" },
-];
+  ];
 
-const rows = filteredData.map((item) => ({
+  const rows = filteredData.map((item) => ({
     maHoKhau: item.maHoKhau,
     diaChi: item.diaChi || "Chưa có thông tin",
     ngayLap: item.ngayLap?.split("T")[0] || "",
     soThanhVien: item.thanhVienList?.length || 0,
     action: (
-    <MDBox display="flex" gap={1}>
+      <MDBox display="flex" gap={1}>
         <IconButton
-        size="small"
-        color="info"
-        onClick={() => setSelectedHoKhau(item)}
-        title="Xem chi tiết"
+          size="small"
+          color="info"
+          onClick={() => setSelectedHoKhau(item)}
+          title="Xem chi tiết"
         >
-        <Icon>visibility</Icon>
+          <Icon>visibility</Icon>
         </IconButton>
         <IconButton size="small" color="warning" onClick={() => handleOpenDialog(item)}>
-        <Icon>edit</Icon>
+          <Icon>edit</Icon>
         </IconButton>
-        <IconButton
-        size="small"
-        color="error"
-        onClick={() => handleDelete(item.maHoKhau)}
-        >
-        <Icon>delete</Icon>
+        <IconButton size="small" color="error" onClick={() => handleDelete(item.maHoKhau)}>
+          <Icon>delete</Icon>
         </IconButton>
-    </MDBox>
+      </MDBox>
     ),
-}));
+  }));
 
-return (
+  return (
     <DashboardLayout>
-    <DashboardNavbar />
-    <MDBox pt={6} pb={3}>
+      <DashboardNavbar />
+      <MDBox pt={6} pb={3}>
         {alert.show && (
-        <MDAlert color={alert.type} dismissible>
+          <MDAlert color={alert.type} dismissible>
             {alert.message}
-        </MDAlert>
+          </MDAlert>
         )}
 
         <Grid container spacing={6}>
-        <Grid item xs={12}>
+          <Grid item xs={12}>
             <Card>
-            <MDBox
+              <MDBox
                 mx={2}
                 mt={-3}
                 py={3}
@@ -205,125 +196,120 @@ return (
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
-            >
+              >
                 <MDTypography variant="h6" color="white">
-                Quản Lý Hộ Khẩu
+                  Quản Lý Hộ Khẩu
                 </MDTypography>
-                <MDButton
-                variant="gradient"
-                color="light"
-                onClick={() => handleOpenDialog()}
-                >
-                <Icon sx={{ fontWeight: "bold" }}>add</Icon>
-                &nbsp;Thêm mới
+                <MDButton variant="gradient" color="light" onClick={() => handleOpenDialog()}>
+                  <Icon sx={{ fontWeight: "bold" }}>add</Icon>
+                  &nbsp;Thêm mới
                 </MDButton>
-            </MDBox>
-            <MDBox p={3}>
+              </MDBox>
+              <MDBox p={3}>
                 <MDBox mb={2}>
-                <MDInput
+                  <MDInput
                     label="Tìm kiếm..."
                     fullWidth
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                  />
                 </MDBox>
                 {loading ? (
-                <MDTypography variant="body2">Đang tải...</MDTypography>
+                  <MDTypography variant="body2">Đang tải...</MDTypography>
                 ) : (
-                <DataTable
+                  <DataTable
                     table={{ columns, rows }}
                     isSorted={false}
                     entriesPerPage={{ defaultValue: 10 }}
                     showTotalEntries={true}
                     noEndBorder
-                />
+                  />
                 )}
-            </MDBox>
+              </MDBox>
             </Card>
-        </Grid>
+          </Grid>
 
-        {/* Chi tiết hộ khẩu */}
-        {selectedHoKhau && (
+          {/* Chi tiết hộ khẩu */}
+          {selectedHoKhau && (
             <Grid item xs={12}>
-            <Card>
+              <Card>
                 <MDBox p={3}>
-                <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                  <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <MDTypography variant="h6">
-                    Chi tiết hộ khẩu: {selectedHoKhau.maHoKhau}
+                      Chi tiết hộ khẩu: {selectedHoKhau.maHoKhau}
                     </MDTypography>
                     <IconButton onClick={() => setSelectedHoKhau(null)}>
-                    <Icon>close</Icon>
+                      <Icon>close</Icon>
                     </IconButton>
-                </MDBox>
-                <MDTypography variant="body2" mb={1}>
+                  </MDBox>
+                  <MDTypography variant="body2" mb={1}>
                     <strong>Địa chỉ:</strong> {selectedHoKhau.diaChi}
-                </MDTypography>
-                <MDTypography variant="body2" mb={2}>
+                  </MDTypography>
+                  <MDTypography variant="body2" mb={2}>
                     <strong>Ngày lập:</strong> {selectedHoKhau.ngayLap?.split("T")[0]}
-                </MDTypography>
+                  </MDTypography>
 
-                <MDTypography variant="h6" mb={2}>
+                  <MDTypography variant="h6" mb={2}>
                     Danh sách thành viên ({selectedHoKhau.thanhVienList?.length || 0})
-                </MDTypography>
-                {selectedHoKhau.thanhVienList &&
-                selectedHoKhau.thanhVienList.length > 0 ? (
+                  </MDTypography>
+                  {selectedHoKhau.thanhVienList && selectedHoKhau.thanhVienList.length > 0 ? (
                     selectedHoKhau.thanhVienList.map((tv, index) => (
-                    <Accordion key={index}>
+                      <Accordion key={index}>
                         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <MDTypography variant="body2">
+                          <MDTypography variant="body2">
                             {tv.hoTen} - {tv.quanHeVoiChuHo}
-                        </MDTypography>
+                          </MDTypography>
                         </AccordionSummary>
                         <AccordionDetails>
-                        <Grid container spacing={2}>
+                          <Grid container spacing={2}>
                             <Grid item xs={6}>
-                            <MDTypography variant="caption">
+                              <MDTypography variant="caption">
                                 <strong>Mã NK:</strong> {tv.maNhanKhau}
-                            </MDTypography>
+                              </MDTypography>
                             </Grid>
                             <Grid item xs={6}>
-                            <MDTypography variant="caption">
+                              <MDTypography variant="caption">
                                 <strong>CCCD:</strong> {tv.soCccd}
-                            </MDTypography>
+                              </MDTypography>
                             </Grid>
                             <Grid item xs={6}>
-                            <MDTypography variant="caption">
+                              <MDTypography variant="caption">
                                 <strong>Ngày sinh:</strong> {tv.ngaySinh?.split("T")[0]}
-                            </MDTypography>
+                              </MDTypography>
                             </Grid>
                             <Grid item xs={6}>
-                            <MDTypography variant="caption">
+                              <MDTypography variant="caption">
                                 <strong>Giới tính:</strong> {tv.gioiTinh}
-                            </MDTypography>
+                              </MDTypography>
                             </Grid>
                             <Grid item xs={12}>
-                            <MDTypography variant="caption">
+                              <MDTypography variant="caption">
                                 <strong>Quê quán:</strong> {tv.queQuan}
-                            </MDTypography>
+                              </MDTypography>
                             </Grid>
-                        </Grid>
+                          </Grid>
                         </AccordionDetails>
-                    </Accordion>
+                      </Accordion>
                     ))
-                ) : (
+                  ) : (
                     <MDTypography variant="body2" color="text">
-                    Chưa có thành viên
+                      Chưa có thành viên
                     </MDTypography>
-                )}
+                  )}
                 </MDBox>
-            </Card>
+              </Card>
             </Grid>
-        )}
+          )}
         </Grid>
-    </MDBox>
+      </MDBox>
 
-    {/* Dialog thêm/sửa */}
-    <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+      {/* Dialog thêm/sửa */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>{isEdit ? "Cập nhật hộ khẩu" : "Thêm hộ khẩu mới"}</DialogTitle>
         <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
-            <TextField
+              <TextField
                 label="Mã hộ khẩu"
                 name="maHoKhau"
                 value={formData.maHoKhau}
@@ -331,10 +317,10 @@ return (
                 fullWidth
                 disabled={isEdit}
                 required
-            />
+              />
             </Grid>
             <Grid item xs={12}>
-            <TextField
+              <TextField
                 label="Địa chỉ"
                 name="diaChi"
                 value={formData.diaChi}
@@ -342,10 +328,10 @@ return (
                 fullWidth
                 multiline
                 rows={3}
-            />
+              />
             </Grid>
             <Grid item xs={12}>
-            <TextField
+              <TextField
                 label="Ngày lập"
                 name="ngayLap"
                 type="date"
@@ -353,21 +339,21 @@ return (
                 onChange={handleInputChange}
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-            />
+              />
             </Grid>
-        </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
-        <Button onClick={handleCloseDialog}>Hủy</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
+          <Button onClick={handleCloseDialog}>Hủy</Button>
+          <Button onClick={handleSubmit} variant="contained" color="primary">
             {isEdit ? "Cập nhật" : "Thêm mới"}
-        </Button>
+          </Button>
         </DialogActions>
-    </Dialog>
+      </Dialog>
 
-    <Footer />
+      <Footer />
     </DashboardLayout>
-);
+  );
 }
 
 export default QuanLyHoKhau;

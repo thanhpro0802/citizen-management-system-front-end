@@ -23,11 +23,7 @@ import createCache from "@emotion/cache";
 
 // Routes & Context
 import routes from "routes";
-import {
-  useMaterialUIController,
-  setMiniSidenav,
-  setOpenConfigurator,
-} from "context";
+import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
 // Assets
 import brandWhite from "assets/images/logo-ct.png";
@@ -83,8 +79,7 @@ export default function App() {
     }
   };
 
-  const handleConfiguratorOpen = () =>
-    setOpenConfigurator(dispatch, !openConfigurator);
+  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
 
   /* ================= EFFECTS ================= */
   useEffect(() => {
@@ -117,20 +112,11 @@ export default function App() {
 
         if (route.requireAuth || route.requiredRole) {
           element = (
-            <ProtectedRoute requiredRole={route.requiredRole}>
-              {route.component}
-            </ProtectedRoute>
+            <ProtectedRoute requiredRole={route.requiredRole}>{route.component}</ProtectedRoute>
           );
         }
 
-        return (
-          <Route
-            exact
-            path={route.route}
-            element={element}
-            key={route.key}
-          />
-        );
+        return <Route exact path={route.route} element={element} key={route.key} />;
       }
       return null;
     });
@@ -144,11 +130,7 @@ export default function App() {
         <>
           <Sidenav
             color={sidenavColor}
-            brand={
-              (transparentSidenav && !darkMode) || whiteSidenav
-                ? brandDark
-                : brandWhite
-            }
+            brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
             brandName="Material Dashboard 2"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
@@ -162,10 +144,7 @@ export default function App() {
         {getRoutes(routes)}
 
         {/* Route đặc biệt */}
-        <Route
-          path="/chi-tiet-phan-anh/:id"
-          element={<ChiTietPhanAnh />}
-        />
+        <Route path="/chi-tiet-phan-anh/:id" element={<ChiTietPhanAnh />} />
 
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/gui-phan-anh" />} />
@@ -175,13 +154,9 @@ export default function App() {
 
   return direction === "rtl" ? (
     <CacheProvider value={rtlCache}>
-      <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>
-        {content}
-      </ThemeProvider>
+      <ThemeProvider theme={darkMode ? themeDarkRTL : themeRTL}>{content}</ThemeProvider>
     </CacheProvider>
   ) : (
-    <ThemeProvider theme={darkMode ? themeDark : theme}>
-      {content}
-    </ThemeProvider>
+    <ThemeProvider theme={darkMode ? themeDark : theme}>{content}</ThemeProvider>
   );
 }

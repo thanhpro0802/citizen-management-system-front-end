@@ -5,6 +5,8 @@
  */
 
 import { useState, useEffect } from "react";
+// 1. Thêm import PropTypes
+import PropTypes from "prop-types";
 import { Card, Grid, CircularProgress, Alert, Divider } from "@mui/material";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -26,9 +28,14 @@ function NhanKhauInfoCard({ nhanKhau, title, isCurrent = false }) {
     <Card sx={{ mb: 2 }}>
       <MDBox p={3}>
         <MDTypography variant="h6" fontWeight="medium" mb={2}>
-          {title} {isCurrent && <MDTypography variant="caption" color="info">(Bạn)</MDTypography>}
+          {title}{" "}
+          {isCurrent && (
+            <MDTypography variant="caption" color="info">
+              (Bạn)
+            </MDTypography>
+          )}
         </MDTypography>
-        
+
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <MDTypography variant="caption" color="text" fontWeight="regular">
@@ -116,6 +123,23 @@ function NhanKhauInfoCard({ nhanKhau, title, isCurrent = false }) {
   );
 }
 
+// 2. Thêm định nghĩa PropTypes cho component
+NhanKhauInfoCard.propTypes = {
+  nhanKhau: PropTypes.shape({
+    maNhanKhau: PropTypes.string,
+    hoTen: PropTypes.string,
+    soCCCD: PropTypes.string,
+    ngaySinh: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]),
+    gioiTinh: PropTypes.string,
+    danToc: PropTypes.string,
+    queQuan: PropTypes.string,
+    quanHeVoiChuHo: PropTypes.string,
+    trangThai: PropTypes.string,
+  }),
+  title: PropTypes.string,
+  isCurrent: PropTypes.bool,
+};
+
 function ThongTinCaNhan() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -177,7 +201,8 @@ function ThongTinCaNhan() {
         <DashboardNavbar />
         <MDBox py={3}>
           <Alert severity="info">
-            Tài khoản của bạn chưa được liên kết với nhân khẩu. Vui lòng liên hệ cán bộ để được hỗ trợ.
+            Tài khoản của bạn chưa được liên kết với nhân khẩu. Vui lòng liên hệ cán bộ để được hỗ
+            trợ.
           </Alert>
         </MDBox>
         <Footer />
@@ -199,8 +224,8 @@ function ThongTinCaNhan() {
         </MDBox>
 
         {/* Thông tin nhân khẩu của người dùng */}
-        <NhanKhauInfoCard 
-          nhanKhau={data.nhanKhau} 
+        <NhanKhauInfoCard
+          nhanKhau={data.nhanKhau}
           title="Thông Tin Nhân Khẩu Của Bạn"
           isCurrent={true}
         />
@@ -212,7 +237,7 @@ function ThongTinCaNhan() {
               <MDTypography variant="h6" fontWeight="medium" mb={2}>
                 Thông Tin Hộ Khẩu
               </MDTypography>
-              
+
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
                   <MDTypography variant="caption" color="text" fontWeight="regular">
@@ -264,7 +289,7 @@ function ThongTinCaNhan() {
               Thành Viên Cùng Hộ Khẩu ({data.thanhVienCungHo.length})
             </MDTypography>
             {data.thanhVienCungHo.map((thanhVien, index) => (
-              <NhanKhauInfoCard 
+              <NhanKhauInfoCard
                 key={thanhVien.maNhanKhau || index}
                 nhanKhau={thanhVien}
                 title={`Thành Viên ${index + 1}: ${thanhVien.hoTen}`}
@@ -274,9 +299,7 @@ function ThongTinCaNhan() {
         )}
 
         {(!data.thanhVienCungHo || data.thanhVienCungHo.length === 0) && data.hoKhau && (
-          <Alert severity="info">
-            Bạn là thành viên duy nhất trong hộ khẩu này
-          </Alert>
+          <Alert severity="info">Bạn là thành viên duy nhất trong hộ khẩu này</Alert>
         )}
       </MDBox>
       <Footer />
