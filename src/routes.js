@@ -97,7 +97,7 @@ const routes = [
   },
 
   /* ================= MENU DÀNH CHO CÁN BỘ ================= */
-  
+
   // 1. Quản lý Phản Ánh
   {
     type: "collapse",
@@ -135,7 +135,7 @@ const routes = [
   },
 
   /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
-  
+
   // --- Phản ánh ---
   {
     key: "chi-tiet-phan-anh",

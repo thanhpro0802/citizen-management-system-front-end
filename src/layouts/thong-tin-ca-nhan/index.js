@@ -1,307 +1,269 @@
 /**
- * Component hiển thị thông tin nhân khẩu của công dân đang đăng nhập
- * Bao gồm: Thông tin cá nhân + Thông tin hộ khẩu + Danh sách thành viên cùng hộ
- * Chế độ: Chỉ xem (Read-only)
+ * src/layouts/thong-tin-ca-nhan/index.js
+ * Trang thông tin cá nhân tùy chỉnh (Custom UI)
+ * Đã xóa chức năng chỉnh sửa SĐT (Chế độ Xem).
  */
 
 import { useState, useEffect } from "react";
-// 1. Thêm import PropTypes
 import PropTypes from "prop-types";
-import { Card, Grid, CircularProgress, Alert, Divider } from "@mui/material";
+
+// @mui material components
+import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import Icon from "@mui/material/Icon";
+import CircularProgress from "@mui/material/CircularProgress";
+import Chip from "@mui/material/Chip";
+import Avatar from "@mui/material/Avatar";
+
+// Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDAlert from "components/MDAlert";
+
+// Layout components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
+
+// Service
 import nhanKhauService from "services/nhanKhauService";
 
-// Component hiển thị thông tin chi tiết một nhân khẩu (read-only)
-function NhanKhauInfoCard({ nhanKhau, title, isCurrent = false }) {
-  if (!nhanKhau) return null;
+// Ảnh mặc định
+import defaultAvatar from "assets/images/bruce-mars.jpg";
 
-  const formatDate = (date) => {
-    if (!date) return "N/A";
-    return new Date(date).toLocaleDateString("vi-VN");
-  };
+// Helper: Dòng thông tin nhỏ (Đơn giản hóa, bỏ action button)
+const InfoRow = ({ icon, label, value }) => (
+  <MDBox
+    display="flex"
+    alignItems="flex-start"
+    py={1.5}
+    borderBottom="1px dashed #e0e0e0"
+    width="100%"
+  >
+    <MDBox
+      mr={2}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      width="2.5rem"
+      height="2.5rem"
+      borderRadius="50%"
+      bgColor="grey-100"
+      color="info"
+    >
+      <Icon fontSize="small">{icon}</Icon>
+    </MDBox>
+    <MDBox display="flex" flexDirection="column">
+      <MDTypography variant="caption" color="text" fontWeight="medium">
+        {label}
+      </MDTypography>
+      <MDTypography variant="body2" fontWeight="bold" color="dark">
+        {value || "---"}
+      </MDTypography>
+    </MDBox>
+  </MDBox>
+);
 
-  return (
-    <Card sx={{ mb: 2 }}>
-      <MDBox p={3}>
-        <MDTypography variant="h6" fontWeight="medium" mb={2}>
-          {title}{" "}
-          {isCurrent && (
-            <MDTypography variant="caption" color="info">
-              (Bạn)
-            </MDTypography>
-          )}
-        </MDTypography>
-
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Mã Nhân Khẩu
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.maNhanKhau || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Họ Tên
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.hoTen || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Số CCCD
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.soCCCD || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Ngày Sinh
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {formatDate(nhanKhau.ngaySinh)}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Giới Tính
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.gioiTinh || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Dân Tộc
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.danToc || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Quê Quán
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.queQuan || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Quan Hệ Với Chủ Hộ
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.quanHeVoiChuHo || "N/A"}
-            </MDTypography>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <MDTypography variant="caption" color="text" fontWeight="regular">
-              Trạng Thái
-            </MDTypography>
-            <MDTypography variant="body2" fontWeight="medium">
-              {nhanKhau.trangThai || "N/A"}
-            </MDTypography>
-          </Grid>
-        </Grid>
-      </MDBox>
-    </Card>
-  );
-}
-
-// 2. Thêm định nghĩa PropTypes cho component
-NhanKhauInfoCard.propTypes = {
-  nhanKhau: PropTypes.shape({
-    maNhanKhau: PropTypes.string,
-    hoTen: PropTypes.string,
-    soCCCD: PropTypes.string,
-    ngaySinh: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.instanceOf(Date)]),
-    gioiTinh: PropTypes.string,
-    danToc: PropTypes.string,
-    queQuan: PropTypes.string,
-    quanHeVoiChuHo: PropTypes.string,
-    trangThai: PropTypes.string,
-  }),
-  title: PropTypes.string,
-  isCurrent: PropTypes.bool,
+InfoRow.propTypes = {
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 function ThongTinCaNhan() {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({ nhanKhau: null, hoKhau: null });
+  const [accountPhone, setAccountPhone] = useState("");
+  const [alert, setAlert] = useState({ show: false, message: "", type: "info" });
 
   useEffect(() => {
     fetchData();
+    getAccountInfo();
   }, []);
+
+  const getAccountInfo = () => {
+    try {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        // Lấy SĐT hiển thị từ account (nếu có)
+        setAccountPhone(user.soDienThoai || user.phoneNumber || user.phone || "");
+      }
+    } catch (e) {
+      console.error("Lỗi lấy thông tin tài khoản:", e);
+    }
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      setError(null);
       const result = await nhanKhauService.layThongTinNhanKhauCuaToi();
-      setData(result);
+      if (result && result.nhanKhau) {
+        setData({
+          nhanKhau: result.nhanKhau,
+          hoKhau: result.hoKhau,
+        });
+      } else {
+        setAlert({
+          show: true,
+          message: "Không tìm thấy dữ liệu nhân khẩu liên kết.",
+          type: "warning",
+        });
+      }
     } catch (err) {
-      console.error("Lỗi khi lấy thông tin nhân khẩu:", err);
-      setError(err.message || "Có lỗi xảy ra khi lấy thông tin");
+      console.error(err);
+      setAlert({ show: true, message: "Lỗi kết nối: " + err.message, type: "error" });
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (date) => {
-    if (!date) return "N/A";
+    if (!date) return "Chưa cập nhật";
     return new Date(date).toLocaleDateString("vi-VN");
   };
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <DashboardNavbar />
-        <MDBox py={3} textAlign="center">
-          <CircularProgress />
-          <MDTypography variant="body2" mt={2}>
-            Đang tải thông tin...
-          </MDTypography>
-        </MDBox>
-        <Footer />
-      </DashboardLayout>
-    );
-  }
+  const renderStatus = (status) => {
+    const map = {
+      THUONG_TRU: { label: "Thường Trú", color: "success" },
+      TAM_TRU: { label: "Tạm Trú", color: "info" },
+      TAM_VANG: { label: "Tạm Vắng", color: "warning" },
+      KHAI_TU: { label: "Đã Mất", color: "error" },
+      UNKNOWN: { label: "Chưa Xác Định", color: "default" },
+    };
+    const current = map[status] || map.UNKNOWN;
 
-  if (error) {
     return (
-      <DashboardLayout>
-        <DashboardNavbar />
-        <MDBox py={3}>
-          <Alert severity="error">{error}</Alert>
-        </MDBox>
-        <Footer />
-      </DashboardLayout>
+      <Chip
+        label={current.label}
+        color={current.color}
+        variant="filled"
+        size="small"
+        sx={{ color: "#fff", fontWeight: "bold", textTransform: "uppercase", mt: 1 }}
+      />
     );
-  }
+  };
 
-  if (!data || !data.nhanKhau) {
-    return (
-      <DashboardLayout>
-        <DashboardNavbar />
-        <MDBox py={3}>
-          <Alert severity="info">
-            Tài khoản của bạn chưa được liên kết với nhân khẩu. Vui lòng liên hệ cán bộ để được hỗ
-            trợ.
-          </Alert>
-        </MDBox>
-        <Footer />
-      </DashboardLayout>
-    );
-  }
+  const { nhanKhau, hoKhau } = data;
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <MDBox py={3}>
-        <MDBox mb={3}>
-          <MDTypography variant="h4" fontWeight="medium">
-            Thông Tin Cá Nhân
-          </MDTypography>
-          <MDTypography variant="body2" color="text">
-            Xem thông tin nhân khẩu của bạn và các thành viên trong hộ khẩu
-          </MDTypography>
-        </MDBox>
 
-        {/* Thông tin nhân khẩu của người dùng */}
-        <NhanKhauInfoCard
-          nhanKhau={data.nhanKhau}
-          title="Thông Tin Nhân Khẩu Của Bạn"
-          isCurrent={true}
-        />
+      <MDBox
+        position="relative"
+        minHeight="300px"
+        borderRadius="xl"
+        mx={2}
+        mt={2}
+        sx={{
+          background: "linear-gradient(195deg, #49a3f1, #1A73E8)",
+          boxShadow: ({ boxShadows: { md } }) => md,
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <MDTypography variant="h3" color="white" opacity={0.8}>
+          HỒ SƠ CÔNG DÂN ĐIỆN TỬ
+        </MDTypography>
+      </MDBox>
 
-        {/* Thông tin hộ khẩu */}
-        {data.hoKhau && (
-          <Card sx={{ mb: 2 }}>
-            <MDBox p={3}>
-              <MDTypography variant="h6" fontWeight="medium" mb={2}>
-                Thông Tin Hộ Khẩu
-              </MDTypography>
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <MDTypography variant="caption" color="text" fontWeight="regular">
-                    Mã Hộ Khẩu
-                  </MDTypography>
-                  <MDTypography variant="body2" fontWeight="medium">
-                    {data.hoKhau.maHoKhau || "N/A"}
-                  </MDTypography>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <MDTypography variant="caption" color="text" fontWeight="regular">
-                    Địa Chỉ
-                  </MDTypography>
-                  <MDTypography variant="body2" fontWeight="medium">
-                    {data.hoKhau.diaChi || "N/A"}
-                  </MDTypography>
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <MDTypography variant="caption" color="text" fontWeight="regular">
-                    Ngày Đăng Ký
-                  </MDTypography>
-                  <MDTypography variant="body2" fontWeight="medium">
-                    {formatDate(data.hoKhau.ngayDangKy)}
-                  </MDTypography>
-                </Grid>
-
-                {data.hoKhau.chuHo && (
-                  <Grid item xs={12}>
-                    <Divider sx={{ my: 1 }} />
-                    <MDTypography variant="caption" color="text" fontWeight="regular" mb={1}>
-                      Chủ Hộ
-                    </MDTypography>
-                    <MDTypography variant="body2" fontWeight="medium">
-                      {data.hoKhau.chuHo.hoTen} ({data.hoKhau.chuHo.soCCCD})
-                    </MDTypography>
-                  </Grid>
-                )}
-              </Grid>
-            </MDBox>
-          </Card>
-        )}
-
-        {/* Danh sách thành viên cùng hộ */}
-        {data.thanhVienCungHo && data.thanhVienCungHo.length > 0 && (
-          <MDBox>
-            <MDTypography variant="h6" fontWeight="medium" mb={2}>
-              Thành Viên Cùng Hộ Khẩu ({data.thanhVienCungHo.length})
-            </MDTypography>
-            {data.thanhVienCungHo.map((thanhVien, index) => (
-              <NhanKhauInfoCard
-                key={thanhVien.maNhanKhau || index}
-                nhanKhau={thanhVien}
-                title={`Thành Viên ${index + 1}: ${thanhVien.hoTen}`}
-              />
-            ))}
+      <MDBox px={3} mt={-10} mb={4}>
+        {alert.show && (
+          <MDBox mb={2}>
+            <MDAlert
+              color={alert.type}
+              dismissible
+              onClose={() => setAlert({ ...alert, show: false })}
+            >
+              {alert.message}
+            </MDAlert>
           </MDBox>
         )}
 
-        {(!data.thanhVienCungHo || data.thanhVienCungHo.length === 0) && data.hoKhau && (
-          <Alert severity="info">Bạn là thành viên duy nhất trong hộ khẩu này</Alert>
+        {loading ? (
+          <Card sx={{ p: 5, textAlign: "center" }}>
+            <CircularProgress color="info" />
+          </Card>
+        ) : nhanKhau ? (
+          <Card sx={{ overflow: "visible" }}>
+            <Grid container>
+              {/* Cột Trái */}
+              <Grid item xs={12} md={4} sx={{ borderRight: { md: "1px solid #f0f2f5" } }}>
+                <MDBox
+                  p={4}
+                  textAlign="center"
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                >
+                  <Avatar
+                    src={defaultAvatar}
+                    alt="profile-avatar"
+                    sx={{
+                      width: 150,
+                      height: 150,
+                      boxShadow: "0 4px 20px 0 rgba(0,0,0,0.14)",
+                      border: "4px solid #fff",
+                      mb: 2,
+                    }}
+                  />
+                  <MDTypography variant="h4" fontWeight="bold" textTransform="capitalize" mt={1}>
+                    {nhanKhau.hoTen}
+                  </MDTypography>
+                  {renderStatus(nhanKhau.trangThai)}
+                </MDBox>
+              </Grid>
+
+              {/* Cột Phải */}
+              <Grid item xs={12} md={8}>
+                <MDBox p={4}>
+                  <MDTypography variant="h5" fontWeight="medium" mb={3}>
+                    Thông Tin Chi Tiết
+                  </MDTypography>
+
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <InfoRow icon="fingerprint" label="Số CCCD / CMND" value={nhanKhau.soCCCD} />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <InfoRow
+                        icon="cake"
+                        label="Ngày Sinh"
+                        value={formatDate(nhanKhau.ngaySinh)}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                      <InfoRow icon="wc" label="Giới Tính" value={nhanKhau.gioiTinh} />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <InfoRow icon="phone" label="Số Điện Thoại" value={accountPhone} />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <InfoRow
+                        icon="location_on"
+                        label="Địa Chỉ Thường Trú"
+                        value={hoKhau?.diaChi || "Chưa có thông tin"}
+                      />
+                    </Grid>
+                  </Grid>
+                </MDBox>
+              </Grid>
+            </Grid>
+          </Card>
+        ) : (
+          <Card sx={{ p: 3 }}>
+            <MDTypography variant="body1" textAlign="center">
+              Không có dữ liệu hiển thị
+            </MDTypography>
+          </Card>
         )}
       </MDBox>
+
       <Footer />
     </DashboardLayout>
   );

@@ -1,23 +1,29 @@
 /**
- * Component hiển thị danh sách nhân khẩu với tính năng tìm kiếm, phân trang, thêm/sửa/xóa
+ * src/layouts/nhan-khau/index.js
+ * Đồng bộ thiết kế với trang Quản lý hộ khẩu
  */
 
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // @mui material components
-import Card from "@mui/material/Card";
-import Icon from "@mui/material/Icon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
+import Card from "@mui/material/Card";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TablePagination from "@mui/material/TablePagination";
+import Icon from "@mui/material/Icon";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import CircularProgress from "@mui/material/CircularProgress";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 
 // Material Dashboard 2 React components
@@ -25,12 +31,12 @@ import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
 import MDInput from "components/MDInput";
+import MDAlert from "components/MDAlert";
 
-// Material Dashboard 2 React example components
+// Layout
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import DataTable from "examples/Tables/DataTable";
 
 // Service
 import nhanKhauService from "services/nhanKhauService";
@@ -39,83 +45,127 @@ function NhanKhauList() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Pagination State
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
 
-  // Tìm kiếm
+  // Search State
   const [searchCriteria, setSearchCriteria] = useState({
     q: "",
     gioiTinh: "",
     status: "",
     maHoKhau: "",
   });
-  const [searchTrigger, setSearchTrigger] = useState(0); // Trigger để reload data
+  const [searchTrigger, setSearchTrigger] = useState(0);
 
-  // Delete dialog
-  const [deleteDialog, setDeleteDialog] = useState({ open: false, maNhanKhau: null, hoTen: "" });
+  // Dialog & Message State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedNhanKhau, setSelectedNhanKhau] = useState(null);
+  const [message, setMessage] = useState({ type: "", content: "" });
 
+  // Custom style cho TextField để khớp với MDInput
   const textFieldLikeMDInput = {
     "& .MuiInputBase-root": {
-      height: 45,
+      height: 44,
       boxSizing: "border-box",
     },
     "& .MuiInputBase-input": {
-      padding: "12px 14px 12px",
+      padding: "10px 12px",
     },
   };
-  // Load data
-  const loadData = async () => {
+
+  // Check role permission (Copy logic từ Hộ khẩu)
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
+      navigate("/authentication/sign-in");
+      return;
+    }
+    const user = JSON.parse(userStr);
+    const role = user.vaiTro || (user.roles ? user.roles[0] : "");
+    // Logic check role cơ bản, bạn có thể tùy chỉnh
+    const isCanBo = Array.isArray(user.roles) ? user.roles.includes("CAN_BO") : role === "CAN_BO";
+
+    // Nếu muốn chặn người dân truy cập trang này thì uncomment dòng dưới
+    // if (!isCanBo) {
+    //   alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
+    //   navigate("/thong-tin-ca-nhan");
+    // }
+  }, [navigate]);
+
+  // Load Data
+  useEffect(() => {
+    fetchData();
+  }, [page, rowsPerPage, searchTrigger]);
+
+  const fetchData = async () => {
     try {
       setLoading(true);
-      console.log("Search criteria:", searchCriteria);
-      const result = await nhanKhauService.searchNhanKhau(searchCriteria, page, size);
-      console.log("Search result:", result);
+      // Gọi API search (Server-side pagination)
+      const result = await nhanKhauService.searchNhanKhau(searchCriteria, page, rowsPerPage);
       setData(result.content || []);
-      setTotalPages(result.totalPages || 0);
       setTotalElements(result.totalElements || 0);
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu:", error);
-      // Chỉ hiện lỗi nếu là lỗi server, không phải không tìm thấy kết quả
       setData([]);
-      setTotalPages(0);
       setTotalElements(0);
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        alert("Phiên đăng nhập hết hạn.");
+        localStorage.clear();
+        navigate("/authentication/sign-in");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, [page, size, searchTrigger]);
-
-  // Xử lý tìm kiếm
   const handleSearch = () => {
     setPage(0);
-    setSearchTrigger((prev) => prev + 1); // Trigger reload
+    setSearchTrigger((prev) => prev + 1);
   };
 
-  // Xử lý xóa
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // Delete logic
+  const handleOpenDeleteDialog = (item) => {
+    setSelectedNhanKhau(item);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setSelectedNhanKhau(null);
+  };
+
   const handleDelete = async () => {
+    if (!selectedNhanKhau) return;
     try {
-      await nhanKhauService.deleteNhanKhau(deleteDialog.maNhanKhau);
-      setDeleteDialog({ open: false, maNhanKhau: null, hoTen: "" });
-      loadData();
-      alert("Xóa nhân khẩu thành công");
+      await nhanKhauService.deleteNhanKhau(selectedNhanKhau.maNhanKhau);
+      setMessage({ type: "success", content: "Xóa nhân khẩu thành công!" });
+      handleCloseDeleteDialog();
+      fetchData(); // Reload data
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
-      alert("Không thể xóa nhân khẩu: " + error.message);
+      setMessage({ type: "error", content: "Không thể xóa: " + (error.message || "Lỗi hệ thống") });
+      handleCloseDeleteDialog();
     }
   };
 
-  // Format ngày sinh
+  // Helper formats
   const formatDate = (date) => {
     if (!date) return "";
     return new Date(date).toLocaleDateString("vi-VN");
   };
 
-  // Hiển thị trạng thái
   const renderStatus = (status) => {
     const statusColors = {
       THUONG_TRU: "success",
@@ -124,7 +174,6 @@ function NhanKhauList() {
       KHAI_TU: "error",
       UNKNOWN: "default",
     };
-
     const statusLabels = {
       THUONG_TRU: "Thường trú",
       TAM_TRU: "Tạm trú",
@@ -132,109 +181,88 @@ function NhanKhauList() {
       KHAI_TU: "Đã mất",
       UNKNOWN: "Chưa xác định",
     };
-
     return (
       <Chip
         label={statusLabels[status] || status}
         color={statusColors[status] || "default"}
         size="small"
+        sx={{ color: "white", fontWeight: "bold", minWidth: "90px" }}
       />
     );
   };
 
-  // Cấu hình bảng
-  const columns = [
-    { Header: "Mã nhân khẩu", accessor: "maNhanKhau", width: "15%" },
-    { Header: "Họ tên", accessor: "hoTen", width: "20%" },
-    { Header: "Ngày sinh", accessor: "ngaySinh", width: "12%" },
-    { Header: "Giới tính", accessor: "gioiTinh", width: "10%" },
-    { Header: "Số CCCD", accessor: "soCCCD", width: "15%" },
-    { Header: "Trạng thái", accessor: "trangThai", width: "13%" },
-    { Header: "Thao tác", accessor: "actions", width: "15%" },
-  ];
-
-  const rows = data.map((item) => ({
-    maNhanKhau: item.maNhanKhau,
-    hoTen: item.hoTen,
-    ngaySinh: formatDate(item.ngaySinh),
-    gioiTinh: item.gioiTinh,
-    soCCCD: item.soCCCD || "N/A",
-    trangThai: renderStatus(item.trangThai),
-    actions: (
-      <MDBox display="flex" gap={1}>
-        <MDButton
-          variant="text"
-          color="info"
-          size="small"
-          onClick={() => navigate(`/nhan-khau/${item.maNhanKhau}`)}
-        >
-          <Icon>visibility</Icon>
-        </MDButton>
-        <MDButton
-          variant="text"
-          color="dark"
-          size="small"
-          onClick={() => navigate(`/nhan-khau/edit/${item.maNhanKhau}`)}
-        >
-          <Icon>edit</Icon>
-        </MDButton>
-        <MDButton
-          variant="text"
-          color="error"
-          size="small"
-          onClick={() =>
-            setDeleteDialog({ open: true, maNhanKhau: item.maNhanKhau, hoTen: item.hoTen })
-          }
-        >
-          <Icon>delete</Icon>
-        </MDButton>
-      </MDBox>
-    ),
-  }));
+  if (loading && data.length === 0) {
+    return (
+      <DashboardLayout>
+        <DashboardNavbar />
+        <MDBox pt={6} pb={3} display="flex" justifyContent="center">
+          <CircularProgress color="info" />
+        </MDBox>
+        <Footer />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
+      <MDBox position="relative" zIndex={10}>
+        <DashboardNavbar />
+      </MDBox>
+
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
+              {/* Header Card giống Hộ Khẩu */}
               <MDBox
                 mx={2}
                 mt={-3}
                 py={3}
                 px={2}
                 variant="gradient"
-                bgColor="info"
                 borderRadius="lg"
-                coloredShadow="info"
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
+                coloredShadow="none"
+                sx={{ background: "linear-gradient(195deg, #42424a, #191919)" }}
               >
-                <MDTypography variant="h6" color="white">
-                  Danh sách nhân khẩu
-                </MDTypography>
-                <MDButton
-                  variant="contained"
-                  color="white"
-                  size="small"
-                  onClick={() => navigate("/nhan-khau/create")}
-                >
-                  <Icon>add</Icon>&nbsp; Thêm mới
-                </MDButton>
+                <MDBox display="flex" justifyContent="space-between" alignItems="center">
+                  <MDTypography variant="h6" color="white">
+                    Danh Sách Nhân Khẩu
+                  </MDTypography>
+                  <MDButton
+                    variant="gradient"
+                    color="success" // Đồng bộ màu nút
+                    size="small"
+                    onClick={() => navigate("/nhan-khau/create")}
+                  >
+                    <Icon>add</Icon>&nbsp; Thêm Nhân Khẩu
+                  </MDButton>
+                </MDBox>
               </MDBox>
 
-              {/* Bộ lọc tìm kiếm */}
-              <MDBox p={3}>
-                <Grid container spacing={2} mb={2}>
+              <MDBox pt={3} px={3}>
+                {message.content && (
+                  <MDBox mb={2}>
+                    <MDAlert
+                      color={message.type}
+                      dismissible
+                      onClose={() => setMessage({ type: "", content: "" })}
+                    >
+                      {message.content}
+                    </MDAlert>
+                  </MDBox>
+                )}
+
+                {/* Bộ lọc tìm kiếm */}
+                <Grid container spacing={2} mb={3} alignItems="center">
                   <Grid item xs={12} md={3}>
                     <MDInput
                       label="Tìm kiếm (Họ tên, CCCD)"
                       fullWidth
                       value={searchCriteria.q}
                       onChange={(e) => setSearchCriteria({ ...searchCriteria, q: e.target.value })}
-                      sx={textFieldLikeMDInput}
+                      InputProps={{
+                        startAdornment: <Icon sx={{ mr: 1 }}>search</Icon>,
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12} md={2}>
@@ -279,81 +307,145 @@ function NhanKhauList() {
                       onChange={(e) =>
                         setSearchCriteria({ ...searchCriteria, maHoKhau: e.target.value })
                       }
-                      sx={textFieldLikeMDInput}
                     />
                   </Grid>
                   <Grid item xs={12} md={2}>
                     <MDButton variant="gradient" color="info" fullWidth onClick={handleSearch}>
-                      <Icon>search</Icon>&nbsp; Tìm kiếm
+                      Áp dụng
                     </MDButton>
                   </Grid>
                 </Grid>
 
-                {/* Bảng dữ liệu */}
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
+                {/* Bảng dữ liệu thủ công (Manual Table) */}
+                <TableContainer>
+                  {loading ? (
+                    <MDBox display="flex" justifyContent="center" py={3}>
+                      <CircularProgress color="info" />
+                    </MDBox>
+                  ) : (
+                    <Table>
+                      <TableHead style={{ display: "table-header-group" }}>
+                        <TableRow>
+                          <TableCell>Mã Nhân Khẩu</TableCell>
+                          <TableCell>Họ Tên</TableCell>
+                          <TableCell>Ngày Sinh</TableCell>
+                          <TableCell>Giới Tính</TableCell>
+                          <TableCell>Số CCCD</TableCell>
+                          <TableCell align="center">Trạng Thái</TableCell>
+                          <TableCell align="center">Thao Tác</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {data.length > 0 ? (
+                          data.map((item) => (
+                            <TableRow key={item.maNhanKhau}>
+                              <TableCell>
+                                <MDTypography variant="caption" fontWeight="bold">
+                                  {item.maNhanKhau}
+                                </MDTypography>
+                              </TableCell>
+                              <TableCell>
+                                <MDTypography variant="button" fontWeight="medium">
+                                  {item.hoTen}
+                                </MDTypography>
+                              </TableCell>
+                              <TableCell>
+                                <MDTypography variant="caption">
+                                  {formatDate(item.ngaySinh)}
+                                </MDTypography>
+                              </TableCell>
+                              <TableCell>
+                                <MDTypography variant="caption">{item.gioiTinh}</MDTypography>
+                              </TableCell>
+                              <TableCell>
+                                <MDTypography variant="caption">
+                                  {item.soCCCD || "N/A"}
+                                </MDTypography>
+                              </TableCell>
+                              <TableCell align="center">{renderStatus(item.trangThai)}</TableCell>
+                              <TableCell align="center">
+                                <MDBox display="flex" justifyContent="center" gap={1}>
+                                  <MDButton
+                                    variant="gradient"
+                                    color="info"
+                                    size="small"
+                                    iconOnly
+                                    circular
+                                    onClick={() => navigate(`/nhan-khau/${item.maNhanKhau}`)}
+                                  >
+                                    <Icon>visibility</Icon>
+                                  </MDButton>
+                                  <MDButton
+                                    variant="gradient"
+                                    color="warning"
+                                    size="small"
+                                    iconOnly
+                                    circular
+                                    onClick={() => navigate(`/nhan-khau/edit/${item.maNhanKhau}`)}
+                                  >
+                                    <Icon>edit</Icon>
+                                  </MDButton>
+                                  <MDButton
+                                    variant="gradient"
+                                    color="error"
+                                    size="small"
+                                    iconOnly
+                                    circular
+                                    onClick={() => handleOpenDeleteDialog(item)}
+                                  >
+                                    <Icon>delete</Icon>
+                                  </MDButton>
+                                </MDBox>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={7} align="center">
+                              <MDTypography variant="caption" color="text">
+                                Không tìm thấy dữ liệu nhân khẩu nào.
+                              </MDTypography>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                </TableContainer>
 
-                {/* Phân trang */}
-                <MDBox display="flex" justifyContent="space-between" alignItems="center" mt={3}>
-                  <MDTypography variant="caption" color="text">
-                    Hiển thị {data.length} / {totalElements} bản ghi
-                  </MDTypography>
-                  <MDBox display="flex" gap={1}>
-                    <MDButton
-                      variant="outlined"
-                      color="info"
-                      size="small"
-                      disabled={page === 0}
-                      onClick={() => setPage(page - 1)}
-                    >
-                      Trang trước
-                    </MDButton>
-                    <MDTypography variant="button" color="text" px={2} pt={1}>
-                      Trang {page + 1} / {totalPages || 1}
-                    </MDTypography>
-                    <MDButton
-                      variant="outlined"
-                      color="info"
-                      size="small"
-                      disabled={page >= totalPages - 1}
-                      onClick={() => setPage(page + 1)}
-                    >
-                      Trang sau
-                    </MDButton>
-                  </MDBox>
-                </MDBox>
+                {/* Pagination */}
+                <TablePagination
+                  rowsPerPageOptions={[10, 20, 50]}
+                  component="div"
+                  count={totalElements}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count}`}
+                  labelRowsPerPage="Số dòng:"
+                />
               </MDBox>
             </Card>
           </Grid>
         </Grid>
       </MDBox>
 
-      {/* Dialog xác nhận xóa */}
-      <Dialog
-        open={deleteDialog.open}
-        onClose={() => setDeleteDialog({ open: false, maNhanKhau: null, hoTen: "" })}
-      >
-        <DialogTitle>Xác nhận xóa</DialogTitle>
+      {/* Delete Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Xác Nhận Xóa</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Bạn có chắc chắn muốn xóa nhân khẩu <strong>{deleteDialog.hoTen}</strong>?
+          <MDTypography variant="body2">
+            Bạn có chắc chắn muốn xóa nhân khẩu <strong>{selectedNhanKhau?.hoTen}</strong>?
             <br />
             Hành động này không thể hoàn tác.
-          </DialogContentText>
+          </MDTypography>
         </DialogContent>
         <DialogActions>
-          <MDButton
-            onClick={() => setDeleteDialog({ open: false, maNhanKhau: null, hoTen: "" })}
-            color="dark"
-          >
+          <MDButton onClick={handleCloseDeleteDialog} color="secondary">
             Hủy
           </MDButton>
-          <MDButton onClick={handleDelete} color="error" autoFocus>
+          <MDButton onClick={handleDelete} color="error" variant="gradient">
             Xóa
           </MDButton>
         </DialogActions>

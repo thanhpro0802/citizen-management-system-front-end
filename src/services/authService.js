@@ -11,10 +11,8 @@ const API_URL = "http://localhost:8080/api/auth";
  */
 export const dangKy = (hoTen, cccd, matKhau, soDienThoai = "") => {
   return axios.post(`${API_URL}/register`, {
-    // SỬA: endpoint /register
-    cccd: cccd, // Map với Back-end
-    password: matKhau, // Map matKhau -> password
-    // Gửi kèm các trường này phòng khi bạn update Back-end sau này
+    cccd: cccd,
+    password: matKhau,
     hoTen: hoTen,
     soDienThoai: soDienThoai,
   });
@@ -22,13 +20,11 @@ export const dangKy = (hoTen, cccd, matKhau, soDienThoai = "") => {
 
 /**
  * Đăng nhập người dùng
- * SỬA: Thay email bằng cccd
  */
 export const dangNhap = (cccd, matKhau) => {
   return axios.post(`${API_URL}/login`, {
-    // SỬA: endpoint /login
-    cccd: cccd, // Map email cũ -> cccd
-    password: matKhau, // Map matKhau -> password
+    cccd: cccd,
+    password: matKhau,
   });
 };
 
@@ -80,8 +76,6 @@ export const layThongTinNguoiDung = () => {
 export const kiemTraDaDangNhap = () => {
   const token = layToken();
   if (!token) return false;
-
-  // Kiểm tra token có hết hạn không
   return !isTokenExpired(token);
 };
 
@@ -94,56 +88,50 @@ export const layRoles = () => {
   if (user && user.roles) {
     return user.roles;
   }
-
-  // Nếu không có trong user, thử decode từ token
   const token = layToken();
   if (token) {
     return getRolesFromToken(token);
   }
-
   return [];
 };
 
 /**
  * Kiểm tra người dùng có role cụ thể không
- * @param {string} role - Tên role cần kiểm tra
- * @param {object} userObj - User object (optional, nếu không truyền sẽ lấy từ localStorage)
- * @returns {boolean} True nếu có role
  */
 export const coRole = (role, userObj = null) => {
-  // Nếu có truyền user object, kiểm tra trực tiếp
   if (userObj && userObj.roles) {
     return userObj.roles.includes(role);
   }
-
-  // Không thì lấy từ localStorage/token
   const roles = layRoles();
   return roles.includes(role);
 };
 
 /**
  * Kiểm tra người dùng có phải là cán bộ không
- * @returns {boolean} True nếu là cán bộ
  */
 export const laCanBo = () => {
   return coRole("CAN_BO");
 };
 
 /**
- * Tạo user object từ JWT response, xử lý cả trường hợp roles trong response hoặc trong token
- * @param {object} jwtResponse - Response từ backend (chứa token, id, cccd, roles)
- * @returns {object} User object với roles đầy đủ
+ * Tạo user object từ JWT response
+ * ĐÃ SỬA: Bổ sung lấy soDienThoai, hoTen
+ * @param {object} jwtResponse - Response từ backend
+ * @returns {object} User object đầy đủ
  */
 export const taoUserTuJWTResponse = (jwtResponse) => {
   if (!jwtResponse) {
     throw new Error("jwtResponse is required");
   }
 
+  // --- PHẦN QUAN TRỌNG ĐÃ SỬA ---
   let user = {
     id: jwtResponse.id,
-    cccd: jwtResponse.username || jwtResponse.cccd, // Backend trả username, không phải cccd
+    cccd: jwtResponse.username || jwtResponse.cccd,
     roles: jwtResponse.roles || [],
+    soDienThoai: jwtResponse.soDienThoai || jwtResponse.phoneNumber || jwtResponse.phone || "",
   };
+  // --------------------------------
 
   // Nếu roles không có trong response và có token, decode từ JWT token
   if ((!user.roles || user.roles.length === 0) && jwtResponse.token) {
@@ -158,8 +146,6 @@ export const taoUserTuJWTResponse = (jwtResponse) => {
 
 /**
  * Lấy tên hiển thị của role (tiếng Việt)
- * @param {array} roles - Mảng roles
- * @returns {string} Tên role hiển thị
  */
 export const layTenHienThiRole = (roles) => {
   if (!roles || roles.length === 0) return "Người Dân";
@@ -167,7 +153,7 @@ export const layTenHienThiRole = (roles) => {
   return "Người Dân";
 };
 
-// Cấu hình axios interceptor để tự động thêm token vào headers
+// Cấu hình axios interceptor
 axios.interceptors.request.use(
   (config) => {
     const token = layToken();
@@ -181,24 +167,17 @@ axios.interceptors.request.use(
   }
 );
 
-// Callback function for handling 401 errors (set by the app)
 let onUnauthorizedCallback = null;
 
-/**
- * Set callback function to handle unauthorized (401) errors
- * @param {Function} callback - Function to call on 401 error (e.g., navigate to login)
- */
 export const setUnauthorizedCallback = (callback) => {
   onUnauthorizedCallback = callback;
 };
 
-// Xử lý lỗi 401 (Unauthorized) - tự động đăng xuất
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       dangXuat();
-      // Call the callback if it's set (e.g., navigate to login using React Router)
       if (onUnauthorizedCallback) {
         onUnauthorizedCallback();
       }
