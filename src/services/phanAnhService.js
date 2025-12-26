@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 
 // Đảm bảo URL này đúng với Backend của bạn
 const API_URL = "http://localhost:8080/api/v1/phan-anh";

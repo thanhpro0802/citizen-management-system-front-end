@@ -1,31 +1,44 @@
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
+*/
+
 import Icon from "@mui/material/Icon";
 
-// Auth
+// ================== AUTH LAYOUTS ==================
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 
-// Công dân
+// ================== CÔNG DÂN LAYOUTS ==================
 import GuiPhanAnh from "layouts/phan-anh";
 import LichSuPhanAnh from "layouts/lich-su-phan-anh";
 import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 import ThongTinCaNhan from "layouts/thong-tin-ca-nhan";
+import HoKhauDetail from "layouts/ho-khau/Detail"; // Dùng cho xem chi tiết và xem "Của tôi"
 
-// Cán bộ
+// ================== CÁN BỘ LAYOUTS ==================
+// 1. Phản ánh
 import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
 import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
-import QuanLyNhanKhau from "layouts/nhan-khau";
-import QuanLyHoKhau from "layouts/ho-khau";
 
-// Nhân khẩu chi tiết (route ẩn)
-import NhanKhauForm from "layouts/nhan-khau/form";
-import NhanKhauDetail from "layouts/nhan-khau/detail";
+// 2. Nhân khẩu
+import QuanLyNhanKhau from "layouts/nhan-khau"; // Trang danh sách
+import NhanKhauForm from "layouts/nhan-khau/form"; // Form thêm/sửa
+import NhanKhauDetail from "layouts/nhan-khau/detail"; // Xem chi tiết
 
-// Khác
+// 3. Hộ khẩu
+import HoKhauList from "layouts/ho-khau"; // Trang danh sách
+import HoKhauForm from "layouts/ho-khau/Form"; // Form thêm/sửa
+import TachHo from "layouts/ho-khau/TachHo";
+import NhapHo from "layouts/ho-khau/NhapHo";
+
+// ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
 
 const routes = [
-  /* ================= AUTH ================= */
+  /* ================= AUTHENTICATION ================= */
   {
     type: "collapse",
     name: "Đăng Nhập",
@@ -43,7 +56,7 @@ const routes = [
     component: <SignUp />,
   },
 
-  /* ================= CÔNG DÂN ================= */
+  /* ================= MENU DÀNH CHO CÔNG DÂN ================= */
   {
     type: "collapse",
     name: "Thông Tin Cá Nhân",
@@ -53,6 +66,15 @@ const routes = [
     component: <ThongTinCaNhan />,
     requireAuth: true,
   },
+  // {
+  //   type: "collapse",
+  //   name: "Hộ Khẩu Của Tôi",
+  //   key: "ho-khau-cua-toi",
+  //   icon: <Icon fontSize="small">home</Icon>,
+  //   route: "/ho-khau-cua-toi",
+  //   component: <HoKhauDetail isMe={true} />, // Tái sử dụng component Detail với cờ isMe
+  //   requireAuth: true,
+  // },
   {
     type: "collapse",
     name: "Gửi Phản Ánh",
@@ -72,7 +94,9 @@ const routes = [
     requireAuth: true,
   },
 
-  /* ================= CÁN BỘ ================= */
+  /* ================= MENU DÀNH CHO CÁN BỘ ================= */
+  
+  // 1. Quản lý Phản Ánh
   {
     type: "collapse",
     name: "Quản Lý Phản Ánh",
@@ -83,6 +107,8 @@ const routes = [
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
+
+  // 2. Quản lý Nhân Khẩu
   {
     type: "collapse",
     name: "Quản Lý Nhân Khẩu",
@@ -93,18 +119,22 @@ const routes = [
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
+
+  // 3. Quản lý Hộ Khẩu
   {
     type: "collapse",
     name: "Quản Lý Hộ Khẩu",
     key: "ho-khau",
-    icon: <Icon fontSize="small">home</Icon>,
+    icon: <Icon fontSize="small">other_houses</Icon>,
     route: "/ho-khau",
-    component: <QuanLyHoKhau />,
+    component: <HoKhauList />,
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
 
-  /* ================= ROUTE ẨN ================= */
+  /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
+  
+  // --- Phản ánh ---
   {
     key: "chi-tiet-phan-anh",
     route: "/chi-tiet-phan-anh/:id",
@@ -126,7 +156,7 @@ const routes = [
     requiredRole: "CAN_BO",
   },
 
-  /* ===== NHÂN KHẨU FORM / DETAIL (ẨN) ===== */
+  // --- Nhân khẩu ---
   {
     key: "nhan-khau-create",
     route: "/nhan-khau/create",
@@ -149,7 +179,44 @@ const routes = [
     requiredRole: "CAN_BO",
   },
 
-  /* ================= FORBIDDEN ================= */
+  // --- Hộ khẩu (Sub-actions) ---
+  {
+    key: "ho-khau-create",
+    route: "/ho-khau/tao-moi",
+    component: <HoKhauForm />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "ho-khau-detail",
+    route: "/ho-khau/:id",
+    component: <HoKhauDetail />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "ho-khau-edit",
+    route: "/ho-khau/:id/chinh-sua",
+    component: <HoKhauForm />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "ho-khau-tach",
+    route: "/ho-khau/:id/tach-ho",
+    component: <TachHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "ho-khau-nhap",
+    route: "/ho-khau/:id/nhap-ho",
+    component: <NhapHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  /* ================= TRANG LỖI ================= */
   {
     type: "route",
     name: "Không Có Quyền",

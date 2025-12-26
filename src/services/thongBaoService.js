@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 
 // Đường dẫn gốc
 const API_URL = "http://localhost:8080/api/v1/thong-bao";

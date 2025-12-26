@@ -1,359 +1,361 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-
-// @mui material components
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
-import Icon from "@mui/material/Icon";
-import IconButton from "@mui/material/IconButton";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  IconButton,
+  Tooltip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Snackbar,
+  Alert,
+  Icon,
+  InputAdornment,
+} from "@mui/material";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
-import MDInput from "components/MDInput";
-import MDAlert from "components/MDAlert";
+import MDInput from "components/MDInput"; // Dùng input của template
 
-// Material Dashboard 2 React example components
+// Icons
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1"; // Nhập hộ
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove"; // Tách hộ
+import SearchIcon from "@mui/icons-material/Search";
+
+import { fetchHoKhauList, deleteHoKhau } from "services/hokhauService";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import DataTable from "examples/Tables/DataTable";
 
-function QuanLyHoKhau() {
-  const [hoKhauList, setHoKhauList] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [formData, setFormData] = useState({
-    maHoKhau: "",
-    diaChi: "",
-    ngayLap: "",
-  });
-  const [isEdit, setIsEdit] = useState(false);
-  const [alert, setAlert] = useState({ show: false, message: "", type: "success" });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedHoKhau, setSelectedHoKhau] = useState(null);
+function HoKhauList() {
+  const navigate = useNavigate();
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const API_URL = "http://localhost:8080/api/ho-khau";
+  // Pagination & Search
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [keyword, setKeyword] = useState("");
 
-  // Lấy token từ localStorage
-  const token = localStorage.getItem("token");
-  const axiosConfig = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
+  const [delDialog, setDelDialog] = useState({ open: false, maHoKhau: null });
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", type: "success" });
 
   useEffect(() => {
-    fetchHoKhau();
+    fetchData();
   }, []);
 
-  const fetchHoKhau = async () => {
+  const fetchData = () => {
     setLoading(true);
+    fetchHoKhauList()
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        setList(data);
+      })
+      .catch((err) => {
+        console.error(err);
+        setList([]);
+        setSnackbar({ open: true, message: "Không thể tải danh sách", type: "error" });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const filtered = useMemo(() => {
+    const kw = keyword.trim().toLowerCase();
+    if (!kw) return list;
+    return list.filter((hk) => {
+      const ma = (hk.maHoKhau || "").toLowerCase();
+      const diaChi = (hk.diaChi || "").toLowerCase();
+      const chuHo = (hk.chuHo?.hoTen || "").toLowerCase();
+      return ma.includes(kw) || diaChi.includes(kw) || chuHo.includes(kw);
+    });
+  }, [keyword, list]);
+
+  const paginated = useMemo(() => {
+    const start = page * rowsPerPage;
+    return filtered.slice(start, start + rowsPerPage);
+  }, [filtered, page, rowsPerPage]);
+
+  const handleDelete = async () => {
+    const maHoKhau = delDialog.maHoKhau;
+    if (!maHoKhau) return;
     try {
-      const response = await axios.get(API_URL, axiosConfig);
-      setHoKhauList(response.data);
-    } catch (error) {
-      showAlert(
-        "Lỗi khi tải dữ liệu: " + (error.response?.data?.message || error.message),
-        "error"
-      );
-    } finally {
-      setLoading(false);
+      await deleteHoKhau(maHoKhau);
+      setSnackbar({ open: true, message: "Đã xóa hộ khẩu", type: "success" });
+      setDelDialog({ open: false, maHoKhau: null });
+      setList((prev) => prev.filter((hk) => hk.maHoKhau !== maHoKhau));
+    } catch (e) {
+      setSnackbar({ open: true, message: "Xóa thất bại", type: "error" });
     }
   };
 
-  const handleOpenDialog = (hoKhau = null) => {
-    if (hoKhau) {
-      setFormData({
-        maHoKhau: hoKhau.maHoKhau,
-        diaChi: hoKhau.diaChi || "",
-        ngayLap: hoKhau.ngayLap?.split("T")[0] || "",
-      });
-      setIsEdit(true);
-    } else {
-      setFormData({
-        maHoKhau: "",
-        diaChi: "",
-        ngayLap: "",
-      });
-      setIsEdit(false);
-    }
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async () => {
-    try {
-      if (isEdit) {
-        await axios.put(`${API_URL}/${formData.maHoKhau}`, formData, axiosConfig);
-        showAlert("Cập nhật hộ khẩu thành công!", "success");
-      } else {
-        await axios.post(API_URL, formData, axiosConfig);
-        showAlert("Thêm hộ khẩu thành công!", "success");
-      }
-      fetchHoKhau();
-      handleCloseDialog();
-    } catch (error) {
-      showAlert("Lỗi: " + (error.response?.data?.message || error.message), "error");
-    }
-  };
-
-  const handleDelete = async (maHoKhau) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa hộ khẩu này?")) {
-      try {
-        await axios.delete(`${API_URL}/${maHoKhau}`, axiosConfig);
-        showAlert("Xóa hộ khẩu thành công!", "success");
-        fetchHoKhau();
-      } catch (error) {
-        showAlert("Lỗi khi xóa: " + (error.response?.data?.message || error.message), "error");
-      }
-    }
-  };
-
-  const showAlert = (message, type) => {
-    setAlert({ show: true, message, type });
-    setTimeout(() => setAlert({ show: false, message: "", type: "success" }), 3000);
-  };
-
-  const filteredData = hoKhauList.filter((item) =>
-    Object.values(item).some((val) => String(val).toLowerCase().includes(searchQuery.toLowerCase()))
+  // Helper render cột tiêu đề
+  const renderHeaderCell = (name, align = "left") => (
+    <TableCell align={align}>
+      <MDTypography variant="caption" color="secondary" fontWeight="bold" textTransform="uppercase">
+        {name}
+      </MDTypography>
+    </TableCell>
   );
-
-  const columns = [
-    { Header: "Mã hộ khẩu", accessor: "maHoKhau", width: "20%" },
-    { Header: "Địa chỉ", accessor: "diaChi", width: "40%" },
-    { Header: "Ngày lập", accessor: "ngayLap", width: "15%" },
-    { Header: "Số thành viên", accessor: "soThanhVien", width: "15%" },
-    { Header: "Hành động", accessor: "action", width: "10%" },
-  ];
-
-  const rows = filteredData.map((item) => ({
-    maHoKhau: item.maHoKhau,
-    diaChi: item.diaChi || "Chưa có thông tin",
-    ngayLap: item.ngayLap?.split("T")[0] || "",
-    soThanhVien: item.thanhVienList?.length || 0,
-    action: (
-      <MDBox display="flex" gap={1}>
-        <IconButton
-          size="small"
-          color="info"
-          onClick={() => setSelectedHoKhau(item)}
-          title="Xem chi tiết"
-        >
-          <Icon>visibility</Icon>
-        </IconButton>
-        <IconButton size="small" color="warning" onClick={() => handleOpenDialog(item)}>
-          <Icon>edit</Icon>
-        </IconButton>
-        <IconButton size="small" color="error" onClick={() => handleDelete(item.maHoKhau)}>
-          <Icon>delete</Icon>
-        </IconButton>
-      </MDBox>
-    ),
-  }));
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
-        {alert.show && (
-          <MDAlert color={alert.type} dismissible>
-            {alert.message}
-          </MDAlert>
-        )}
-
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
+              {/* Header Gradient Xanh đặc trưng của Template */}
               <MDBox
                 mx={2}
                 mt={-3}
                 py={3}
                 px={2}
                 variant="gradient"
-                bgColor="success"
+                bgColor="info"
                 borderRadius="lg"
-                coloredShadow="success"
+                coloredShadow="info"
                 display="flex"
                 justifyContent="space-between"
                 alignItems="center"
               >
                 <MDTypography variant="h6" color="white">
-                  Quản Lý Hộ Khẩu
+                  Danh sách Hộ Khẩu
                 </MDTypography>
-                <MDButton variant="gradient" color="light" onClick={() => handleOpenDialog()}>
+
+                <MDButton
+                  variant="gradient"
+                  color="dark"
+                  size="small"
+                  onClick={() => navigate("/ho-khau/tao-moi")}
+                >
                   <Icon sx={{ fontWeight: "bold" }}>add</Icon>
                   &nbsp;Thêm mới
                 </MDButton>
               </MDBox>
+
               <MDBox p={3}>
-                <MDBox mb={2}>
-                  <MDInput
-                    label="Tìm kiếm..."
-                    fullWidth
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+                {/* Thanh tìm kiếm */}
+                <MDBox display="flex" justifyContent="flex-end" mb={3}>
+                  <MDBox width={{ xs: "100%", md: "300px" }}>
+                    <MDInput
+                      label="Tìm kiếm..."
+                      fullWidth
+                      value={keyword}
+                      onChange={(e) => {
+                        setKeyword(e.target.value);
+                        setPage(0);
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon fontSize="small" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </MDBox>
                 </MDBox>
-                {loading ? (
-                  <MDTypography variant="body2">Đang tải...</MDTypography>
-                ) : (
-                  <DataTable
-                    table={{ columns, rows }}
-                    isSorted={false}
-                    entriesPerPage={{ defaultValue: 10 }}
-                    showTotalEntries={true}
-                    noEndBorder
-                  />
-                )}
+
+                {/* Bảng dữ liệu */}
+                <TableContainer>
+                  <Table>
+                    <TableHead sx={{ display: "table-header-group" }}>
+                      <TableRow>
+                        {renderHeaderCell("Mã hộ khẩu")}
+                        {renderHeaderCell("Chủ hộ")}
+                        {renderHeaderCell("Địa chỉ")}
+                        {renderHeaderCell("Thành viên", "center")}
+                        {renderHeaderCell("Hành động", "center")}
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {loading ? (
+                        <TableRow>
+                          <TableCell colSpan={5} align="center">
+                            <MDTypography variant="button" color="text">
+                              Đang tải dữ liệu...
+                            </MDTypography>
+                          </TableCell>
+                        </TableRow>
+                      ) : paginated.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} align="center">
+                            <MDTypography variant="button" color="text">
+                              Không tìm thấy dữ liệu
+                            </MDTypography>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        paginated.map((row) => (
+                          <TableRow key={row.maHoKhau} hover>
+                            {/* Mã hộ khẩu: Cắt ngắn cho đẹp */}
+                            <TableCell>
+                              <Tooltip title={row.maHoKhau} placement="top">
+                                <MDBox display="flex" flexDirection="column">
+                                  <MDTypography variant="caption" fontWeight="medium" color="text">
+                                    {row.maHoKhau.substring(0, 8)}...
+                                  </MDTypography>
+                                  <MDTypography variant="caption" color="secondary">
+                                    {row.ngayDangKy
+                                      ? new Date(row.ngayDangKy).toLocaleDateString("vi-VN")
+                                      : ""}
+                                  </MDTypography>
+                                </MDBox>
+                              </Tooltip>
+                            </TableCell>
+
+                            {/* Chủ hộ: In đậm */}
+                            <TableCell>
+                              <MDTypography variant="button" fontWeight="medium" color="dark">
+                                {row.chuHo?.hoTen || "(Chưa có chủ hộ)"}
+                              </MDTypography>
+                            </TableCell>
+
+                            {/* Địa chỉ */}
+                            <TableCell>
+                              <MDTypography variant="caption" color="text" fontWeight="regular">
+                                {row.diaChi}
+                              </MDTypography>
+                            </TableCell>
+
+                            {/* Số lượng thành viên */}
+                            <TableCell align="center">
+                              <MDTypography variant="caption" fontWeight="bold">
+                                {row.danhSachThanhVien?.length || 0}
+                              </MDTypography>
+                            </TableCell>
+
+                            {/* Cột Hành Động */}
+                            <TableCell align="center">
+                              <MDBox display="flex" justifyContent="center" gap={0.5}>
+                                <Tooltip title="Xem chi tiết">
+                                  <IconButton
+                                    color="info"
+                                    size="small"
+                                    onClick={() => navigate(`/ho-khau/${row.maHoKhau}`)}
+                                  >
+                                    <VisibilityIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title="Chỉnh sửa">
+                                  <IconButton
+                                    color="warning"
+                                    size="small"
+                                    onClick={() => navigate(`/ho-khau/${row.maHoKhau}/chinh-sua`)}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                {/* Nhóm chức năng nghiệp vụ */}
+
+                                <Tooltip title="Tách hộ">
+                                  <IconButton
+                                    color="success"
+                                    size="small"
+                                    onClick={() => navigate(`/ho-khau/${row.maHoKhau}/tach-ho`)}
+                                  >
+                                    <PersonRemoveIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title="Nhập hộ">
+                                  <IconButton
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => navigate(`/ho-khau/${row.maHoKhau}/nhap-ho`)}
+                                  >
+                                    <PersonAddAlt1Icon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title="Xóa hộ khẩu">
+                                  <IconButton
+                                    color="error"
+                                    size="small"
+                                    onClick={() =>
+                                      setDelDialog({ open: true, maHoKhau: row.maHoKhau })
+                                    }
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </MDBox>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 20]}
+                  component="div"
+                  count={filtered.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onPageChange={(_, newPage) => setPage(newPage)}
+                  onRowsPerPageChange={(e) => {
+                    setRowsPerPage(parseInt(e.target.value, 10));
+                    setPage(0);
+                  }}
+                  labelRowsPerPage="Số dòng:"
+                />
               </MDBox>
             </Card>
           </Grid>
-
-          {/* Chi tiết hộ khẩu */}
-          {selectedHoKhau && (
-            <Grid item xs={12}>
-              <Card>
-                <MDBox p={3}>
-                  <MDBox display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <MDTypography variant="h6">
-                      Chi tiết hộ khẩu: {selectedHoKhau.maHoKhau}
-                    </MDTypography>
-                    <IconButton onClick={() => setSelectedHoKhau(null)}>
-                      <Icon>close</Icon>
-                    </IconButton>
-                  </MDBox>
-                  <MDTypography variant="body2" mb={1}>
-                    <strong>Địa chỉ:</strong> {selectedHoKhau.diaChi}
-                  </MDTypography>
-                  <MDTypography variant="body2" mb={2}>
-                    <strong>Ngày lập:</strong> {selectedHoKhau.ngayLap?.split("T")[0]}
-                  </MDTypography>
-
-                  <MDTypography variant="h6" mb={2}>
-                    Danh sách thành viên ({selectedHoKhau.thanhVienList?.length || 0})
-                  </MDTypography>
-                  {selectedHoKhau.thanhVienList && selectedHoKhau.thanhVienList.length > 0 ? (
-                    selectedHoKhau.thanhVienList.map((tv, index) => (
-                      <Accordion key={index}>
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                          <MDTypography variant="body2">
-                            {tv.hoTen} - {tv.quanHeVoiChuHo}
-                          </MDTypography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          <Grid container spacing={2}>
-                            <Grid item xs={6}>
-                              <MDTypography variant="caption">
-                                <strong>Mã NK:</strong> {tv.maNhanKhau}
-                              </MDTypography>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <MDTypography variant="caption">
-                                <strong>CCCD:</strong> {tv.soCccd}
-                              </MDTypography>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <MDTypography variant="caption">
-                                <strong>Ngày sinh:</strong> {tv.ngaySinh?.split("T")[0]}
-                              </MDTypography>
-                            </Grid>
-                            <Grid item xs={6}>
-                              <MDTypography variant="caption">
-                                <strong>Giới tính:</strong> {tv.gioiTinh}
-                              </MDTypography>
-                            </Grid>
-                            <Grid item xs={12}>
-                              <MDTypography variant="caption">
-                                <strong>Quê quán:</strong> {tv.queQuan}
-                              </MDTypography>
-                            </Grid>
-                          </Grid>
-                        </AccordionDetails>
-                      </Accordion>
-                    ))
-                  ) : (
-                    <MDTypography variant="body2" color="text">
-                      Chưa có thành viên
-                    </MDTypography>
-                  )}
-                </MDBox>
-              </Card>
-            </Grid>
-          )}
         </Grid>
       </MDBox>
 
-      {/* Dialog thêm/sửa */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{isEdit ? "Cập nhật hộ khẩu" : "Thêm hộ khẩu mới"}</DialogTitle>
+      {/* Dialog Xóa */}
+      <Dialog open={delDialog.open} onClose={() => setDelDialog({ open: false, maHoKhau: null })}>
+        <DialogTitle>Xác nhận xóa</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
-              <TextField
-                label="Mã hộ khẩu"
-                name="maHoKhau"
-                value={formData.maHoKhau}
-                onChange={handleInputChange}
-                fullWidth
-                disabled={isEdit}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Địa chỉ"
-                name="diaChi"
-                value={formData.diaChi}
-                onChange={handleInputChange}
-                fullWidth
-                multiline
-                rows={3}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Ngày lập"
-                name="ngayLap"
-                type="date"
-                value={formData.ngayLap}
-                onChange={handleInputChange}
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-          </Grid>
+          <MDTypography variant="body2">
+            Bạn có chắc chắn muốn xóa hộ khẩu này? Hành động này không thể hoàn tác.
+          </MDTypography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Hủy</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
-            {isEdit ? "Cập nhật" : "Thêm mới"}
-          </Button>
+          <MDButton onClick={() => setDelDialog({ open: false, maHoKhau: null })} color="dark">
+            Hủy
+          </MDButton>
+          <MDButton onClick={handleDelete} color="error" variant="gradient">
+            Xóa ngay
+          </MDButton>
         </DialogActions>
       </Dialog>
 
+      {/* Thông báo */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert severity={snackbar.type} variant="filled" sx={{ color: "#fff" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <Footer />
     </DashboardLayout>
   );
 }
 
-export default QuanLyHoKhau;
+export default HoKhauList;
