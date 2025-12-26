@@ -7,7 +7,9 @@
     <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/layouts/authentication/sign-in/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/authentication/sign-in/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/authentication/sign-up/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/authentication/sign-up/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/nhan-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/nhan-khau/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/thong-tin-ca-nhan/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/thong-tin-ca-nhan/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/routes.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/authService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,7 +32,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="nhankhau" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -51,7 +53,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/thanhpro0802/citizen-management-system-front-end.git&quot;,
-    &quot;accountId&quot;: &quot;f62a8617-00e6-4c53-b8ba-3f56f6bac95c&quot;
+    &quot;accountId&quot;: &quot;63e8d001-e2a9-4d32-b069-c71696615fd6&quot;
   }
 }</component>
   <component name="KubernetesApiPersistence">{}</component>
@@ -62,31 +64,39 @@
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="35kKPPNWeaiK1ecCeXTwfySF7Xy" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Node.js.phanAnhService.js.executor": "Run",
-    "Node.js.routes.js.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "signin-signup",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "settings.webpack",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.index.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.phanAnhService.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.routes.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.webpack&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -96,13 +106,28 @@
       </map>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="citizen-management-system-front-end" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="citizen-management-system-front-end" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-WS-251.26094.131" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="" />
@@ -117,6 +142,36 @@
       <workItem from="1765119084978" duration="1584000" />
       <workItem from="1765182549926" duration="5386000" />
       <workItem from="1765255105115" duration="7271000" />
+      <workItem from="1765368674526" duration="623000" />
+      <workItem from="1765369732992" duration="189000" />
+      <workItem from="1765369966769" duration="599000" />
+      <workItem from="1765375874006" duration="394000" />
+      <workItem from="1765376280209" duration="53000" />
+      <workItem from="1765376337697" duration="16000" />
+      <workItem from="1765376356881" duration="37000" />
+      <workItem from="1765376420238" duration="127000" />
+      <workItem from="1765376556224" duration="72000" />
+      <workItem from="1765376634333" duration="10000" />
+      <workItem from="1765376660903" duration="7442000" />
+      <workItem from="1765385846965" duration="1202000" />
+      <workItem from="1765414873016" duration="1009000" />
+      <workItem from="1765424390543" duration="5000" />
+      <workItem from="1765424481498" duration="1874000" />
+      <workItem from="1765456820980" duration="3704000" />
+      <workItem from="1765783983078" duration="743000" />
+      <workItem from="1765814691142" duration="2751000" />
+      <workItem from="1765818130361" duration="591000" />
+      <workItem from="1765819033000" duration="5000" />
+      <workItem from="1765819748472" duration="3805000" />
+      <workItem from="1765881588187" duration="35000" />
+      <workItem from="1765883667427" duration="620000" />
+      <workItem from="1765892526413" duration="8628000" />
+      <workItem from="1765985681008" duration="4890000" />
+      <workItem from="1766037793577" duration="637000" />
+      <workItem from="1766061206014" duration="4954000" />
+      <workItem from="1766283202023" duration="791000" />
+      <workItem from="1766304089512" duration="7000" />
+      <workItem from="1766307878130" duration="6167000" />
     </task>
     <servers />
   </component>

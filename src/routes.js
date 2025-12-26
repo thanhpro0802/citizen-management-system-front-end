@@ -1,25 +1,10 @@
-/** 
-  All of the routes for the Material Dashboard 2 React are added here,
-  You can add a new route, customize the routes and delete the routes here.
-
-  Once you add a new route on this file it will be visible automatically on
-  the Sidenav.
-
-  For adding a new route you can follow the existing routes in the routes array.
-  1. The `type` key with the `collapse` value is used for a route.
-  2. The `type` key with the `title` value is used for a title inside the Sidenav. 
-  3. The `type` key with the `divider` value is used for a divider between Sidenav items.
-  4. The `name` key is used for the name of the route on the Sidenav.
-  5. The `key` key is used for the key of the route (It will help you with the key prop inside a loop).
-  6. The `icon` key is used for the icon of the route on the Sidenav, you have to add a node.
-  7. The `collapse` key is used for making a collapsible item on the Sidenav that has other routes
-  inside (nested routes), you need to pass the nested routes inside an array as a value for the `collapse` key.
-  8. The `route` key is used to store the route location which is used for the react router.
-  9. The `href` key is used to store the external links location.
-  10. The `title` key is only for the item with the type of `title` and its used for the title text on the Sidenav.
-  10. The `component` key is used to store the component of its route.
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
 */
 
+<<<<<<< HEAD
 // Material Dashboard 2 React layouts
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
@@ -32,10 +17,46 @@ import Forbidden from "layouts/forbidden";
 import ThongKe from "layouts/thong-ke";
 
 // @mui icons
+=======
+>>>>>>> 9e872dd52dc17251d9333152515d9e17b88b9926
 import Icon from "@mui/material/Icon";
 import Dashboard from "layouts/dashboard";
 
+// ================== AUTH ==================
+import SignIn from "layouts/authentication/sign-in";
+import SignUp from "layouts/authentication/sign-up";
+
+// ================== CÔNG DÂN ==================
+import GuiPhanAnh from "layouts/phan-anh";
+import LichSuPhanAnh from "layouts/lich-su-phan-anh";
+import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
+import ThongTinCaNhan from "layouts/thong-tin-ca-nhan";
+import HoKhauCuaToi from "layouts/ho-khau-cua-toi";
+
+// ================== CÁN BỘ ==================
+// 1. Phản ánh
+import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
+import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
+import PhanHoi from "layouts/phan-hoi";
+
+// 2. Nhân khẩu
+import QuanLyNhanKhau from "layouts/nhan-khau";
+import NhanKhauForm from "layouts/nhan-khau/form";
+import NhanKhauDetail from "layouts/nhan-khau/detail";
+
+// 3. Hộ khẩu
+import QuanLyHoKhau from "layouts/quan-ly-ho-khau"; // Hoặc layouts/ho-khau tùy cấu trúc thư mục thực tế
+import FormHoKhau from "layouts/form-ho-khau";
+import ChiTietHoKhau from "layouts/chi-tiet-ho-khau";
+import TachHo from "layouts/tach-ho";
+import NhapHo from "layouts/nhap-ho";
+import DoiChuHo from "layouts/doi-chu-ho";
+
+// ================== KHÁC ==================
+import Forbidden from "layouts/forbidden";
+
 const routes = [
+  /* ================= AUTHENTICATION ================= */
   {
     type: "collapse",
     name: "Đăng Nhập",
@@ -51,6 +72,26 @@ const routes = [
     icon: <Icon fontSize="small">assignment</Icon>,
     route: "/authentication/sign-up",
     component: <SignUp />,
+  },
+
+  /* ================= MENU DÀNH CHO CÔNG DÂN ================= */
+  {
+    type: "collapse",
+    name: "Thông Tin Cá Nhân",
+    key: "thong-tin-ca-nhan",
+    icon: <Icon fontSize="small">person</Icon>,
+    route: "/thong-tin-ca-nhan",
+    component: <ThongTinCaNhan />,
+    requireAuth: true,
+  },
+  {
+    type: "collapse",
+    name: "Hộ Khẩu Của Tôi",
+    key: "ho-khau-cua-toi",
+    icon: <Icon fontSize="small">home</Icon>,
+    route: "/ho-khau-cua-toi",
+    component: <HoKhauCuaToi />,
+    requireAuth: true,
   },
   {
     type: "collapse",
@@ -88,29 +129,13 @@ const routes = [
     component: <LichSuPhanAnh />,
     requireAuth: true,
   },
+
+  /* ================= MENU DÀNH CHO CÁN BỘ ================= */
+
+  // 1. Quản lý Phản Ánh
   {
     type: "collapse",
-    name: "Cán Bộ Xử Lý",
-    key: "xu-ly-phan-anh",
-    icon: <Icon fontSize="small">engineering</Icon>,
-    route: "/xu-ly-phan-anh",
-    component: <XuLyPhanAnh />,
-    requireAuth: true,
-    requiredRole: "CAN_BO",
-  },
-  {
-    type: "collapse",
-    name: "Trả Lời Dân",
-    key: "phan-hoi",
-    icon: <Icon fontSize="small">check_circle</Icon>,
-    route: "/phan-hoi",
-    component: <PhanHoi />,
-    requireAuth: true,
-    requiredRole: "CAN_BO",
-  },
-  {
-    type: "collapse",
-    name: "Quản Lý Chung",
+    name: "Quản Lý Phản Ánh",
     key: "quan-ly-phan-anh",
     icon: <Icon fontSize="small">dashboard</Icon>,
     route: "/quan-ly-phan-anh",
@@ -118,6 +143,123 @@ const routes = [
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
+
+  // 2. Quản lý Nhân Khẩu
+  {
+    type: "collapse",
+    name: "Quản Lý Nhân Khẩu",
+    key: "nhan-khau",
+    icon: <Icon fontSize="small">people</Icon>,
+    route: "/nhan-khau",
+    component: <QuanLyNhanKhau />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  // 3. Quản lý Hộ Khẩu
+  {
+    type: "collapse",
+    name: "Quản Lý Hộ Khẩu",
+    key: "quan-ly-ho-khau",
+    icon: <Icon fontSize="small">apartment</Icon>,
+    route: "/quan-ly-ho-khau",
+    component: <QuanLyHoKhau />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
+
+  // --- Phản ánh ---
+  {
+    key: "chi-tiet-phan-anh",
+    route: "/chi-tiet-phan-anh/:id",
+    component: <ChiTietPhanAnh />,
+    requireAuth: true,
+  },
+  {
+    key: "xu-ly-phan-anh",
+    route: "/xu-ly-phan-anh/:id",
+    component: <XuLyPhanAnh />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "phan-hoi",
+    route: "/phan-hoi/:id",
+    component: <PhanHoi />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  // --- Nhân khẩu ---
+  {
+    key: "nhan-khau-create",
+    route: "/nhan-khau/create",
+    component: <NhanKhauForm />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "nhan-khau-edit",
+    route: "/nhan-khau/edit/:id",
+    component: <NhanKhauForm />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "nhan-khau-detail",
+    route: "/nhan-khau/:id",
+    component: <NhanKhauDetail />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  // --- Hộ khẩu (Sub-actions) ---
+  {
+    key: "them-ho-khau",
+    route: "/them-ho-khau",
+    component: <FormHoKhau />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "chi-tiet-ho-khau",
+    route: "/chi-tiet-ho-khau/:id",
+    component: <ChiTietHoKhau />,
+    requireAuth: true,
+    requiredRole: "CAN_BO", // Thêm requiredRole cho chắc chắn
+  },
+  {
+    key: "sua-ho-khau",
+    route: "/sua-ho-khau/:id",
+    component: <FormHoKhau />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "tach-ho",
+    route: "/tach-ho/:id",
+    component: <TachHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "nhap-ho",
+    route: "/nhap-ho/:id",
+    component: <NhapHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+  {
+    key: "doi-chu-ho",
+    route: "/doi-chu-ho/:id",
+    component: <DoiChuHo />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  /* ================= TRANG LỖI ================= */
   {
     type: "route",
     name: "Không Có Quyền",

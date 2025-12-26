@@ -1,65 +1,106 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // @mui material components
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
+
+// Import để sửa lỗi giao diện Select
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
 import MDButton from "components/MDButton";
+import MDAlert from "components/MDAlert";
 
-// Material Dashboard 2 React example components
+// Layout components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 
-// API Service
+// API Services
 import { guiPhanAnhMoi } from "services/phanAnhService";
-import { uploadFileToCloud } from "services/uploadService";
+import { uploadToCloudinary } from "services/uploadService";
+
+// --- CẬP NHẬT: DANH SÁCH ĐẦY ĐỦ KHỚP VỚI BỘ LỌC ---
+const linhVucs = [
+  { value: "AN_NINH_TRAT_TU", label: "An ninh trật tự" },
+  { value: "HA_TANG_DO_THI", label: "Hạ tầng đô thị" },
+  { value: "MOI_TRUONG", label: "Môi trường" }, // Sửa VE_SINH_MOI_TRUONG thành MOI_TRUONG cho đồng bộ
+  { value: "Y_TE", label: "Y tế" },
+  { value: "GIAO_DUC", label: "Giáo dục" },
+  { value: "GIAO_THONG", label: "Giao thông" },
+  { value: "HANH_CHINH_CONG", label: "Hành chính công" },
+  { value: "KHAC", label: "Khác" },
+];
+// --------------------------------------------------
 
 function GuiPhanAnh() {
-  // State quản lý form
+  const navigate = useNavigate();
+
+  // State Form
   const [tieuDe, setTieuDe] = useState("");
   const [noiDung, setNoiDung] = useState("");
-  const [linhVuc, setLinhVuc] = useState("");
-  const [thongBao, setThongBao] = useState(""); // Để hiện thông báo lỗi/thành công
-  const [file, setFile] = useState(null); // Luu file nguoi dung chon
-  const [isUploading, setIsUploading] = useState(false); // Trang thai dang upload
+  const [linhVuc, setLinhVuc] = useState("AN_NINH_TRAT_TU");
 
+  // State File & Loading
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [message, setMessage] = useState({ type: "", content: "" });
+
+  // 1. XỬ LÝ CHỌN FILE
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
+    const files = Array.from(e.target.files);
+    setSelectedFiles((prev) => [...prev, ...files]);
   };
 
-  const handleSubmit = async () => {
-    try {
-      setIsUploading(true);
-      let danhSachFileGuiDi = [];
+  // 2. XỬ LÝ XÓA FILE
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
 
-      // 1. Neu co chon file upload len Cloudinary truoc
-      if (file) {
-        const urlThat = await uploadFileToCloud(file);
-        danhSachFileGuiDi.push(urlThat); // Them url vao mang
+  // 3. XỬ LÝ GỬI FORM
+  const handleSubmit = async () => {
+    if (!tieuDe || !noiDung) {
+      setMessage({ type: "error", content: "Vui lòng nhập tiêu đề và nội dung!" });
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // BƯỚC A: Upload file
+      const listUrlAnh = [];
+      if (selectedFiles.length > 0) {
+        const uploadPromises = selectedFiles.map((file) => uploadToCloudinary(file));
+        const urls = await Promise.all(uploadPromises);
+        listUrlAnh.push(...urls);
       }
 
-      // 2. Gui du lieu kem URL anh ve Backend
-      await guiPhanAnhMoi(tieuDe, noiDung, linhVuc, danhSachFileGuiDi);
+      // BƯỚC B: Gọi API Backend
+      await guiPhanAnhMoi({
+        tieuDe,
+        noiDung,
+        linhVuc,
+        danhSachFileUrl: listUrlAnh,
+      });
 
-      setThongBao("Gửi thành công! Cảm ơn bạn.");
-      // Reset form
-      setTieuDe("");
-      setNoiDung("");
-      setLinhVuc("");
-      setFile(null);
+      setMessage({ type: "success", content: "Gửi phản ánh thành công!" });
+
+      setTimeout(() => navigate("/lich-su-phan-anh"), 2000);
     } catch (error) {
       console.error(error);
-      setThongBao("Có lỗi xảy ra. Vui lòng thử lại.");
-    } finally {
+      setMessage({
+        type: "error",
+        content: "Lỗi khi gửi phản ánh (Kiểm tra mạng hoặc Cloudinary).",
+      });
       setIsUploading(false);
     }
   };
@@ -82,31 +123,58 @@ function GuiPhanAnh() {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Gửi Phản Ánh Kiến Nghị
+                  Gửi Phản Ánh Mới
                 </MDTypography>
               </MDBox>
 
               <MDBox pt={4} pb={3} px={3}>
                 <MDBox component="form" role="form">
+                  {message.content && (
+                    <MDBox mb={2}>
+                      <MDAlert
+                        color={message.type}
+                        dismissible
+                        onClose={() => setMessage({ type: "", content: "" })}
+                      >
+                        {message.content}
+                      </MDAlert>
+                    </MDBox>
+                  )}
+
+                  {/* SELECT BOX LĨNH VỰC */}
+                  <MDBox mb={2}>
+                    <FormControl fullWidth>
+                      <InputLabel id="linh-vuc-label">Lĩnh Vực</InputLabel>
+                      <Select
+                        labelId="linh-vuc-label"
+                        id="linh-vuc-select"
+                        value={linhVuc}
+                        label="Lĩnh Vực"
+                        onChange={(e) => setLinhVuc(e.target.value)}
+                        sx={{ height: 45 }}
+                      >
+                        {/* Render từ danh sách đã cập nhật */}
+                        {linhVucs.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </MDBox>
+
                   <MDBox mb={2}>
                     <TextField
-                      label="Tiêu đề"
+                      label="Tiêu Đề"
                       fullWidth
                       value={tieuDe}
                       onChange={(e) => setTieuDe(e.target.value)}
                     />
                   </MDBox>
+
                   <MDBox mb={2}>
                     <TextField
-                      label="Lĩnh vực (VD: An ninh, Môi trường)"
-                      fullWidth
-                      value={linhVuc}
-                      onChange={(e) => setLinhVuc(e.target.value)}
-                    />
-                  </MDBox>
-                  <MDBox mb={2}>
-                    <TextField
-                      label="Nội dung chi tiết"
+                      label="Nội Dung Chi Tiết"
                       multiline
                       rows={5}
                       fullWidth
@@ -115,33 +183,59 @@ function GuiPhanAnh() {
                     />
                   </MDBox>
 
+                  {/* KHU VỰC ẢNH */}
                   <MDBox mb={2}>
-                    <MDTypography variant="caption" fontWeight="bold" display="block">
-                      Đính kèm hình ảnh (Tùy chọn):
+                    <MDTypography variant="caption" fontWeight="bold" display="block" mb={1}>
+                      Hình ảnh đính kèm (Nếu có):
                     </MDTypography>
                     <input
-                      type="file"
                       accept="image/*"
+                      style={{ display: "none" }}
+                      id="raised-button-file"
+                      multiple
+                      type="file"
                       onChange={handleFileChange}
-                      style={{ display: "block", marginTop: "8px" }}
                     />
-                    {file && (
-                      <MDTypography variant="caption" color="info" mt={1} display="block">
-                        Đã chọn: {file.name}
-                      </MDTypography>
+                    <label htmlFor="raised-button-file">
+                      <MDButton variant="outlined" component="span" color="info" size="small">
+                        <Icon>upload_file</Icon>&nbsp; Chọn Ảnh
+                      </MDButton>
+                    </label>
+
+                    {selectedFiles.length > 0 && (
+                      <MDBox mt={2} display="flex" flexWrap="wrap" gap={2}>
+                        {selectedFiles.map((file, index) => (
+                          <MDBox
+                            key={index}
+                            position="relative"
+                            width="100px"
+                            height="100px"
+                            borderRadius="lg"
+                            overflow="hidden"
+                            border="1px solid #ddd"
+                          >
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt="preview"
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            />
+                            <MDBox
+                              position="absolute"
+                              top={0}
+                              right={0}
+                              bgColor="white"
+                              style={{ cursor: "pointer", borderRadius: "0 0 0 8px" }}
+                              onClick={() => handleRemoveFile(index)}
+                            >
+                              <Icon color="error" fontSize="small">
+                                close
+                              </Icon>
+                            </MDBox>
+                          </MDBox>
+                        ))}
+                      </MDBox>
                     )}
                   </MDBox>
-
-                  {/* Thông báo trạng thái */}
-                  {thongBao && (
-                    <MDTypography
-                      variant="caption"
-                      color={thongBao.includes("lỗi") ? "error" : "success"}
-                      fontWeight="bold"
-                    >
-                      {thongBao}
-                    </MDTypography>
-                  )}
 
                   <MDBox mt={4} mb={1}>
                     <MDButton
@@ -149,9 +243,9 @@ function GuiPhanAnh() {
                       color="info"
                       fullWidth
                       onClick={handleSubmit}
-                      disabled={isUploading} // Khóa nút khi đang quay
+                      disabled={isUploading}
                     >
-                      {isUploading ? <CircularProgress size={20} color="white" /> : "Gửi Phản Ánh"}
+                      {isUploading ? "Đang xử lý & Tải ảnh..." : "Gửi Phản Ánh"}
                     </MDButton>
                   </MDBox>
                 </MDBox>
