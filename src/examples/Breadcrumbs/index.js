@@ -1,9 +1,3 @@
-/**
-=========================================================
-* Material Dashboard 2 React - v2.1.0
-=========================================================
-*/
-
 // react-router-dom components
 import { Link } from "react-router-dom";
 
@@ -20,60 +14,6 @@ import MDTypography from "components/MDTypography";
 
 function Breadcrumbs({ icon, title, route, light }) {
   const routes = route.slice(0, -1);
-
-  // 1. Bộ từ điển dịch sang Tiếng Việt (Bao gồm cả key có dấu gạch ngang và khoảng trắng)
-  const translateMap = {
-    // --- KHỚP VỚI URL (có gạch nối) ---
-    "ho-khau": "Quản Lý Hộ Khẩu",
-    "nhan-khau": "Quản Lý Nhân Khẩu",
-    "tao-moi": "Thêm Mới",
-    "chinh-sua": "Cập Nhật Thông Tin",
-    "tach-ho": "Tách Hộ",
-    "nhap-ho": "Nhập Hộ",
-    "doi-chu-ho": "Thay Đổi Chủ Hộ",
-    "gui-phan-anh": "Gửi Phản Ánh",
-    "lich-su-phan-anh": "Lịch Sử",
-    dashboard: "Trang Chủ",
-    "quan-ly-chung": "Quản Lý Chung",
-    "phan-hoi": "Trả Lời Dân",
-    "xu-ly-phan-anh": "Cán Bộ Xử Lý",
-
-    // --- KHỚP VỚI TIÊU ĐỀ TỰ SINH (có khoảng trắng do template tự format) ---
-    "ho khau": "Quản Lý Hộ Khẩu",
-    "nhan khau": "Quản Lý Nhân Khẩu",
-    "tao moi": "Thêm Mới",
-    "chinh sua": "Cập Nhật Thông Tin",
-    "tach ho": "Tách Hộ",
-    "nhap ho": "Nhập Hộ",
-    "doi chu ho": "Thay Đổi Chủ Hộ",
-    "gui phan anh": "Gửi Phản Ánh",
-    "lich su phan anh": "Lịch Sử",
-    "quan ly chung": "Quản Lý Chung",
-    "phan hoi": "Trả Lời Dân",
-    "xu ly phan anh": "Cán Bộ Xử Lý",
-  };
-
-  // 2. Hàm kiểm tra ID (UUID dài > 20 ký tự và có số)
-  const isUUID = (str) => {
-    return str && str.length > 20 && /\d/.test(str);
-  };
-
-  // 3. Hàm lấy tên hiển thị đẹp
-  const getDisplayName = (key) => {
-    if (!key) return "";
-
-    // Nếu là ID -> hiển thị "Chi Tiết"
-    if (isUUID(key)) return "Chi Tiết";
-
-    // Chuyển hết về chữ thường để so sánh cho chắc chắn
-    const lowerKey = key.toLowerCase();
-
-    // Tìm trong từ điển
-    if (translateMap[lowerKey]) return translateMap[lowerKey];
-
-    // Fallback: Nếu không tìm thấy thì viết hoa chữ cái đầu (giữ nguyên logic cũ)
-    return key.replace("-", " ").replace(/^\w/, (c) => c.toUpperCase());
-  };
 
   return (
     <MDBox mr={{ xs: 0, xl: 8 }}>
@@ -95,32 +35,31 @@ function Breadcrumbs({ icon, title, route, light }) {
             <Icon>{icon}</Icon>
           </MDTypography>
         </Link>
-
-        {routes.map((el) => {
-          // Ẩn ID khỏi đường dẫn cha
-          if (isUUID(el)) return null;
-
-          return (
-            <Link to={`/${el}`} key={el}>
-              <MDTypography
-                component="span"
-                variant="button"
-                fontWeight="regular"
-                textTransform="capitalize"
-                color={light ? "white" : "dark"}
-                opacity={light ? 0.8 : 0.5}
-                sx={{ lineHeight: 0 }}
-              >
-                {getDisplayName(el)}
-              </MDTypography>
-            </Link>
-          );
-        })}
-
-        {/* Ẩn phần hiển thị tên trang hiện tại ở dòng Breadcrumb nhỏ (tránh lặp) */}
+        {routes.map((el) => (
+          <Link to={`/${el}`} key={el}>
+            <MDTypography
+              component="span"
+              variant="button"
+              fontWeight="regular"
+              textTransform="capitalize"
+              color={light ? "white" : "dark"}
+              opacity={light ? 0.8 : 0.5}
+              sx={{ lineHeight: 0 }}
+            >
+              {el}
+            </MDTypography>
+          </Link>
+        ))}
+        <MDTypography
+          variant="button"
+          fontWeight="regular"
+          textTransform="capitalize"
+          color={light ? "white" : "dark"}
+          sx={{ lineHeight: 0 }}
+        >
+          {title.replace("-", " ")}
+        </MDTypography>
       </MuiBreadcrumbs>
-
-      {/* Tiêu đề To (H6) duy nhất */}
       <MDTypography
         fontWeight="bold"
         textTransform="capitalize"
@@ -128,7 +67,7 @@ function Breadcrumbs({ icon, title, route, light }) {
         color={light ? "white" : "dark"}
         noWrap
       >
-        {getDisplayName(title)}
+        {title.replace("-", " ")}
       </MDTypography>
     </MDBox>
   );
