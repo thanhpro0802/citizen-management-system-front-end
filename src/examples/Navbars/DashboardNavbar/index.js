@@ -1,10 +1,25 @@
-import { useState, useEffect } from "react";
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard-react
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+
+Coded by www.creative-tim.com
+
+ =========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
+import { useState, useEffect } from 'react';
 
 // react-router components
 import { useLocation, Link, useNavigate } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
 // @mui material components
 import AppBar from "@mui/material/AppBar";
@@ -15,12 +30,12 @@ import Icon from "@mui/material/Icon";
 import Badge from "@mui/material/Badge"; // Sửa lại import Badge từ @mui
 
 // Material Dashboard 2 React components
-import MDBox from "components/MDBox";
-import MDInput from "components/MDInput";
+import MDBox from 'components/MDBox';
+import MDInput from 'components/MDInput';
 
 // Material Dashboard 2 React example components
-import Breadcrumbs from "examples/Breadcrumbs";
-import NotificationItem from "examples/Items/NotificationItem";
+import Breadcrumbs from 'examples/Breadcrumbs';
+import NotificationItem from 'examples/Items/NotificationItem';
 
 // Custom styles for DashboardNavbar
 import {
@@ -29,7 +44,7 @@ import {
   navbarRow,
   navbarIconButton,
   navbarMobileMenu,
-} from "examples/Navbars/DashboardNavbar/styles";
+} from 'examples/Navbars/DashboardNavbar/styles';
 
 // Material Dashboard 2 React context
 import {
@@ -143,17 +158,20 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
   // -----------------------------------------------------
 
   useEffect(() => {
+    // Setting the navbar type
     if (fixedNavbar) {
-      setNavbarType("sticky");
+      setNavbarType('sticky');
     } else {
-      setNavbarType("static");
+      setNavbarType('static');
     }
     function handleTransparentNavbar() {
       setTransparentNavbar(dispatch, (fixedNavbar && window.scrollY === 0) || !fixedNavbar);
     }
     window.addEventListener("scroll", handleTransparentNavbar);
     handleTransparentNavbar();
-    return () => window.removeEventListener("scroll", handleTransparentNavbar);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener('scroll', handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
 
   const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
@@ -205,6 +223,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     </Menu>
   );
 
+  // Styles for the navbar icons
   const iconsStyle = ({ palette: { dark, white, text }, functions: { rgba } }) => ({
     color: () => {
       let colorValue = light || darkMode ? white.main : dark.main;
@@ -217,7 +236,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
 
   return (
     <AppBar
-      position={absolute ? "absolute" : navbarType}
+      position={absolute ? 'absolute' : navbarType}
       color="inherit"
       sx={(theme) => navbar(theme, { transparentNavbar, absolute, light, darkMode })}
     >
@@ -278,7 +297,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
                 onClick={handleMiniSidenav}
               >
                 <Icon sx={iconsStyle} fontSize="medium">
-                  {miniSidenav ? "menu_open" : "menu"}
+                  {miniSidenav ? 'menu_open' : 'menu'}
                 </Icon>
               </IconButton>
               <IconButton
@@ -318,6 +337,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
   );
 }
 
+// Setting default values for the props of DashboardNavbar
 DashboardNavbar.defaultProps = {
   absolute: false,
   light: false,
@@ -325,6 +345,7 @@ DashboardNavbar.defaultProps = {
   customTitle: "",
 };
 
+// Typechecking props for the DashboardNavbar
 DashboardNavbar.propTypes = {
   absolute: PropTypes.bool,
   light: PropTypes.bool,

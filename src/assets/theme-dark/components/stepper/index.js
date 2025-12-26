@@ -1,11 +1,26 @@
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/material-dashboard-react
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+
+Coded by www.creative-tim.com
+
+ =========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
+
 // Material Dashboard 2 React base styles
-import colors from "assets/theme-dark/base/colors";
-import borders from "assets/theme-dark/base/borders";
-import boxShadows from "assets/theme-dark/base/boxShadows";
+import colors from 'assets/theme-dark/base/colors';
+import borders from 'assets/theme-dark/base/borders';
+import boxShadows from 'assets/theme-dark/base/boxShadows';
 
 // Material Dashboard 2 React helper functions
-import pxToRem from "assets/theme-dark/functions/pxToRem";
-import linearGradient from "assets/theme-dark/functions/linearGradient";
+import pxToRem from 'assets/theme-dark/functions/pxToRem';
+import linearGradient from 'assets/theme-dark/functions/linearGradient';
 
 const { transparent, gradients } = colors;
 const { borderRadius } = borders;
@@ -19,7 +34,7 @@ const stepper = {
       borderRadius: borderRadius.lg,
       boxShadow: colored.info,
 
-      "&.MuiPaper-root": {
+      '&.MuiPaper-root': {
         backgroundColor: transparent.main,
       },
     },

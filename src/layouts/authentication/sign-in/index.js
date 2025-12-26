@@ -1,71 +1,45 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Card from "@mui/material/Card";
-import Switch from "@mui/material/Switch";
-import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
-import MDBox from "components/MDBox";
-import MDTypography from "components/MDTypography";
-import MDInput from "components/MDInput";
-import MDButton from "components/MDButton";
-import BasicLayout from "layouts/authentication/components/BasicLayout";
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
-import { dangNhap, luuToken, luuThongTinNguoiDung } from "services/authService";
-import { useAuth, setLogin } from "context/authContext";
+/**
+=========================================================
+* Material Dashboard 2 React - v2.2.0
+=========================================================
 
-function Basic() {
-  const navigate = useNavigate();
-  const [, dispatch] = useAuth();
+* Product Page: https://www.creative-tim.com/product/material-dashboard-react
+* Copyright 2023 Creative Tim (https://www.creative-tim.com)
 
-  const [formData, setFormData] = useState({
-    cccd: "", // SỬA: email -> cccd
-    matKhau: "",
-  });
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [errors, setErrors] = useState({});
+Coded by www.creative-tim.com
 
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
+ =========================================================
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    // SỬA: Chặn nhập chữ cái vào ô CCCD
-    if (name === "cccd" && !/^\d*$/.test(value)) return;
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+*/
 
-    setFormData({ ...formData, [name]: value });
-    if (errors[name]) setErrors({ ...errors, [name]: "" });
-  };
+import { useState } from 'react';
 
-  const validateForm = () => {
-    const newErrors = {};
+// react-router-dom components
+import { Link } from 'react-router-dom';
 
-    // SỬA: Validate CCCD
-    if (!formData.cccd) {
-      newErrors.cccd = "Vui lòng nhập số CCCD";
-    } else if (formData.cccd.length !== 12) {
-      newErrors.cccd = "Số CCCD phải có đúng 12 chữ số";
-    }
+// @mui material components
+import Card from '@mui/material/Card';
+import Switch from '@mui/material/Switch';
+import Grid from '@mui/material/Grid';
+import MuiLink from '@mui/material/Link';
 
-    if (!formData.matKhau) {
-      newErrors.matKhau = "Mật khẩu không được để trống";
-    }
+// @mui icons
+import FacebookIcon from '@mui/icons-material/Facebook';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import GoogleIcon from '@mui/icons-material/Google';
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+// Material Dashboard 2 React components
+import MDBox from 'components/MDBox';
+import MDTypography from 'components/MDTypography';
+import MDInput from 'components/MDInput';
+import MDButton from 'components/MDButton';
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+// Authentication layout components
+import BasicLayout from 'layouts/authentication/components/BasicLayout';
 
-    if (!validateForm()) return;
-
-    setLoading(true);
-
-    try {
-      // SỬA: Gọi hàm đăng nhập với CCCD
-      const response = await dangNhap(formData.cccd, formData.matKhau);
+// Images
+import bgImage from 'assets/images/bg-sign-in-basic.jpeg';
 
       // Backend trả về JwtResponse (token, type, id, cccd, roles)
       const data = response.data;
@@ -77,20 +51,7 @@ function Basic() {
       luuToken(data.token);
       luuThongTinNguoiDung(user);
 
-      setLogin(dispatch, user, data.token);
-      navigate("/gui-phan-anh");
-    } catch (err) {
-      console.error("Lỗi đăng nhập:", err);
-      if (err.response) {
-        // Back-end trả về lỗi 401 với message "Sai số CCCD hoặc mật khẩu"
-        setError(err.response.data.message || "Thông tin đăng nhập không đúng");
-      } else {
-        setError("Không thể kết nối đến server.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   return (
     <BasicLayout image={bgImage}>
@@ -107,47 +68,34 @@ function Basic() {
           textAlign="center"
         >
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Đăng Nhập
+            Sign in
           </MDTypography>
-          <MDTypography display="block" variant="button" color="white" my={1}>
-            Sử dụng số CCCD và mật khẩu
-          </MDTypography>
+          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
+            <Grid item xs={2}>
+              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
+                <FacebookIcon color="inherit" />
+              </MDTypography>
+            </Grid>
+            <Grid item xs={2}>
+              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
+                <GitHubIcon color="inherit" />
+              </MDTypography>
+            </Grid>
+            <Grid item xs={2}>
+              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
+                <GoogleIcon color="inherit" />
+              </MDTypography>
+            </Grid>
+          </Grid>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form" onSubmit={handleSubmit}>
-            {error && (
-              <MDBox mb={2}>
-                <Alert severity="error">{error}</Alert>
-              </MDBox>
-            )}
-
-            {/* SỬA: Input CCCD */}
+          <MDBox component="form" role="form">
             <MDBox mb={2}>
-              <MDInput
-                label="Số CCCD"
-                name="cccd" // SỬA: name="cccd"
-                value={formData.cccd}
-                onChange={handleChange}
-                fullWidth
-                error={!!errors.cccd}
-                helperText={errors.cccd}
-                inputProps={{ maxLength: 12 }}
-              />
+              <MDInput type="email" label="Email" fullWidth />
             </MDBox>
-
             <MDBox mb={2}>
-              <MDInput
-                type="password"
-                label="Mật khẩu"
-                name="matKhau"
-                value={formData.matKhau}
-                onChange={handleChange}
-                fullWidth
-                error={!!errors.matKhau}
-                helperText={errors.matKhau}
-              />
+              <MDInput type="password" label="Password" fullWidth />
             </MDBox>
-
             <MDBox display="flex" alignItems="center" ml={-1}>
               <Switch checked={rememberMe} onChange={handleSetRememberMe} />
               <MDTypography
@@ -155,21 +103,19 @@ function Basic() {
                 fontWeight="regular"
                 color="text"
                 onClick={handleSetRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
+                sx={{ cursor: 'pointer', userSelect: 'none', ml: -1 }}
               >
-                &nbsp;&nbsp;Ghi nhớ đăng nhập
+                &nbsp;&nbsp;Remember me
               </MDTypography>
             </MDBox>
-
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth type="submit" disabled={loading}>
-                {loading ? <CircularProgress size={24} color="inherit" /> : "Đăng nhập"}
+              <MDButton variant="gradient" color="info" fullWidth>
+                sign in
               </MDButton>
             </MDBox>
-
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
-                Chưa có tài khoản?{" "}
+                Don&apos;t have an account?{' '}
                 <MDTypography
                   component={Link}
                   to="/authentication/sign-up"
@@ -178,7 +124,7 @@ function Basic() {
                   fontWeight="medium"
                   textGradient
                 >
-                  Đăng ký
+                  Sign up
                 </MDTypography>
               </MDTypography>
             </MDBox>
