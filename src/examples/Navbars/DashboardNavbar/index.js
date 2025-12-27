@@ -158,6 +158,8 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
       handleCloseMenu();
       if (notification.maPhanAnhLienQuan) {
         navigate(`/chi-tiet-phan-anh/${notification.maPhanAnhLienQuan}`);
+      } else if (notification.maYeuCauCuTruLienQuan) {
+        navigate(`/xu-ly-yeu-cau-cu-tru/${notification.maYeuCauCuTruLienQuan}`);
       }
     } catch (error) {
       console.error("Lỗi xử lý thông báo:", error);

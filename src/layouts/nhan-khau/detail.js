@@ -304,43 +304,6 @@ function NhanKhauDetail() {
               </MDBox>
             </Card>
           </Grid>
-
-          {/* Thao tác đặc biệt */}
-          <Grid item xs={12}>
-            <Card>
-              <MDBox p={3}>
-                <MDTypography variant="h6" mb={2}>
-                  Thao tác đặc biệt
-                </MDTypography>
-                <MDBox display="flex" gap={2} flexWrap="wrap">
-                  <MDButton
-                    variant="gradient"
-                    color="info"
-                    onClick={() => setTamTruDialog(true)}
-                    disabled={data.trangThai === "KHAI_TU"}
-                  >
-                    <Icon>home</Icon>&nbsp; Đăng ký tạm trú
-                  </MDButton>
-                  <MDButton
-                    variant="gradient"
-                    color="warning"
-                    onClick={() => setTamVangDialog(true)}
-                    disabled={data.trangThai === "KHAI_TU"}
-                  >
-                    <Icon>flight_takeoff</Icon>&nbsp; Đăng ký tạm vắng
-                  </MDButton>
-                  <MDButton
-                    variant="gradient"
-                    color="error"
-                    onClick={() => setKhaiTuDialog(true)}
-                    disabled={data.trangThai === "KHAI_TU"}
-                  >
-                    <Icon>cancel</Icon>&nbsp; Khai tử
-                  </MDButton>
-                </MDBox>
-              </MDBox>
-            </Card>
-          </Grid>
         </Grid>
       </MDBox>
 

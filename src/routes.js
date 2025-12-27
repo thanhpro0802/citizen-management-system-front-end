@@ -13,6 +13,8 @@ import LichSuPhanAnh from "layouts/lich-su-phan-anh";
 import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 import ThongTinCaNhan from "layouts/thong-tin-ca-nhan";
 import HoKhauCuaToi from "layouts/ho-khau-cua-toi";
+import YeuCauCuTru from "layouts/yeu-cau-cu-tru";
+import TaoYeuCauCuTru from "layouts/tao-yeu-cau-cu-tru";
 
 // ================== CÁN BỘ ==================
 // 1. Phản ánh
@@ -32,6 +34,10 @@ import ChiTietHoKhau from "layouts/chi-tiet-ho-khau";
 import TachHo from "layouts/tach-ho";
 import NhapHo from "layouts/nhap-ho";
 import DoiChuHo from "layouts/doi-chu-ho";
+
+// 4. Yêu cầu cư trú
+import QuanLyYeuCauCuTru from "layouts/quan-ly-yeu-cau-cu-tru";
+import XuLyYeuCauCuTru from "layouts/xu-ly-yeu-cau-cu-tru";
 
 // ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
@@ -92,6 +98,15 @@ const routes = [
     component: <LichSuPhanAnh />,
     requireAuth: true,
   },
+  {
+    type: "collapse",
+    name: "Yêu Cầu Cư Trú",
+    key: "yeu-cau-cu-tru",
+    icon: <Icon fontSize="small">description</Icon>,
+    route: "/yeu-cau-cu-tru",
+    component: <YeuCauCuTru />,
+    requireAuth: true,
+  },
 
   /* ================= MENU DÀNH CHO CÁN BỘ ================= */
 
@@ -143,6 +158,18 @@ const routes = [
     requiredRole: "CAN_BO",
   },
 
+  // 4. Quản lý Yêu Cầu Cư Trú
+  {
+    type: "collapse",
+    name: "Quản Lý Yêu Cầu Cư Trú",
+    key: "quan-ly-yeu-cau-cu-tru",
+    icon: <Icon fontSize="small">assignment_turned_in</Icon>,
+    route: "/quan-ly-yeu-cau-cu-tru",
+    component: <QuanLyYeuCauCuTru />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
   /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
 
   // --- Phản ánh ---
@@ -186,6 +213,21 @@ const routes = [
     key: "nhan-khau-detail",
     route: "/nhan-khau/:id",
     component: <NhanKhauDetail />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
+  // --- Yêu cầu cư trú ---
+  {
+    key: "tao-yeu-cau-cu-tru",
+    route: "/tao-yeu-cau-cu-tru",
+    component: <TaoYeuCauCuTru />,
+    requireAuth: true,
+  },
+  {
+    key: "xu-ly-yeu-cau-cu-tru",
+    route: "/xu-ly-yeu-cau-cu-tru/:id",
+    component: <XuLyYeuCauCuTru />,
     requireAuth: true,
     requiredRole: "CAN_BO",
   },

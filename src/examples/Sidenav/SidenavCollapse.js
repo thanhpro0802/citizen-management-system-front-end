@@ -6,6 +6,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Icon from "@mui/material/Icon";
+import Badge from "@mui/material/Badge";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -21,7 +22,7 @@ import {
 // Material Dashboard 2 React context
 import { useMaterialUIController } from "context";
 
-function SidenavCollapse({ icon, name, active, ...rest }) {
+function SidenavCollapse({ icon, name, active, badge, ...rest }) {
   const [controller] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
 
@@ -52,7 +53,26 @@ function SidenavCollapse({ icon, name, active, ...rest }) {
         </ListItemIcon>
 
         <ListItemText
-          primary={name}
+          primary={
+            badge && badge > 0 ? (
+              <MDBox display="flex" justifyContent="space-between" alignItems="center">
+                {name}
+                <Badge
+                  badgeContent={badge}
+                  color="error"
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      fontSize: "0.75rem",
+                      height: "18px",
+                      minWidth: "18px",
+                    },
+                  }}
+                />
+              </MDBox>
+            ) : (
+              name
+            )
+          }
           sx={(theme) =>
             collapseText(theme, {
               miniSidenav,
@@ -70,6 +90,7 @@ function SidenavCollapse({ icon, name, active, ...rest }) {
 // Setting default values for the props of SidenavCollapse
 SidenavCollapse.defaultProps = {
   active: false,
+  badge: null,
 };
 
 // Typechecking props for the SidenavCollapse
@@ -77,6 +98,7 @@ SidenavCollapse.propTypes = {
   icon: PropTypes.node.isRequired,
   name: PropTypes.string.isRequired,
   active: PropTypes.bool,
+  badge: PropTypes.number,
 };
 
 export default SidenavCollapse;
