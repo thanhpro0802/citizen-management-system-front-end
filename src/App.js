@@ -36,6 +36,9 @@ import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 import { setUnauthorizedCallback } from "services/authService";
 import ProtectedRoute from "components/ProtectedRoute";
 
+// Chatbot
+import { ChatbotWidget } from "components/Chatbot";
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -149,6 +152,9 @@ export default function App() {
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/gui-phan-anh" />} />
       </Routes>
+
+      {/* AI Chatbot Widget */}
+      <ChatbotWidget />
     </>
   );
 
