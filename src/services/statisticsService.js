@@ -39,8 +39,7 @@ const statisticsService = {
     axios.get(`${API_URL}/phan-anh/linh-vuc`, { headers: getAuthHeaders() }),
 
   // Thống kê phản ánh theo mức độ
-  getPhanAnhByMucDo: () =>
-    axios.get(`${API_URL}/phan-anh/muc-do`, { headers: getAuthHeaders() }),
+  getPhanAnhByMucDo: () => axios.get(`${API_URL}/phan-anh/muc-do`, { headers: getAuthHeaders() }),
 
   // Thống kê phản ánh theo tháng
   getPhanAnhByMonth: (year) =>

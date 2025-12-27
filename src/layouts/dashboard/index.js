@@ -41,21 +41,15 @@ function Dashboard() {
       setError(null);
       const currentYear = new Date().getFullYear();
 
-      const [
-        overviewRes,
-        gioiTinhRes,
-        doTuoiRes,
-        trangThaiRes,
-        phanAnhMonthRes,
-        hoKhauMonthRes,
-      ] = await Promise.all([
-        statisticsService.getOverview(),
-        statisticsService.getNhanKhauByGioiTinh(),
-        statisticsService.getNhanKhauByDoTuoi(),
-        statisticsService.getPhanAnhByTrangThai(),
-        statisticsService.getPhanAnhByMonth(currentYear),
-        statisticsService.getHoKhauByMonth(currentYear),
-      ]);
+      const [overviewRes, gioiTinhRes, doTuoiRes, trangThaiRes, phanAnhMonthRes, hoKhauMonthRes] =
+        await Promise.all([
+          statisticsService.getOverview(),
+          statisticsService.getNhanKhauByGioiTinh(),
+          statisticsService.getNhanKhauByDoTuoi(),
+          statisticsService.getPhanAnhByTrangThai(),
+          statisticsService.getPhanAnhByMonth(currentYear),
+          statisticsService.getHoKhauByMonth(currentYear),
+        ]);
 
       setOverview(overviewRes.data);
       setNhanKhauByGioiTinh(gioiTinhRes.data);
@@ -171,13 +165,7 @@ function Dashboard() {
     return (
       <DashboardLayout>
         <DashboardNavbar />
-        <MDBox
-          py={3}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="60vh"
-        >
+        <MDBox py={3} display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
           <CircularProgress color="info" size={60} />
         </MDBox>
         <Footer />
