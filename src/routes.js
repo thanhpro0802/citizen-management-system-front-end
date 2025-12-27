@@ -10,6 +10,9 @@ import Icon from "@mui/material/Icon";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 
+// ================== DASHBOARD ==================
+import Dashboard from "layouts/dashboard";
+
 // ================== CÔNG DÂN ==================
 import GuiPhanAnh from "layouts/phan-anh";
 import LichSuPhanAnh from "layouts/lich-su-phan-anh";
@@ -98,12 +101,24 @@ const routes = [
 
   /* ================= MENU DÀNH CHO CÁN BỘ ================= */
 
+  // Dashboard - Thống kê
+  {
+    type: "collapse",
+    name: "Thống Kê",
+    key: "thong-ke",
+    icon: <Icon fontSize="small">dashboard</Icon>,
+    route: "/thong-ke",
+    component: <Dashboard />,
+    requireAuth: true,
+    requiredRole: "CAN_BO",
+  },
+
   // 1. Quản lý Phản Ánh
   {
     type: "collapse",
     name: "Quản Lý Phản Ánh",
     key: "quan-ly-phan-anh",
-    icon: <Icon fontSize="small">dashboard</Icon>,
+    icon: <Icon fontSize="small">assignment</Icon>,
     route: "/quan-ly-phan-anh",
     component: <QuanLyPhanAnh />,
     requireAuth: true,
