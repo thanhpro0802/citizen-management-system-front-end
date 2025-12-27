@@ -36,6 +36,9 @@ import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 import { setUnauthorizedCallback } from "services/authService";
 import ProtectedRoute from "components/ProtectedRoute";
 
+// Chatbot
+import { ChatbotWidget } from "components/Chatbot";
+
 export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,8 +94,9 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [location.pathname]);
 
+  // ✅ ĐỔI TITLE
   useEffect(() => {
-    document.title = "Hộ khẩu - Nhân khẩu";
+    document.title = "Hệ thống Quản lý Công dân";
   }, [location.pathname]);
 
   // Khi backend trả 401 → về login
@@ -131,7 +135,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="Material Dashboard 2"
+            brandName="Hệ thống Quản lý Công dân"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
@@ -149,6 +153,9 @@ export default function App() {
         {/* Catch-all */}
         <Route path="*" element={<Navigate to="/gui-phan-anh" />} />
       </Routes>
+
+      {/* AI Chatbot Widget */}
+      <ChatbotWidget />
     </>
   );
 
