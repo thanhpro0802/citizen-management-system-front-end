@@ -181,8 +181,7 @@ function XuLyYeuCauCuTru() {
   }
 
   // Kiểm tra trạng thái có thể xử lý không
-  const canProcess =
-    data.trangThai === "CHO_XU_LY" || data.trangThai === "DANG_XU_LY";
+  const canProcess = data.trangThai === "CHO_XU_LY" || data.trangThai === "DANG_XU_LY";
 
   return (
     <DashboardLayout>
@@ -245,9 +244,7 @@ function XuLyYeuCauCuTru() {
                       <MDTypography variant="button" fontWeight="bold">
                         CCCD:
                       </MDTypography>
-                      <MDTypography variant="body2">
-                        {data.nguoiTaoCccd || "N/A"}
-                      </MDTypography>
+                      <MDTypography variant="body2">{data.nguoiTaoCccd || "N/A"}</MDTypography>
                     </Grid>
                     <Grid item xs={12}>
                       <MDTypography variant="button" fontWeight="bold">
@@ -283,7 +280,9 @@ function XuLyYeuCauCuTru() {
                           <MDTypography variant="button" fontWeight="bold">
                             Ngày sinh:
                           </MDTypography>
-                          <MDTypography variant="body2">{formatDate(data.nguoiDeNghiNgaySinh)}</MDTypography>
+                          <MDTypography variant="body2">
+                            {formatDate(data.nguoiDeNghiNgaySinh)}
+                          </MDTypography>
                         </Grid>
                         <Grid item xs={6}>
                           <MDTypography variant="button" fontWeight="bold">
@@ -396,7 +395,9 @@ function XuLyYeuCauCuTru() {
                           <MDTypography variant="button" fontWeight="bold">
                             Phần cần điều chỉnh:
                           </MDTypography>
-                          <MDTypography variant="body2">{data.phanCanDieuChinh || "N/A"}</MDTypography>
+                          <MDTypography variant="body2">
+                            {data.phanCanDieuChinh || "N/A"}
+                          </MDTypography>
                         </Grid>
                         <Grid item xs={12}>
                           <MDTypography variant="button" fontWeight="bold">
@@ -443,88 +444,88 @@ function XuLyYeuCauCuTru() {
                       </MDAlert>
                     </MDBox>
                   ) : (
-                  <MDBox mt={2}>
-                    <FormControl component="fieldset" fullWidth>
-                      <FormLabel component="legend">
-                        <MDTypography variant="button" fontWeight="bold">
-                          Hành động
-                        </MDTypography>
-                      </FormLabel>
-                      <RadioGroup value={hanhDong} onChange={(e) => setHanhDong(e.target.value)}>
-                        {data.trangThai === "CHO_XU_LY" && (
-                          <FormControlLabel
-                            value="nhan_xu_ly"
-                            control={<Radio />}
-                            label="Nhận xử lý"
+                    <MDBox mt={2}>
+                      <FormControl component="fieldset" fullWidth>
+                        <FormLabel component="legend">
+                          <MDTypography variant="button" fontWeight="bold">
+                            Hành động
+                          </MDTypography>
+                        </FormLabel>
+                        <RadioGroup value={hanhDong} onChange={(e) => setHanhDong(e.target.value)}>
+                          {data.trangThai === "CHO_XU_LY" && (
+                            <FormControlLabel
+                              value="nhan_xu_ly"
+                              control={<Radio />}
+                              label="Nhận xử lý"
+                            />
+                          )}
+                          {data.trangThai === "DANG_XU_LY" && (
+                            <>
+                              <FormControlLabel
+                                value="phe_duyet"
+                                control={<Radio />}
+                                label="Phê duyệt"
+                              />
+                              <FormControlLabel
+                                value="tu_choi"
+                                control={<Radio />}
+                                label="Từ chối"
+                              />
+                            </>
+                          )}
+                        </RadioGroup>
+                      </FormControl>
+
+                      <MDBox mt={3}>
+                        {hanhDong === "tu_choi" && (
+                          <TextField
+                            label="Lý do từ chối"
+                            multiline
+                            rows={3}
+                            fullWidth
+                            value={lyDoTuChoi}
+                            onChange={(e) => setLyDoTuChoi(e.target.value)}
+                            required
                           />
                         )}
-                        {data.trangThai === "DANG_XU_LY" && (
-                          <>
-                            <FormControlLabel
-                              value="phe_duyet"
-                              control={<Radio />}
-                              label="Phê duyệt"
-                            />
-                            <FormControlLabel
-                              value="tu_choi"
-                              control={<Radio />}
-                              label="Từ chối"
-                            />
-                          </>
+
+                        {(hanhDong === "phe_duyet" || hanhDong === "tu_choi") && (
+                          <TextField
+                            label="Ghi chú (tùy chọn)"
+                            multiline
+                            rows={3}
+                            fullWidth
+                            value={ghiChu}
+                            onChange={(e) => setGhiChu(e.target.value)}
+                            sx={{ mt: 2 }}
+                          />
                         )}
-                      </RadioGroup>
-                    </FormControl>
+                      </MDBox>
 
-                    <MDBox mt={3}>
-                      {hanhDong === "tu_choi" && (
-                        <TextField
-                          label="Lý do từ chối"
-                          multiline
-                          rows={3}
+                      <MDBox mt={3} display="flex" gap={2}>
+                        <MDButton
+                          variant="gradient"
+                          color="info"
                           fullWidth
-                          value={lyDoTuChoi}
-                          onChange={(e) => setLyDoTuChoi(e.target.value)}
-                          required
-                        />
-                      )}
-
-                      {(hanhDong === "phe_duyet" || hanhDong === "tu_choi") && (
-                        <TextField
-                          label="Ghi chú (tùy chọn)"
-                          multiline
-                          rows={3}
+                          onClick={handleSubmit}
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Đang xử lý..." : "Xác nhận"}
+                        </MDButton>
+                        <MDButton
+                          variant="outlined"
+                          color="secondary"
                           fullWidth
-                          value={ghiChu}
-                          onChange={(e) => setGhiChu(e.target.value)}
-                          sx={{ mt: 2 }}
-                        />
-                      )}
+                          onClick={() => navigate(-1)}
+                        >
+                          Hủy
+                        </MDButton>
+                      </MDBox>
                     </MDBox>
-
-                    <MDBox mt={3} display="flex" gap={2}>
-                      <MDButton
-                        variant="gradient"
-                        color="info"
-                        fullWidth
-                        onClick={handleSubmit}
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Đang xử lý..." : "Xác nhận"}
-                      </MDButton>
-                      <MDButton
-                        variant="outlined"
-                        color="secondary"
-                        fullWidth
-                        onClick={() => navigate(-1)}
-                      >
-                        Hủy
-                      </MDButton>
-                    </MDBox>
-                  </MDBox>
-                )}
-              </MDBox>
-            </Card>
-          </Grid>
+                  )}
+                </MDBox>
+              </Card>
+            </Grid>
           )}
         </Grid>
       </MDBox>

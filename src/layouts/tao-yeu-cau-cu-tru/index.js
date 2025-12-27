@@ -1,7 +1,7 @@
 /**
  * =========================================================
  * Tạo Yêu Cầu Cư Trú
- * Form cho công dân tạo yêu cầu: 
+ * Form cho công dân tạo yêu cầu:
  * - Đăng ký tạm trú
  * - Đăng ký thường trú
  * - Khai báo tạm vắng
@@ -80,13 +80,14 @@ function TaoYeuCauCuTru() {
     if (userStr) {
       const user = JSON.parse(userStr);
       setCurrentUser(user);
-      
+
       // Load thông tin nhân khẩu từ API
-      nhanKhauService.layThongTinNhanKhauCuaToi()
-        .then(response => {
+      nhanKhauService
+        .layThongTinNhanKhauCuaToi()
+        .then((response) => {
           setUserNhanKhau(response.nhanKhau);
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("Ổi! Không lấy được thông tin nhân khẩu:", err);
         });
     }
@@ -115,7 +116,7 @@ function TaoYeuCauCuTru() {
     thoiGianBatDau: "",
     thoiGianKetThuc: "",
     lyDo: "",
-    
+
     // Thông tin điều chỉnh
     phanCanDieuChinh: "",
   });
@@ -358,10 +359,7 @@ function TaoYeuCauCuTru() {
       </MDTypography>
 
       <FormControl component="fieldset" error={!!errors.doiTuongDeNghi}>
-        <RadioGroup
-          value={formData.doiTuongDeNghi}
-          onChange={handleChange("doiTuongDeNghi")}
-        >
+        <RadioGroup value={formData.doiTuongDeNghi} onChange={handleChange("doiTuongDeNghi")}>
           <FormControlLabel value={DOI_TUONG.BAN_THAN} control={<Radio />} label="Bản thân" />
           <FormControlLabel
             value={DOI_TUONG.KHAI_HO}
@@ -381,12 +379,7 @@ function TaoYeuCauCuTru() {
           </Alert>
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
-              <MDInput
-                label="Họ và tên"
-                fullWidth
-                value={userNhanKhau.hoTen || ""}
-                disabled
-              />
+              <MDInput label="Họ và tên" fullWidth value={userNhanKhau.hoTen || ""} disabled />
             </Grid>
             <Grid item xs={12} md={6}>
               <MDInput
@@ -401,7 +394,7 @@ function TaoYeuCauCuTru() {
                 <TextField
                   label="Ngày sinh"
                   fullWidth
-                  value={new Date(userNhanKhau.ngaySinh).toLocaleDateString('vi-VN')}
+                  value={new Date(userNhanKhau.ngaySinh).toLocaleDateString("vi-VN")}
                   disabled
                   sx={{
                     "& .MuiInputBase-root": {
@@ -509,10 +502,7 @@ function TaoYeuCauCuTru() {
 
           <FormControl component="fieldset" fullWidth>
             <FormLabel>Loại hình đăng ký</FormLabel>
-            <RadioGroup
-              value={formData.loaiHinhDangKy}
-              onChange={handleChange("loaiHinhDangKy")}
-            >
+            <RadioGroup value={formData.loaiHinhDangKy} onChange={handleChange("loaiHinhDangKy")}>
               <FormControlLabel
                 value={LOAI_HINH_DANG_KY.VAO_HO_DA_CO}
                 control={<Radio />}
@@ -659,8 +649,8 @@ function TaoYeuCauCuTru() {
       return (
         <MDBox>
           <MDTypography variant="h6" mb={2}>
-            {formData.loaiYeuCau === LOAI_YEU_CAU.DIEU_CHINH_THONG_TIN 
-              ? "Điều chỉnh thông tin cư trú" 
+            {formData.loaiYeuCau === LOAI_YEU_CAU.DIEU_CHINH_THONG_TIN
+              ? "Điều chỉnh thông tin cư trú"
               : "Xóa đăng ký"}
           </MDTypography>
 
@@ -803,10 +793,7 @@ function TaoYeuCauCuTru() {
                 </MDTypography>
                 <MDTypography variant="body2" color="text">
                   {formData.noiDen} (
-                  {formData.loaiTamVang === LOAI_TAM_VANG.TRONG_NUOC
-                    ? "Trong nước"
-                    : "Nước ngoài"}
-                  )
+                  {formData.loaiTamVang === LOAI_TAM_VANG.TRONG_NUOC ? "Trong nước" : "Nước ngoài"})
                 </MDTypography>
               </Grid>
 

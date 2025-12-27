@@ -270,7 +270,9 @@ function YeuCauCuTru() {
                                 </MDTypography>
                               </TableCell>
                               <TableCell align="center">
-                                {row.trangThai === "DA_PHE_DUYET" || row.trangThai === "TU_CHOI" || row.trangThai === "HUY" ? (
+                                {row.trangThai === "DA_PHE_DUYET" ||
+                                row.trangThai === "TU_CHOI" ||
+                                row.trangThai === "HUY" ? (
                                   <MDTypography variant="caption" color="text" fontSize="0.75rem">
                                     {getTrangThaiLabel(row.trangThai)}
                                   </MDTypography>
@@ -288,9 +290,7 @@ function YeuCauCuTru() {
                                   variant="gradient"
                                   color="info"
                                   size="small"
-                                  onClick={() =>
-                                    navigate(`/xu-ly-yeu-cau-cu-tru/${row.maYeuCau}`)
-                                  }
+                                  onClick={() => navigate(`/xu-ly-yeu-cau-cu-tru/${row.maYeuCau}`)}
                                 >
                                   Xem chi tiết
                                 </MDButton>

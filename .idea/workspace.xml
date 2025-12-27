@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Add tab navigation and statistics cards to dashboard interface" />
+    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Add tab navigation and statistics cards to dashboard interface">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/examples/Sidenav/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/examples/Sidenav/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/tao-yeu-cau-cu-tru/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/tao-yeu-cau-cu-tru/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/xu-ly-yeu-cau-cu-tru/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/xu-ly-yeu-cau-cu-tru/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/yeu-cau-cu-tru/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/yeu-cau-cu-tru/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/yeuCauCuTruService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/yeuCauCuTruService.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -25,7 +32,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="copilot/add-dashboard-statistics-interface" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -43,12 +50,12 @@
       </list>
     </option>
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/thanhpro0802/citizen-management-system-front-end.git",
-    "accountId": "f62a8617-00e6-4c53-b8ba-3f56f6bac95c"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/thanhpro0802/citizen-management-system-front-end.git&quot;,
+    &quot;accountId&quot;: &quot;f62a8617-00e6-4c53-b8ba-3f56f6bac95c&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -74,7 +81,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "#26 on copilot/create-ai-chatbot-ui",
+    "git-widget-placeholder": "update-nhankhau",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/IntelliJ IDEA/IntelliJ Project/citizen-management-system-front-end",
