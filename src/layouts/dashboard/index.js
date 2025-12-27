@@ -8,6 +8,8 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem"; // <--- THÊM ĐỂ LÀM DROPDOWN CHỌN QUÝ
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -28,7 +30,7 @@ import statisticsService from "services/statisticsService";
 function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [tabValue, setTabValue] = useState(0); // State để quản lý Tab (0: Dân cư, 1: Phản ánh)
+  const [tabValue, setTabValue] = useState(0); // 0: Dân cư, 1: Phản ánh
 
   // States dữ liệu
   const [overview, setOverview] = useState(null);
@@ -38,34 +40,90 @@ function Dashboard() {
   const [phanAnhByMonth, setPhanAnhByMonth] = useState({});
   const [hoKhauByMonth, setHoKhauByMonth] = useState({});
 
+  // --- STATE LỌC DỮ LIỆU ---
+
+  // 1. Filter cho Hộ khẩu (Năm)
+  const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
+
+  // 2. Filter cho Phản ánh theo tháng (Năm)
+  const [phanAnhYearFilter, setPhanAnhYearFilter] = useState(new Date().getFullYear());
+
+  // 3. Filter cho Trạng thái xử lý (Quý & Năm) - MỚI
+  const currentMonth = new Date().getMonth() + 1;
+  const currentQuarter = Math.ceil(currentMonth / 3); // Tính quý hiện tại (1-4)
+  const [statusYear, setStatusYear] = useState(new Date().getFullYear());
+  const [statusQuarter, setStatusQuarter] = useState(currentQuarter);
+
+  // Effect 1: Load dữ liệu chung (Tổng quan, Giới tính, Độ tuổi)
+  // Lưu ý: Đã bỏ `getPhanAnhByTrangThai` ra khỏi đây để xử lý riêng
   useEffect(() => {
     fetchStatistics();
   }, []);
 
+  // Effect 2: Load dữ liệu Hộ khẩu (khi yearFilter đổi)
+  useEffect(() => {
+    const fetchHoKhauData = async () => {
+      try {
+        const res = await statisticsService.getHoKhauByMonth(yearFilter);
+        setHoKhauByMonth(res.data);
+      } catch (err) {
+        console.error("Lỗi tải dữ liệu hộ khẩu:", err);
+      }
+    };
+    fetchHoKhauData();
+  }, [yearFilter]);
+
+  // Effect 3: Load dữ liệu Phản ánh theo tháng (khi phanAnhYearFilter đổi)
+  useEffect(() => {
+    const fetchPhanAnhData = async () => {
+      try {
+        const res = await statisticsService.getPhanAnhByMonth(phanAnhYearFilter);
+        setPhanAnhByMonth(res.data);
+      } catch (err) {
+        console.error("Lỗi tải dữ liệu phản ánh theo tháng:", err);
+      }
+    };
+    fetchPhanAnhData();
+  }, [phanAnhYearFilter]);
+
+  // Effect 4: Load dữ liệu Trạng thái xử lý (khi statusYear HOẶC statusQuarter đổi) - MỚI
+  useEffect(() => {
+    const fetchTrangThaiData = async () => {
+      try {
+        // Giả sử service có hàm nhận vào (năm, quý).
+        // Nếu service cũ chưa có params, bạn cần cập nhật service để truyền params này xuống backend.
+        const res = await statisticsService.getPhanAnhByTrangThai(statusYear, statusQuarter);
+        setPhanAnhByTrangThai(res.data);
+      } catch (err) {
+        console.error("Lỗi tải dữ liệu trạng thái xử lý:", err);
+      }
+    };
+    fetchTrangThaiData();
+  }, [statusYear, statusQuarter]);
+
   const handleSetTabValue = (event, newValue) => setTabValue(newValue);
+
+  // Handlers đổi bộ lọc
+  const handleYearChange = (e) => setYearFilter(e.target.value);
+  const handlePhanAnhYearChange = (e) => setPhanAnhYearFilter(e.target.value);
+
+  const handleStatusYearChange = (e) => setStatusYear(e.target.value);
+  const handleStatusQuarterChange = (e) => setStatusQuarter(e.target.value);
 
   const fetchStatistics = async () => {
     try {
       setLoading(true);
       setError(null);
-      const currentYear = new Date().getFullYear();
 
-      const [overviewRes, gioiTinhRes, doTuoiRes, trangThaiRes, phanAnhMonthRes, hoKhauMonthRes] =
-        await Promise.all([
-          statisticsService.getOverview(),
-          statisticsService.getNhanKhauByGioiTinh(),
-          statisticsService.getNhanKhauByDoTuoi(),
-          statisticsService.getPhanAnhByTrangThai(),
-          statisticsService.getPhanAnhByMonth(currentYear),
-          statisticsService.getHoKhauByMonth(currentYear),
-        ]);
+      const [overviewRes, gioiTinhRes, doTuoiRes] = await Promise.all([
+        statisticsService.getOverview(),
+        statisticsService.getNhanKhauByGioiTinh(),
+        statisticsService.getNhanKhauByDoTuoi(),
+      ]);
 
       setOverview(overviewRes.data);
       setNhanKhauByGioiTinh(gioiTinhRes.data);
       setNhanKhauByDoTuoi(doTuoiRes.data);
-      setPhanAnhByTrangThai(trangThaiRes.data);
-      setPhanAnhByMonth(phanAnhMonthRes.data);
-      setHoKhauByMonth(hoKhauMonthRes.data);
     } catch (err) {
       console.error("Error fetching statistics:", err);
       setError("Không thể tải dữ liệu thống kê. Vui lòng thử lại sau.");
@@ -252,17 +310,33 @@ function Dashboard() {
             {/* Charts Dân cư */}
             <MDBox mt={3}>
               <Grid container spacing={3}>
+                {/* Chart Hộ khẩu */}
                 <Grid item xs={12} md={6} lg={4}>
                   <MDBox mb={3}>
                     <ReportsLineChart
                       color="dark"
-                      title="Hộ khẩu đăng ký mới"
-                      description={`Năm ${currentYear}`}
+                      title={
+                        <MDBox display="flex" justifyContent="space-between" alignItems="center">
+                          <span style={{ fontSize: "1rem", fontWeight: 700 }}>Hộ khẩu mới</span>
+                          <TextField
+                            size="small"
+                            type="number"
+                            value={yearFilter}
+                            onChange={handleYearChange}
+                            placeholder="Năm"
+                            variant="outlined"
+                            sx={{ width: "80px", "& .MuiInputBase-root": { height: "30px" } }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </MDBox>
+                      }
+                      description={`Thống kê năm ${yearFilter}`}
                       date="cập nhật mới nhất"
                       chart={hoKhauMonthData}
                     />
                   </MDBox>
                 </Grid>
+
                 <Grid item xs={12} md={6} lg={4}>
                   <MDBox mb={3}>
                     <ReportsBarChart
@@ -326,21 +400,91 @@ function Dashboard() {
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6} lg={8}>
                   <MDBox mb={3}>
+                    {/* Chart Phản ánh theo tháng */}
                     <ReportsBarChart
                       color="info"
-                      title="Phản ánh theo tháng"
-                      description={`Năm ${currentYear}`}
+                      title={
+                        <MDBox display="flex" justifyContent="space-between" alignItems="center">
+                          <span style={{ fontSize: "1rem", fontWeight: 700 }}>
+                            Phản ánh theo tháng
+                          </span>
+                          <TextField
+                            size="small"
+                            type="number"
+                            value={phanAnhYearFilter}
+                            onChange={handlePhanAnhYearChange}
+                            placeholder="Năm"
+                            variant="outlined"
+                            sx={{ width: "80px", "& .MuiInputBase-root": { height: "30px" } }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </MDBox>
+                      }
+                      description={`Thống kê năm ${phanAnhYearFilter}`}
                       date="cập nhật mới nhất"
                       chart={phanAnhMonthData}
                     />
                   </MDBox>
                 </Grid>
+
+                {/* --- CHART TRẠNG THÁI XỬ LÝ (CÓ LỌC QUÝ & NĂM - ĐÃ FIX) --- */}
                 <Grid item xs={12} md={6} lg={4}>
                   <MDBox mb={3}>
                     <PieChart
                       icon={{ color: "info", component: "feedback" }}
-                      title="Trạng thái xử lý"
-                      description="Tiến độ công việc"
+                      // SỬA: Dùng sx để đảm bảo width 100% hoạt động, đẩy 2 phần sang 2 bên
+                      title={
+                        <MDBox
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            width: "100%",
+                          }}
+                        >
+                          {/* Tiêu đề bên trái */}
+                          <span style={{ fontSize: "1rem", fontWeight: 700 }}>Trạng thái</span>
+
+                          {/* Cụm input bên phải */}
+                          <MDBox display="flex" gap={1} alignItems="center">
+                            {/* 1. Chọn Quý */}
+                            <TextField
+                              select
+                              value={statusQuarter}
+                              onChange={handleStatusQuarterChange}
+                              variant="outlined"
+                              size="small"
+                              sx={{
+                                width: "70px", // Tăng nhẹ width để số không bị che
+                                "& .MuiInputBase-root": { height: "30px", fontSize: "0.875rem" },
+                              }}
+                              // Quan trọng: Ngăn click lan ra ngoài làm mở chart menu (nếu có)
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MenuItem value={1}>Q1</MenuItem>
+                              <MenuItem value={2}>Q2</MenuItem>
+                              <MenuItem value={3}>Q3</MenuItem>
+                              <MenuItem value={4}>Q4</MenuItem>
+                            </TextField>
+
+                            {/* 2. Chọn Năm */}
+                            <TextField
+                              type="number"
+                              value={statusYear}
+                              onChange={handleStatusYearChange}
+                              variant="outlined"
+                              size="small"
+                              sx={{
+                                width: "80px",
+                                "& .MuiInputBase-root": { height: "30px", fontSize: "0.875rem" },
+                                "& .MuiOutlinedInput-input": { padding: "5px 10px" },
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </MDBox>
+                        </MDBox>
+                      }
+                      description={`Dữ liệu Quý ${statusQuarter} / ${statusYear}`}
                       chart={statusData}
                     />
                   </MDBox>
