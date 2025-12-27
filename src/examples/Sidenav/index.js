@@ -181,16 +181,33 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             <Icon sx={{ fontWeight: "bold" }}>close</Icon>
           </MDTypography>
         </MDBox>
-        <MDBox component={NavLink} to="/" display="flex" alignItems="center">
-          {brand && <MDBox component="img" src={brand} alt="Brand" width="2rem" />}
-          <MDBox
-            width={!brandName && "100%"}
-            sx={(theme) => sidenavLogoLabel(theme, { miniSidenav })}
+
+        {/* ✅ TEXT 2 DÒNG - MÀU TRẮNG/DARK */}
+        <MDBox
+          component={NavLink}
+          to="/"
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          py={1.5}
+        >
+          <MDTypography
+            component="h5"
+            variant="h5"
+            fontWeight="bold"
+            color={textColor}
+            sx={{
+              fontSize: "1.25rem", // 20px
+              lineHeight: 1.4,
+              textAlign: "center",
+              letterSpacing: "0.02em",
+            }}
           >
-            <MDTypography component="h6" variant="button" fontWeight="medium" color={textColor}>
-              {brandName}
-            </MDTypography>
-          </MDBox>
+            Hệ thống Quản lý
+            <br />
+            Công dân
+          </MDTypography>
         </MDBox>
       </MDBox>
       <Divider

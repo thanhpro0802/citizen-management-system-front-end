@@ -94,8 +94,9 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [location.pathname]);
 
+  // ✅ ĐỔI TITLE
   useEffect(() => {
-    document.title = "Hộ khẩu - Nhân khẩu";
+    document.title = "Hệ thống Quản lý Công dân";
   }, [location.pathname]);
 
   // Khi backend trả 401 → về login
@@ -134,7 +135,7 @@ export default function App() {
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
-            brandName="Material Dashboard 2"
+            brandName="Hệ thống Quản lý Công dân"
             routes={routes}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}

@@ -12,8 +12,8 @@ import Message from "./Message";
 import TypingIndicator from "./TypingIndicator";
 import { sendChatMessage } from "services/chatService";
 
-const WELCOME_MESSAGE = `Xin chào! Tôi là trợ lý ảo của hệ thống quản lý công dân.
-Tôi có thể giúp bạn về:
+const WELCOME_MESSAGE = `Xin chào! Tôi là trợ lý ảo của hệ thống quản lý công dân. 
+Tôi có thể giúp bạn về: 
 - Thủ tục hành chính
 - Hướng dẫn sử dụng hệ thống
 - Thông tin dịch vụ công
@@ -67,6 +67,10 @@ function ChatWindow({ onClose }) {
     try {
       const response = await sendChatMessage(inputValue, conversationId);
 
+      // ✅ DEBUG: Log response để kiểm tra
+      console.log("Chat API Response:", response);
+      console.log("Reply field:", response.reply);
+
       // Lưu conversation ID nếu có
       if (response.conversationId && !conversationId) {
         setConversationId(response.conversationId);
@@ -74,17 +78,23 @@ function ChatWindow({ onClose }) {
 
       const botMessage = {
         id: generateMessageId(),
-        text: response.response || response.message || "Xin lỗi, tôi không hiểu câu hỏi của bạn.",
+        // ✅ FIX: Lấy từ response.reply thay vì response.response
+        text: response.reply || response.message || "Đã xảy ra lỗi.  Vui lòng thử lại.",
         isUser: false,
-        timestamp: new Date().toISOString(),
+        timestamp: response.timestamp || new Date().toISOString(),
       };
+
+      // ✅ DEBUG: Log bot message trước khi add
+      console.log("Bot message to add:", botMessage);
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage = {
         id: generateMessageId(),
-        text: "Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.",
+        text:
+          error.message ||
+          "Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn.  Vui lòng thử lại sau.",
         isUser: false,
         timestamp: new Date().toISOString(),
       };
