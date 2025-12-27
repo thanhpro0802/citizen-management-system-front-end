@@ -77,16 +77,6 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Thống kê",
-    key: "thong-ke",
-    icon: <Icon fontSize="small">equalizer</Icon>,
-    route: "/thong-ke",
-    component: <ThongKe />,
-    requireAuth: true,
-    requiredRole: "CAN_BO",
-  },
-  {
-    type: "collapse",
     name: "Gửi Phản Ánh",
     key: "gui-phan-anh",
     icon: <Icon fontSize="small">feedback</Icon>,
@@ -109,11 +99,11 @@ const routes = [
   // Dashboard - Thống kê
   {
     type: "collapse",
-    name: "Thống Kê",
+    name: "Thống kê",
     key: "thong-ke",
-    icon: <Icon fontSize="small">dashboard</Icon>,
+    icon: <Icon fontSize="small">equalizer</Icon>,
     route: "/thong-ke",
-    component: <Dashboard />,
+    component: <ThongKe />,
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
