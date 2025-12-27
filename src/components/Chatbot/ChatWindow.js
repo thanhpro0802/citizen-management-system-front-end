@@ -20,10 +20,17 @@ Tôi có thể giúp bạn về:
 
 Bạn cần tôi giúp gì?`;
 
+// Helper function to generate unique IDs
+let messageIdCounter = 1;
+const generateMessageId = () => {
+  messageIdCounter += 1;
+  return messageIdCounter;
+};
+
 function ChatWindow({ onClose }) {
   const [messages, setMessages] = useState([
     {
-      id: 1,
+      id: generateMessageId(),
       text: WELCOME_MESSAGE,
       isUser: false,
       timestamp: new Date().toISOString(),
@@ -47,7 +54,7 @@ function ChatWindow({ onClose }) {
     if (!inputValue.trim() || isLoading) return;
 
     const userMessage = {
-      id: Date.now(),
+      id: generateMessageId(),
       text: inputValue,
       isUser: true,
       timestamp: new Date().toISOString(),
@@ -66,7 +73,7 @@ function ChatWindow({ onClose }) {
       }
 
       const botMessage = {
-        id: Date.now() + 1,
+        id: generateMessageId(),
         text: response.response || response.message || "Xin lỗi, tôi không hiểu câu hỏi của bạn.",
         isUser: false,
         timestamp: new Date().toISOString(),
@@ -76,7 +83,7 @@ function ChatWindow({ onClose }) {
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage = {
-        id: Date.now() + 1,
+        id: generateMessageId(),
         text: "Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.",
         isUser: false,
         timestamp: new Date().toISOString(),
@@ -97,7 +104,7 @@ function ChatWindow({ onClose }) {
   const handleClearChat = () => {
     setMessages([
       {
-        id: 1,
+        id: generateMessageId(),
         text: WELCOME_MESSAGE,
         isUser: false,
         timestamp: new Date().toISOString(),

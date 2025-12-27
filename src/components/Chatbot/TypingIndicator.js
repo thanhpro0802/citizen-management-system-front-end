@@ -11,6 +11,14 @@ function TypingIndicator() {
           display: "flex",
           gap: "6px",
           alignItems: "center",
+          "@keyframes bounce": {
+            "0%, 80%, 100%": {
+              transform: "scale(0)",
+            },
+            "40%": {
+              transform: "scale(1)",
+            },
+          },
         }}
       >
         <MDBox
@@ -21,14 +29,6 @@ function TypingIndicator() {
             backgroundColor: "#7b809a",
             animation: "bounce 1.4s infinite ease-in-out both",
             animationDelay: "-0.32s",
-            "@keyframes bounce": {
-              "0%, 80%, 100%": {
-                transform: "scale(0)",
-              },
-              "40%": {
-                transform: "scale(1)",
-              },
-            },
           }}
         />
         <MDBox
@@ -39,14 +39,6 @@ function TypingIndicator() {
             backgroundColor: "#7b809a",
             animation: "bounce 1.4s infinite ease-in-out both",
             animationDelay: "-0.16s",
-            "@keyframes bounce": {
-              "0%, 80%, 100%": {
-                transform: "scale(0)",
-              },
-              "40%": {
-                transform: "scale(1)",
-              },
-            },
           }}
         />
         <MDBox
@@ -56,14 +48,6 @@ function TypingIndicator() {
             borderRadius: "50%",
             backgroundColor: "#7b809a",
             animation: "bounce 1.4s infinite ease-in-out both",
-            "@keyframes bounce": {
-              "0%, 80%, 100%": {
-                transform: "scale(0)",
-              },
-              "40%": {
-                transform: "scale(1)",
-              },
-            },
           }}
         />
       </MDBox>
