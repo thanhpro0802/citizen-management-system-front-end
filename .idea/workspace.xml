@@ -13,12 +13,12 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="com.intellij.reactbuddy.palette" />
         <option value="com.intellij.reactbuddy.previews" />
         <option value="com.intellij.reactbuddy.index" />
         <option value="com.intellij.reactbuddy.useInitial" />
         <option value="com.intellij.reactbuddy.README" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -180,7 +180,11 @@
       <workItem from="1766061206014" duration="4954000" />
       <workItem from="1766283202023" duration="791000" />
       <workItem from="1766304089512" duration="7000" />
-      <workItem from="1766307878130" duration="6167000" />
+      <workItem from="1766307878130" duration="7041000" />
+      <workItem from="1766391763991" duration="1962000" />
+      <workItem from="1766581925301" duration="3971000" />
+      <workItem from="1766591983484" duration="124000" />
+      <workItem from="1766678109609" duration="661000" />
     </task>
     <task id="LOCAL-00001" summary="Add tab navigation and statistics cards to dashboard interface">
       <option name="closed" value="true" />
