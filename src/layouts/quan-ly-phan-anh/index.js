@@ -131,6 +131,15 @@ function QuanLyPhanAnh() {
     const fetchData = async () => {
       try {
         const response = await getAllPhanAnh();
+
+        // --- THÊM DÒNG NÀY ĐỂ KIỂM TRA ---
+        console.log("🔥 Dữ liệu API trả về:", response.data);
+        if (response.data && response.data.length > 0) {
+          console.log("🕵️ Soi thử dòng đầu tiên:", response.data[0]);
+          console.log("🕵️ Cán bộ của dòng 1:", response.data[0].canBoPhuTrach);
+        }
+        // ----------------------------------
+
         if (Array.isArray(response.data)) {
           setDanhSach(sortPhanAnh(response.data));
         }
