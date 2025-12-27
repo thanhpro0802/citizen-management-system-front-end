@@ -104,10 +104,10 @@ const routes = [
   // Dashboard - Thống kê
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
+    name: "Thống Kê",
+    key: "thong-ke",
     icon: <Icon fontSize="small">dashboard</Icon>,
-    route: "/dashboard",
+    route: "/thong-ke",
     component: <Dashboard />,
     requireAuth: true,
     requiredRole: "CAN_BO",
@@ -118,7 +118,7 @@ const routes = [
     type: "collapse",
     name: "Quản Lý Phản Ánh",
     key: "quan-ly-phan-anh",
-    icon: <Icon fontSize="small">feedback</Icon>,
+    icon: <Icon fontSize="small">assignment</Icon>,
     route: "/quan-ly-phan-anh",
     component: <QuanLyPhanAnh />,
     requireAuth: true,
