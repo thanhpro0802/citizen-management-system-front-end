@@ -22,7 +22,7 @@ function Message({ message, isUser, timestamp }) {
         borderRadius="lg"
         sx={{
           backgroundColor: isUser ? "#1A73E8" : "#f0f2f5",
-          color: isUser ? "#ffffff" : "#344767",
+          color: isUser ? "#ffffff" : "#ffffff",
           wordBreak: "break-word",
         }}
       >

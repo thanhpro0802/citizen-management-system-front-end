@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // react-router-dom components
 import { useLocation, NavLink } from "react-router-dom";
@@ -36,6 +36,9 @@ import {
 import { useAuth } from "context/authContext";
 import { coRole } from "services/authService";
 
+// API để đếm yêu cầu chờ xử lý
+import { demYeuCauChoXuLy } from "services/yeuCauCuTruService";
+
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
@@ -45,6 +48,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   // Get auth state
   const [authState] = useAuth();
   const { isAuthenticated, user } = authState;
+
+  // State lưu số yêu cầu chờ xử lý
+  const [pendingYeuCauCount, setPendingYeuCauCount] = useState(0);
 
   let textColor = "white";
 
@@ -75,6 +81,24 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
+
+  // Fetch số yêu cầu chờ xử lý nếu là cán bộ
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      if (isAuthenticated && user && coRole("CAN_BO", user)) {
+        try {
+          const count = await demYeuCauChoXuLy();
+          setPendingYeuCauCount(count || 0);
+        } catch (error) {
+          console.error("Lỗi khi lấy số yêu cầu chờ xử lý:", error);
+        }
+      }
+    };
+    fetchPendingCount();
+    // Refresh mỗi 30 giây
+    const interval = setInterval(fetchPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user]);
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
   const renderRoutes = routes
@@ -108,6 +132,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     .map(({ type, name, icon, title, noCollapse, key, href, route }) => {
       let returnValue;
 
+      // Xác định badge cho route "quan-ly-yeu-cau-cu-tru"
+      const badge = key === "quan-ly-yeu-cau-cu-tru" ? pendingYeuCauCount : null;
+
       if (type === "collapse") {
         returnValue = href ? (
           <Link
@@ -122,11 +149,17 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
               icon={icon}
               active={key === collapseName}
               noCollapse={noCollapse}
+              badge={badge}
             />
           </Link>
         ) : (
           <NavLink key={key} to={route}>
-            <SidenavCollapse name={name} icon={icon} active={key === collapseName} />
+            <SidenavCollapse 
+              name={name} 
+              icon={icon} 
+              active={key === collapseName} 
+              badge={badge}
+            />
           </NavLink>
         );
       } else if (type === "title") {
