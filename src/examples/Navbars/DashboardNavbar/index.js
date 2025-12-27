@@ -68,20 +68,68 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
   // --- HÀM DỊCH TIÊU ĐỀ MẶC ĐỊNH ---
   const getVietnameseTitle = (slug) => {
     switch (slug) {
+      /* ================= AUTH ================= */
+      case "sign-in":
+        return "Đăng Nhập";
+      case "sign-up":
+        return "Đăng Ký";
+
+      /* ================= CÔNG DÂN ================= */
+      case "thong-tin-ca-nhan":
+        return "Thông Tin Cá Nhân";
+      case "ho-khau-cua-toi":
+        return "Hộ Khẩu Của Tôi";
       case "gui-phan-anh":
         return "Gửi Phản Ánh";
       case "lich-su-phan-anh":
         return "Lịch Sử Phản Ánh";
-      case "quan-ly-phan-anh": // Thêm cái này
-        return "Quản Lý Phản Ánh";
-      case "xu-ly-phan-anh":
-        return "Cán Bộ Xử Lý";
-      case "phan-hoi":
-        return "Trả Lời Dân";
       case "chi-tiet-phan-anh":
         return "Chi Tiết Phản Ánh";
+
+      /* ================= CÁN BỘ – DASHBOARD ================= */
+      case "thong-ke":
+        return "Thống Kê";
+
+      /* ================= PHẢN ÁNH ================= */
+      case "quan-ly-phan-anh":
+        return "Quản Lý Phản Ánh";
+      case "xu-ly-phan-anh":
+        return "Xử Lý Phản Ánh";
+      case "phan-hoi":
+        return "Phản Hồi Công Dân";
+
+      /* ================= NHÂN KHẨU ================= */
+      case "nhan-khau":
+        return "Quản Lý Nhân Khẩu";
+      case "create":
+        return "Thêm Nhân Khẩu";
+      case "edit":
+        return "Cập Nhật Nhân Khẩu";
+      case "detail":
+        return "Chi Tiết Nhân Khẩu";
+
+      /* ================= HỘ KHẨU ================= */
+      case "quan-ly-ho-khau":
+        return "Quản Lý Hộ Khẩu";
+      case "them-ho-khau":
+        return "Thêm Hộ Khẩu";
+      case "chi-tiet-ho-khau":
+        return "Chi Tiết Hộ Khẩu";
+      case "sua-ho-khau":
+        return "Cập Nhật Hộ Khẩu";
+      case "tach-ho":
+        return "Tách Hộ";
+      case "nhap-ho":
+        return "Nhập Hộ";
+      case "doi-chu-ho":
+        return "Đổi Chủ Hộ";
+
+      /* ================= LỖI ================= */
+      case "forbidden":
+        return "Không Có Quyền Truy Cập";
+
       default:
-        return slug ? slug.replace("-", " ") : "";
+        return slug ? slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
     }
   };
 

@@ -30,9 +30,13 @@ const statisticsService = {
   getNhanKhauByDoTuoi: () =>
     axios.get(`${API_URL}/nhan-khau/do-tuoi`, { headers: getAuthHeaders() }),
 
+  // --- [CẬP NHẬT] Thêm tham số year và quarter ---
   // Thống kê phản ánh theo trạng thái
-  getPhanAnhByTrangThai: () =>
-    axios.get(`${API_URL}/phan-anh/trang-thai`, { headers: getAuthHeaders() }),
+  getPhanAnhByTrangThai: (year, quarter) =>
+    axios.get(`${API_URL}/phan-anh/trang-thai`, {
+      params: { year, quarter }, // Gửi params lên URL
+      headers: getAuthHeaders(),
+    }),
 
   // Thống kê phản ánh theo lĩnh vực
   getPhanAnhByLinhVuc: () =>
