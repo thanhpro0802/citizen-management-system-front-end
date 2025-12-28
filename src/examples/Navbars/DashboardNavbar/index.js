@@ -123,7 +123,11 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
         return "Nhập Hộ";
       case "doi-chu-ho":
         return "Đổi Chủ Hộ";
-
+      /* ================= QUẢN LÝ YÊU CẦU CƯ TRÚ ================= */
+      case "quan-ly-yeu-cau-cu-tru":
+        return "Quản Lý Yêu Cầu Cư Trú";
+      case "yeu-cau-cu-tru":
+        return "Yêu Cầu Cư Trú";
       /* ================= LỖI ================= */
       case "forbidden":
         return "Không Có Quyền Truy Cập";

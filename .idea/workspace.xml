@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
+    <list default="true" id="ee2e79c4-7934-4c8e-8271-3ef74b431b00" name="Changes" comment="Enhance index.js with new case handling for request management and improve data fetching logic">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/layouts/dashboard/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/dashboard/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/statisticsService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/statisticsService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/examples/Navbars/DashboardNavbar/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/examples/Navbars/DashboardNavbar/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/nhan-khau/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/nhan-khau/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,7 +29,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="feature/feedback-management" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -187,7 +187,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation" />
+    <MESSAGE value="Enhance index.js with new case handling for request management and improve data fetching logic" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhance index.js with new case handling for request management and improve data fetching logic" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

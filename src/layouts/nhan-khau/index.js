@@ -1,6 +1,6 @@
 /**
  * src/layouts/nhan-khau/index.js
- * Đồng bộ thiết kế với trang Quản lý hộ khẩu
+ * Phiên bản: Đã sửa lỗi đọc totalElements từ object 'page'
  */
 
 import { useState, useEffect } from "react";
@@ -65,7 +65,6 @@ function NhanKhauList() {
   const [selectedNhanKhau, setSelectedNhanKhau] = useState(null);
   const [message, setMessage] = useState({ type: "", content: "" });
 
-  // Custom style cho TextField để khớp với MDInput
   const textFieldLikeMDInput = {
     "& .MuiInputBase-root": {
       height: 44,
@@ -76,23 +75,13 @@ function NhanKhauList() {
     },
   };
 
-  // Check role permission (Copy logic từ Hộ khẩu)
+  // Check role permission
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (!userStr) {
       navigate("/authentication/sign-in");
       return;
     }
-    const user = JSON.parse(userStr);
-    const role = user.vaiTro || (user.roles ? user.roles[0] : "");
-    // Logic check role cơ bản, bạn có thể tùy chỉnh
-    const isCanBo = Array.isArray(user.roles) ? user.roles.includes("CAN_BO") : role === "CAN_BO";
-
-    // Nếu muốn chặn người dân truy cập trang này thì uncomment dòng dưới
-    // if (!isCanBo) {
-    //   alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
-    //   navigate("/thong-tin-ca-nhan");
-    // }
   }, [navigate]);
 
   // Load Data
@@ -100,13 +89,38 @@ function NhanKhauList() {
     fetchData();
   }, [page, rowsPerPage, searchTrigger]);
 
+  // --- HÀM FETCH DATA ĐÃ SỬA ---
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Gọi API search (Server-side pagination)
-      const result = await nhanKhauService.searchNhanKhau(searchCriteria, page, rowsPerPage);
-      setData(result.content || []);
-      setTotalElements(result.totalElements || 0);
+      const rawResult = await nhanKhauService.searchNhanKhau(searchCriteria, page, rowsPerPage);
+
+      console.log("Debug API Result:", rawResult);
+
+      // 1. Chuẩn hóa để lấy đúng object chứa dữ liệu
+      const result = rawResult.data || rawResult;
+
+      // 2. Lấy danh sách nội dung
+      const content = result.content || [];
+      setData(content);
+
+      // 3. Lấy tổng số bản ghi (FIX CHÍNH CHO LOG CỦA BẠN)
+      let total = 0;
+
+      // Ưu tiên 1: Kiểm tra trong object 'page' (Theo log bạn gửi: result.page.totalElements)
+      if (result.page && result.page.totalElements !== undefined) {
+        total = result.page.totalElements;
+      }
+      // Ưu tiên 2: Kiểm tra ở root (Cấu trúc Spring Boot mặc định)
+      else if (result.totalElements !== undefined) {
+        total = result.totalElements;
+      }
+      // Ưu tiên 3: Các trường hợp tên biến khác
+      else {
+        total = result.total ?? result.totalItems ?? content.length;
+      }
+
+      setTotalElements(total);
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu:", error);
       setData([]);
@@ -152,7 +166,12 @@ function NhanKhauList() {
       await nhanKhauService.deleteNhanKhau(selectedNhanKhau.maNhanKhau);
       setMessage({ type: "success", content: "Xóa nhân khẩu thành công!" });
       handleCloseDeleteDialog();
-      fetchData(); // Reload data
+
+      if (data.length === 1 && page > 0) {
+        setPage(page - 1);
+      } else {
+        fetchData();
+      }
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
       setMessage({ type: "error", content: "Không thể xóa: " + (error.message || "Lỗi hệ thống") });
@@ -191,7 +210,7 @@ function NhanKhauList() {
     );
   };
 
-  if (loading && data.length === 0) {
+  if (loading && data.length === 0 && page === 0) {
     return (
       <DashboardLayout>
         <DashboardNavbar />
@@ -213,7 +232,6 @@ function NhanKhauList() {
         <Grid container spacing={6}>
           <Grid item xs={12}>
             <Card>
-              {/* Header Card giống Hộ Khẩu */}
               <MDBox
                 mx={2}
                 mt={-3}
@@ -230,7 +248,7 @@ function NhanKhauList() {
                   </MDTypography>
                   <MDButton
                     variant="gradient"
-                    color="success" // Đồng bộ màu nút
+                    color="success"
                     size="small"
                     onClick={() => navigate("/nhan-khau/create")}
                   >
@@ -252,7 +270,6 @@ function NhanKhauList() {
                   </MDBox>
                 )}
 
-                {/* Bộ lọc tìm kiếm */}
                 <Grid container spacing={2} mb={3} alignItems="center">
                   <Grid item xs={12} md={3}>
                     <MDInput
@@ -316,11 +333,10 @@ function NhanKhauList() {
                   </Grid>
                 </Grid>
 
-                {/* Bảng dữ liệu thủ công (Manual Table) */}
                 <TableContainer>
-                  {loading ? (
+                  {loading && data.length > 0 ? (
                     <MDBox display="flex" justifyContent="center" py={3}>
-                      <CircularProgress color="info" />
+                      <CircularProgress color="info" size={30} />
                     </MDBox>
                   ) : (
                     <Table>
@@ -413,7 +429,6 @@ function NhanKhauList() {
                   )}
                 </TableContainer>
 
-                {/* Pagination */}
                 <TablePagination
                   rowsPerPageOptions={[10, 20, 50]}
                   component="div"
@@ -422,7 +437,9 @@ function NhanKhauList() {
                   page={page}
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
-                  labelDisplayedRows={({ from, to, count }) => `${from}–${to} trong ${count}`}
+                  labelDisplayedRows={({ from, to, count }) =>
+                    `${from}–${to} trong ${count !== -1 ? count : `nhiều hơn ${to}`}`
+                  }
                   labelRowsPerPage="Số dòng:"
                 />
               </MDBox>
@@ -431,7 +448,6 @@ function NhanKhauList() {
         </Grid>
       </MDBox>
 
-      {/* Delete Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Xác Nhận Xóa</DialogTitle>
         <DialogContent>
