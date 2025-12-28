@@ -1,3 +1,7 @@
+/**
+ * src/examples/Navbars/DashboardNavbar/index.js
+ * Đã sửa lỗi: Hiển thị đúng tên vai trò "Cán bộ nhân khẩu"
+ */
 import { useState, useEffect } from "react";
 
 // react-router components
@@ -12,12 +16,11 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import Icon from "@mui/material/Icon";
-import Badge from "@mui/material/Badge"; // Sửa lại import Badge từ @mui
+import Badge from "@mui/material/Badge";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDInput from "components/MDInput";
-import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React example components
 import Breadcrumbs from "examples/Breadcrumbs";
@@ -42,7 +45,7 @@ import {
 
 // --- IMPORT SERVICE ---
 import { getThongBaoCuaToi, danhDauDaXem } from "services/thongBaoService";
-import { dangXuat, layTenHienThiRole } from "services/authService";
+import { dangXuat } from "services/authService";
 import { useAuth, setLogout } from "context/authContext";
 
 function DashboardNavbar({ absolute, light, isMini, customTitle }) {
@@ -134,14 +137,18 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     }
   };
 
+  // --- SỬA LỖI Ở ĐÂY: Thêm case CAN_BO_NHAN_KHAU ---
   const getRoleLabel = (role) => {
+    if (!role) return "Công dân";
+
     switch (role) {
       case "ADMIN":
+      case "QUAN_TRI_VIEN":
         return "Quản trị viên";
       case "TO_TRUONG":
         return "Tổ trưởng";
       case "TO_PHO":
-        return "Tổ phó"; //
+        return "Tổ phó";
       case "CAN_BO_HO_KHAU":
         return "Cán bộ hộ khẩu";
       case "CAN_BO_PHAN_ANH":
@@ -152,18 +159,6 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
         return "Công dân";
     }
   };
-
-  // Khi hiển thị trong JSX:
-  <MDTypography variant="button" fontWeight="regular" color="text">
-    Vai trò:{" "}
-    {user.vaiTro === "TO_PHO"
-      ? "Tổ phó"
-      : user.vaiTro === "TO_TRUONG"
-      ? "Tổ trưởng"
-      : user.vaiTro === "ADMIN"
-      ? "Quản trị viên"
-      : user.vaiTro}
-  </MDTypography>;
 
   // --- LOGIC XỬ LÝ CUSTOM TITLE ---
   const displayRoute = [...route];
@@ -179,7 +174,6 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
     try {
       if (!notification.daXem) {
         await danhDauDaXem(notification.maThongBao);
-        // Cập nhật UI ngay lập tức
         setUnreadCount((prev) => Math.max(0, prev - 1));
         setNotifications((prevList) =>
           prevList.map((item) =>
@@ -201,7 +195,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
   // --- USE EFFECT: LOAD THÔNG BÁO & AUTO REFRESH ---
   const fetchNotifications = async () => {
     try {
-      if (!isAuthenticated) return; // Chỉ gọi khi đã đăng nhập
+      if (!isAuthenticated) return;
 
       const response = await getThongBaoCuaToi();
       if (Array.isArray(response.data)) {
@@ -210,18 +204,15 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
         setUnreadCount(count);
       }
     } catch (error) {
-      // console.error("Lỗi tải thông báo:", error);
-      // Ẩn log lỗi để tránh spam console khi chưa đăng nhập
+      // Ẩn log lỗi
     }
   };
 
   useEffect(() => {
-    fetchNotifications(); // Gọi lần đầu
-
-    // Tự động gọi lại mỗi 15 giây
+    fetchNotifications();
     const interval = setInterval(fetchNotifications, 15000);
     return () => clearInterval(interval);
-  }, [isAuthenticated]); // Thêm dependency isAuthenticated
+  }, [isAuthenticated]);
   // -----------------------------------------------------
 
   useEffect(() => {
@@ -271,7 +262,6 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
             <NotificationItem
               icon={<Icon>notifications</Icon>}
               title={item.noiDung}
-              // Hiển thị đậm nếu chưa xem
               style={{
                 fontWeight: item.daXem ? "normal" : "bold",
                 color: item.daXem ? "inherit" : "#000",
@@ -334,7 +324,7 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
                         <strong>CCCD:</strong> {user?.cccd || "N/A"}
                       </MDBox>
                       <MDBox mb={1}>
-                        <strong>Vai trò:</strong>{" "}
+                        <strong>Vai trò:</strong> {/* Gọi hàm getRoleLabel đã sửa */}
                         {getRoleLabel(
                           user?.vaiTro || (Array.isArray(user?.roles) ? user.roles[0] : "")
                         )}
