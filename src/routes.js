@@ -177,7 +177,8 @@ const routes = [
     route: "/quan-ly-yeu-cau-cu-tru",
     component: <QuanLyYeuCauCuTru />,
     requireAuth: true,
-    allowedRoles: ROLES_HO_KHAU, // Thường Cán bộ Hộ khẩu sẽ xử lý cái này
+    allowedRoles: ROLES_HO_KHAU,
+    ROLES_NHAN_KHAU, // Thường Cán bộ Hộ khẩu sẽ xử lý cái này
   },
 
   /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
@@ -240,6 +241,7 @@ const routes = [
     component: <XuLyYeuCauCuTru />,
     requireAuth: true,
     allowedRoles: ROLES_HO_KHAU,
+    ROLES_NHAN_KHAU,
   },
 
   // --- Hộ khẩu (Sub-actions) ---
