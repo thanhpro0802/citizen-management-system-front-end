@@ -11,7 +11,8 @@ import ThongKeSoThanhVien from "./components/thongke/ThongKeSoThanhVien";
 import TongHoKhau from "./components/TongHK";
 import ThongKeTamTruTamVang from "./components/thongke/ThongKeTamTruTamVang";
 import ThongKeTamTruTamVangTheoTuan from "./components/thongke/ThongKeTamTruTamVangTheoTuan";
-import ThongKePhanAnhTheoNam from "./components/thongke/ThongKePhanAnhTheoNam";
+import ThongKePhanAnhTheoThang from "./components/thongke/ThongKePhanAnhTheoThang";
+import ThongKePhanAnhTheoQuy from "./components/thongke/ThongKePhanAnhTheoQuy";
 
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -20,6 +21,10 @@ import YearPicker from "./components/Calendar/YearPicker";
 import ThongKeModeMenu from "./components/Menu";
 import CommonMenu from "./components/Menu/CommonMenu";
 import dayjs from "dayjs";
+import ThongKeTamTruTheoThang from "./components/thongke/ThongKeTamTruTheoThang";
+import TamTruTamVangMenu from "./components/Menu/TamTruTamVangMenu";
+import TamVangTamTru from "./components/Menu/TamVangTamTruMenu";
+import ThongKeTamVangTheoThang from "./components/thongke/ThongKeTamVangTheoThang";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
@@ -29,6 +34,8 @@ function ThongKe() {
   const [datePA, setDatePA] = useState(dayjs);
   const [modePA, setModePA] = useState("week");
   const [year, setYear] = useState(dayjs().year());
+  const [yearT, setYearT] = useState(dayjs().year());
+  const [modeT, setModeT] = useState("week");
 
   return (
     <DashboardLayout>
@@ -139,7 +146,8 @@ function ThongKe() {
                     />
                   )}
 
-                  {modePA === "year" && <YearPicker value={year} onChange={setYear} />}
+                  {modePA === "month" && <YearPicker value={year} onChange={setYear} />}
+                  {modePA === "quarter" && <YearPicker value={year} onChange={setYear} />}
                 </MDBox>
 
                 {/* CHART */}
@@ -148,7 +156,8 @@ function ThongKe() {
                     <ThongKePhanAnhTheoTuan startDate={datePA.format("YYYY-MM-DD")} />
                   )}
 
-                  {modePA === "year" && year && <ThongKePhanAnhTheoNam year={year} />}
+                  {modePA === "month" && year && <ThongKePhanAnhTheoThang year={year} />}
+                  {modePA === "quarter" && year && <ThongKePhanAnhTheoQuy year={year} />}
                 </MDBox>
               </Card>
             </Grid>
@@ -169,47 +178,58 @@ function ThongKe() {
 
                 {/* FILTER */}
                 <MDBox px={3} pt={2}>
-                  <MDBox position="absolute" right={16} zIndex={10}>
-                    <CommonMenu
-                      value={mode}
-                      onChange={setMode}
-                      options={[
-                        { value: "tamTru", label: "Tạm trú" },
-                        { value: "tamVang", label: "Tạm vắng" },
-                      ]}
-                    />
+                  <MDBox
+                    position="absolute"
+                    right={16}
+                    top={46}
+                    zIndex={10}
+                    display="flex"
+                    flexDirection="column"
+                    gap={1.5}
+                  >
+                    <TamTruTamVangMenu mode={mode} onChange={setMode} />
+                    <TamVangTamTru mode={modeT} onChange={setModeT} />
                   </MDBox>
-                  {mode === "tamTru" && (
-                    <BasicDatePicker
-                      label="Chọn ngày"
-                      value={date}
-                      onChange={(date) => setDate(date)}
-                    />
-                  )}
-                  {mode === "tamVang" && (
-                    <BasicDatePicker
-                      label="Chọn ngày"
-                      value={date}
-                      onChange={(date) => setDate(date)}
-                    />
-                  )}
+
+                  <MDBox>
+                    {modeT === "week" && (
+                      <BasicDatePicker
+                        label="Chọn ngày"
+                        value={date}
+                        onChange={(date) => setDate(date)}
+                      />
+                    )}
+
+                    {modeT === "month" && <YearPicker value={yearT} onChange={setYearT} />}
+                  </MDBox>
                 </MDBox>
 
                 {/* CHART */}
                 <MDBox px={2} pb={3} pt={2}>
-                  {mode === "tamTru" && date && (
+                  {/* TẠM TRÚ */}
+                  {mode === "tamTru" && modeT === "week" && date && (
                     <ThongKeTamTruTamVangTheoTuan
                       type="TAM_TRU"
                       startDate={date.format("YYYY-MM-DD")}
                       color="error"
                     />
                   )}
-                  {mode === "tamVang" && date && (
+
+                  {mode === "tamTru" && modeT === "month" && yearT && (
+                    <ThongKeTamTruTheoThang year={yearT} />
+                  )}
+
+                  {/* TẠM VẮNG */}
+                  {mode === "tamVang" && modeT === "week" && date && (
                     <ThongKeTamTruTamVangTheoTuan
                       type="TAM_VANG"
                       startDate={date.format("YYYY-MM-DD")}
-                      color="error"
+                      color="warning"
                     />
+                  )}
+
+                  {mode === "tamVang" && modeT === "month" && yearT && (
+                    <ThongKeTamVangTheoThang year={yearT} />
                   )}
                 </MDBox>
               </Card>

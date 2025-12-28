@@ -2,16 +2,16 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { getThongKePhanAnhTheoNam } from "layouts/thong-ke/services/ThongKeService";
+import { getThongKePhanAnhTheoThang } from "layouts/thong-ke/services/ThongKeService";
 import { useTheme } from "@mui/material/styles";
 
-const ThongKePhanAnhTheoNam = ({ year }) => {
+const ThongKePhanAnhTheoThang = ({ year }) => {
   const [labels, setLabels] = useState([]);
   const [series, setSeries] = useState([]);
   const theme = useTheme();
 
   useEffect(() => {
-    getThongKePhanAnhTheoNam(year)
+    getThongKePhanAnhTheoThang(year)
       .then((res) => {
         const apiData = res.data;
 
@@ -60,7 +60,7 @@ const ThongKePhanAnhTheoNam = ({ year }) => {
   );
 };
 
-ThongKePhanAnhTheoNam.propTypes = {
+ThongKePhanAnhTheoThang.propTypes = {
   color: PropTypes.oneOf([
     "primary",
     "secondary",
@@ -74,4 +74,4 @@ ThongKePhanAnhTheoNam.propTypes = {
   year: PropTypes.string.isRequired,
 };
 
-export default ThongKePhanAnhTheoNam;
+export default ThongKePhanAnhTheoThang;

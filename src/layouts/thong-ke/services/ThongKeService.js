@@ -21,8 +21,15 @@ export const getThongKePhanAnh = (startDate) =>
     },
   });
 
-export const getThongKePhanAnhTheoNam = (year) =>
-  axiosClient.get("phan-anh/nam", {
+export const getThongKePhanAnhTheoThang = (year) =>
+  axiosClient.get("phan-anh/thang", {
+    params: {
+      year: year,
+    },
+  });
+
+export const getThongKePhanAnhTheoQuy = (year) =>
+  axiosClient.get("phan-anh/quy", {
     params: {
       year: year,
     },
@@ -41,5 +48,19 @@ export const getThongKeTamTruTamVangTheoTuan = ({ type, startDate }) =>
     params: {
       types: type,
       startDate: startDate,
+    },
+  });
+
+export const getThongKeTamTruTheoThang = (year) =>
+  axiosClient.get("tam-tru/thang", {
+    params: {
+      year: year,
+    },
+  });
+
+export const getThongKeTamVangTheoThang = (year) =>
+  axiosClient.get("tam-vang/thang", {
+    params: {
+      year: year,
     },
   });

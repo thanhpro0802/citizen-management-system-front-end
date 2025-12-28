@@ -4,7 +4,7 @@ import MDButton from "components/MDButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-const ThongKeModeMenu = ({ mode, onChange }) => {
+const TamVangTamTru = ({ mode, onChange }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -21,7 +21,6 @@ const ThongKeModeMenu = ({ mode, onChange }) => {
 
   const MODE_LABEL = {
     week: "Tuần",
-    quarter: "Quý",
     month: "Tháng",
   };
 
@@ -33,16 +32,15 @@ const ThongKeModeMenu = ({ mode, onChange }) => {
 
       <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
         <MenuItem onClick={() => handleClose("week")}>Tuần</MenuItem>
-        <MenuItem onClick={() => handleClose("quarter")}>Quý</MenuItem>
         <MenuItem onClick={() => handleClose("month")}>Tháng</MenuItem>
       </Menu>
     </>
   );
 };
 
-ThongKeModeMenu.propTypes = {
-  mode: PropTypes.oneOf(["week", "quarter", "month"]).isRequired,
+TamVangTamTru.propTypes = {
+  mode: PropTypes.oneOf(["week", "month"]).isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-export default ThongKeModeMenu;
+export default TamVangTamTru;

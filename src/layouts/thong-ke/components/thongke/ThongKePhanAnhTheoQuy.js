@@ -2,53 +2,46 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { getThongKeTamTruTamVangTheoTuan } from "layouts/thong-ke/services/ThongKeService";
+import { getThongKePhanAnhTheoQuy } from "layouts/thong-ke/services/ThongKeService";
 import { useTheme } from "@mui/material/styles";
 
-const TYPE_CONFIG = {
-  TAM_TRU: {
-    key: "tamTru",
-    title: "Số tạm trú",
-  },
-  TAM_VANG: {
-    key: "tamVang",
-    title: "Số tạm vắng",
-  },
-};
-
-const ThongKeTamTruTamVangTheoTuan = ({ type, startDate }) => {
+const ThongKePhanAnhTheoQuy = ({ year }) => {
   const [labels, setLabels] = useState([]);
   const [series, setSeries] = useState([]);
   const theme = useTheme();
 
   useEffect(() => {
-    getThongKeTamTruTamVangTheoTuan({ type, startDate })
+    getThongKePhanAnhTheoQuy(year)
       .then((res) => {
-        console.log("RAW API:", res);
-        const config = TYPE_CONFIG[type];
-        const apiData = res.data[config.key];
+        const apiData = res.data;
 
         setLabels(apiData.labels);
 
         setSeries([
           {
             data: apiData.datasets[0].data,
-            label: "Bắt đầu",
+            label: "Chờ xử lý",
             stack: "total",
-            color: theme.palette.success.main,
+            color: theme.palette.error.main,
           },
           {
             data: apiData.datasets[1].data,
-            label: "Kết thúc",
+            label: "Đang xử lý",
             stack: "total",
-            color: theme.palette.error.main,
+            color: theme.palette.warning.main,
+          },
+          {
+            data: apiData.datasets[2].data,
+            label: "Đã xử lý",
+            stack: "total",
+            color: theme.palette.success.main,
           },
         ]);
       })
       .catch((err) => {
         console.error("API ERROR:", err.response || err);
       });
-  }, [type, startDate]);
+  }, [year]);
 
   if (!labels.length) return null;
 
@@ -67,9 +60,7 @@ const ThongKeTamTruTamVangTheoTuan = ({ type, startDate }) => {
   );
 };
 
-ThongKeTamTruTamVangTheoTuan.propTypes = {
-  type: PropTypes.oneOf(["TAM_TRU", "TAM_VANG"]).isRequired,
-  startDate: PropTypes.string.isRequired,
+ThongKePhanAnhTheoQuy.propTypes = {
   color: PropTypes.oneOf([
     "primary",
     "secondary",
@@ -80,6 +71,7 @@ ThongKeTamTruTamVangTheoTuan.propTypes = {
     "light",
     "dark",
   ]),
+  year: PropTypes.string.isRequired,
 };
 
-export default ThongKeTamTruTamVangTheoTuan;
+export default ThongKePhanAnhTheoQuy;
