@@ -180,7 +180,6 @@ const routes = [
     allowedRoles: ROLES_HO_KHAU, // Thường Cán bộ Hộ khẩu sẽ xử lý cái này
   },
 
-
   /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
 
   // --- Phản ánh ---
