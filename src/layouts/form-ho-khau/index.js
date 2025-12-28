@@ -66,11 +66,18 @@ function FormHoKhau() {
       return;
     }
     const user = JSON.parse(userStr);
-    const role = user.vaiTro || (user.roles ? user.roles[0] : "");
-    const isCanBo = Array.isArray(user.roles) ? user.roles.includes("CAN_BO") : role === "CAN_BO";
-    if (!isCanBo) {
-      alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập!");
-      navigate("/ho-khau-cua-toi");
+
+    // Lấy role từ user object (kiểm tra mọi trường có thể)
+    const role = user.vaiTro || user.role || (Array.isArray(user.roles) ? user.roles[0] : "");
+
+    // Danh sách các role được phép thực hiện thao tác Thêm/Sửa hộ khẩu
+    const ROLES_CHO_PHEP = ["ADMIN", "CAN_BO_HO_KHAU", "TO_TRUONG", "TO_PHO"];
+
+    const hasPermission = ROLES_CHO_PHEP.includes(role);
+
+    if (!hasPermission) {
+      alert("⛔ CẢNH BÁO: Bạn không có quyền thực hiện thao tác này!");
+      navigate("/quan-ly-ho-khau"); // Trở về trang quản lý thay vì trang của công dân
       return;
     }
 

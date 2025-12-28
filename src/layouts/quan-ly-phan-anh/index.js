@@ -98,9 +98,25 @@ function QuanLyPhanAnh() {
       return;
     }
     const user = JSON.parse(userStr);
-    const role = user.roles || user.role || "";
-    const isCanBo = Array.isArray(role) ? role.includes("CAN_BO") : role === "CAN_BO";
-    if (!isCanBo) {
+    // Lấy role từ user object
+    const role = user.roles || user.role || user.vaiTro || "";
+
+    // Danh sách các role được phép vào trang quản lý
+    const ROLES_QUAN_LY = [
+      "ADMIN",
+      "CAN_BO",
+      "CAN_BO_PHAN_ANH",
+      "TO_TRUONG",
+      "TO_PHO",
+      "CAN_BO_HO_KHAU",
+    ];
+
+    // Kiểm tra xem role của user có nằm trong danh sách cho phép không
+    const isAllowed = Array.isArray(role)
+      ? role.some((r) => ROLES_QUAN_LY.includes(r))
+      : ROLES_QUAN_LY.includes(role);
+
+    if (!isAllowed) {
       alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
       navigate("/lich-su-phan-anh");
     }
