@@ -47,9 +47,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [authState] = useAuth();
   const { isAuthenticated, user } = authState;
 
-  // State lưu số yêu cầu chờ xử lý
-  const [pendingYeuCauCount, setPendingYeuCauCount] = useState(0);
-
   // Lấy role hiện tại của user (Đảm bảo lấy đúng trường vaiTro từ API trả về)
   // Nếu user null thì coi như là CONG_DAN
   // Lấy role từ user object. Kiểm tra cả 'vaiTro' và 'role' tùy theo Backend trả về
@@ -60,6 +57,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   console.log("Quyền hiện tại của tôi là:", currentUserRole);
 
   // State lưu số yêu cầu chờ xử lý
+  const [pendingYeuCauCount, setPendingYeuCauCount] = useState(0);
 
   let textColor = "white";
 
@@ -83,7 +81,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
-  // Render all the routes from the routes.js (All the visible items on the Sidenav)
   // Fetch số yêu cầu chờ xử lý (Logic mới: Check theo mảng quyền quản lý)
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -111,6 +108,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => clearInterval(interval);
   }, [isAuthenticated, user, currentUserRole]);
 
+  // Render các route
   const renderRoutes = routes
     .filter((route) => {
       // 1. Ẩn các route không phải type "collapse"
