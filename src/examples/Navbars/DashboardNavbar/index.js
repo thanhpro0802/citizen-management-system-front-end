@@ -17,6 +17,7 @@ import Badge from "@mui/material/Badge"; // Sửa lại import Badge từ @mui
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDInput from "components/MDInput";
+import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React example components
 import Breadcrumbs from "examples/Breadcrumbs";
@@ -132,6 +133,35 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
         return slug ? slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
     }
   };
+
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case "ADMIN":
+        return "Quản trị viên";
+      case "TO_TRUONG":
+        return "Tổ trưởng";
+      case "TO_PHO":
+        return "Tổ phó"; //
+      case "CAN_BO_HO_KHAU":
+        return "Cán bộ hộ khẩu";
+      case "CAN_BO_PHAN_ANH":
+        return "Cán bộ phản ánh";
+      default:
+        return "Công dân";
+    }
+  };
+
+  // Khi hiển thị trong JSX:
+  <MDTypography variant="button" fontWeight="regular" color="text">
+    Vai trò:{" "}
+    {user.vaiTro === "TO_PHO"
+      ? "Tổ phó"
+      : user.vaiTro === "TO_TRUONG"
+      ? "Tổ trưởng"
+      : user.vaiTro === "ADMIN"
+      ? "Quản trị viên"
+      : user.vaiTro}
+  </MDTypography>;
 
   // --- LOGIC XỬ LÝ CUSTOM TITLE ---
   const displayRoute = [...route];
@@ -302,7 +332,10 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
                         <strong>CCCD:</strong> {user?.cccd || "N/A"}
                       </MDBox>
                       <MDBox mb={1}>
-                        <strong>Vai trò:</strong> {layTenHienThiRole(user?.roles)}
+                        <strong>Vai trò:</strong>{" "}
+                        {getRoleLabel(
+                          user?.vaiTro || (Array.isArray(user?.roles) ? user.roles[0] : "")
+                        )}
                       </MDBox>
                     </MDBox>
                     <NotificationItem

@@ -110,10 +110,15 @@ function QuanLyYeuCauCuTru() {
       return;
     }
     const user = JSON.parse(userStr);
-    const role = user.roles || user.role || "";
-    const isCanBo = Array.isArray(role) ? role.includes("CAN_BO") : role === "CAN_BO";
-    if (!isCanBo) {
-      alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
+
+    // Lấy role từ user object (kiểm tra cả vaiTro và roles)
+    const userRole = user.vaiTro || (Array.isArray(user.roles) ? user.roles[0] : user.role || "");
+
+    // Danh sách các role quản lý cư trú
+    const ROLES_CU_TRU = ["ADMIN", "CAN_BO_HO_KHAU", "TO_TRUONG", "TO_PHO"];
+
+    if (!ROLES_CU_TRU.includes(userRole)) {
+      alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý cư trú!");
       navigate("/yeu-cau-cu-tru");
     }
   }, [navigate]);

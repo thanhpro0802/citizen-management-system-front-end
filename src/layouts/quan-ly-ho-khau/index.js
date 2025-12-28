@@ -63,9 +63,16 @@ function QuanLyHoKhau() {
       return;
     }
     const user = JSON.parse(userStr);
-    const role = user.vaiTro || (user.roles ? user.roles[0] : "");
-    const isCanBo = Array.isArray(user.roles) ? user.roles.includes("CAN_BO") : role === "CAN_BO";
-    if (!isCanBo) {
+
+    // Lấy role từ user object (kiểm tra cả vaiTro và roles)
+    const role = user.vaiTro || (Array.isArray(user.roles) ? user.roles[0] : "");
+
+    // Danh sách các role được phép vào quản lý hộ khẩu
+    const ROLES_CHO_PHEP = ["ADMIN", "CAN_BO_HO_KHAU", "TO_TRUONG", "TO_PHO"];
+
+    const hasPermission = ROLES_CHO_PHEP.includes(role);
+
+    if (!hasPermission) {
       alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý!");
       navigate("/ho-khau-cua-toi");
     }

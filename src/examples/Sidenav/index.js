@@ -15,14 +15,12 @@ import Icon from "@mui/material/Icon";
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
-import MDButton from "components/MDButton";
 
 // Material Dashboard 2 React example components
 import SidenavCollapse from "examples/Sidenav/SidenavCollapse";
 
 // Custom styles for the Sidenav
 import SidenavRoot from "examples/Sidenav/SidenavRoot";
-import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 
 // Material Dashboard 2 React context
 import {
@@ -34,20 +32,32 @@ import {
 
 // Auth context
 import { useAuth } from "context/authContext";
-import { coRole } from "services/authService";
+// import { coRole } from "services/authService"; // <-- KHÔNG CẦN DÙNG CÁI NÀY NỮA
 
 // API để đếm yêu cầu chờ xử lý
 import { demYeuCauChoXuLy } from "services/yeuCauCuTruService";
 
 function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
-  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
+  const { miniSidenav, transparentSidenav, whiteSidenav, darkMode } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
 
   // Get auth state
   const [authState] = useAuth();
   const { isAuthenticated, user } = authState;
+
+  // State lưu số yêu cầu chờ xử lý
+  const [pendingYeuCauCount, setPendingYeuCauCount] = useState(0);
+
+  // Lấy role hiện tại của user (Đảm bảo lấy đúng trường vaiTro từ API trả về)
+  // Nếu user null thì coi như là CONG_DAN
+  // Lấy role từ user object. Kiểm tra cả 'vaiTro' và 'role' tùy theo Backend trả về
+  const currentUserRole =
+    user?.vaiTro || user?.role || (user?.roles && user.roles[0]) || "CONG_DAN";
+
+  // Thêm dòng log này để kiểm tra chính xác trình duyệt đang đọc role gì
+  console.log("Quyền hiện tại của tôi là:", currentUserRole);
 
   // State lưu số yêu cầu chờ xử lý
   const [pendingYeuCauCount, setPendingYeuCauCount] = useState(0);
@@ -63,22 +73,14 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   const closeSidenav = () => setMiniSidenav(dispatch, true);
 
   useEffect(() => {
-    // A function that sets the mini state of the sidenav.
     function handleMiniSidenav() {
       setMiniSidenav(dispatch, window.innerWidth < 1200);
       setTransparentSidenav(dispatch, window.innerWidth < 1200 ? false : transparentSidenav);
       setWhiteSidenav(dispatch, window.innerWidth < 1200 ? false : whiteSidenav);
     }
 
-    /** 
-     The event listener that's calling the handleMiniSidenav function when resizing the window.
-    */
     window.addEventListener("resize", handleMiniSidenav);
-
-    // Call the handleMiniSidenav function to set the state with the initial value.
     handleMiniSidenav();
-
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
@@ -100,33 +102,66 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => clearInterval(interval);
   }, [isAuthenticated, user]);
 
+
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
+  // Fetch số yêu cầu chờ xử lý (Logic mới: Check theo mảng quyền quản lý)
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      // Danh sách các role được phép xem thông báo chờ xử lý
+      const ROLES_QUAN_LY = [
+        "ADMIN",
+        "CAN_BO_HO_KHAU",
+        "CAN_BO_NHAN_KHAU",
+        "TO_TRUONG",
+        "CAN_BO_PHAN_ANH",
+        "TO_PHO",
+      ];
+
+      if (isAuthenticated && user && ROLES_QUAN_LY.includes(currentUserRole)) {
+        try {
+          const count = await demYeuCauChoXuLy();
+          setPendingYeuCauCount(count || 0);
+        } catch (error) {
+          // console.error("Lỗi khi lấy số yêu cầu chờ xử lý:", error);
+        }
+      }
+    };
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, user, currentUserRole]);
+
   const renderRoutes = routes
     .filter((route) => {
-      // Ẩn các route không phải type "collapse"
+      // 1. Ẩn các route không phải type "collapse"
       if (route.type !== "collapse") return false;
 
-      // Ẩn trang đăng nhập/đăng ký nếu đã đăng nhập
+      // 2. Logic ẩn/hiện trang Auth
       if (isAuthenticated && (route.key === "sign-in" || route.key === "sign-up")) {
         return false;
       }
-
-      // Hiện trang đăng nhập/đăng ký nếu chưa đăng nhập
       if (!isAuthenticated && (route.key === "sign-in" || route.key === "sign-up")) {
         return true;
       }
 
-      // Kiểm tra nếu route yêu cầu role cụ thể
-      if (route.requiredRole) {
-        return coRole(route.requiredRole, user);
+      // --- [QUAN TRỌNG] LOGIC CHECK QUYỀN MỚI ---
+
+      // Ưu tiên 1: Check theo mảng allowedRoles (Chuẩn mới)
+      if (route.allowedRoles) {
+        return route.allowedRoles.includes(currentUserRole);
       }
 
-      // Kiểm tra nếu route yêu cầu đăng nhập
+      // Ưu tiên 2: Check theo requiredRole (Hỗ trợ code cũ nếu sót)
+      if (route.requiredRole) {
+        return route.requiredRole === currentUserRole;
+      }
+
+      // 3. Check requireAuth chung chung
       if (route.requireAuth) {
         return isAuthenticated;
       }
 
-      // Các route không yêu cầu gì đặc biệt thì hiển thị
+      // Mặc định hiện
       return true;
     })
     .map(({ type, name, icon, title, noCollapse, key, href, route }) => {
@@ -210,7 +245,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
           </MDTypography>
         </MDBox>
 
-        {/* ✅ TEXT 2 DÒNG - MÀU TRẮNG/DARK */}
         <MDBox
           component={NavLink}
           to="/"
@@ -226,7 +260,7 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
             fontWeight="bold"
             color={textColor}
             sx={{
-              fontSize: "1.25rem", // 20px
+              fontSize: "1.25rem",
               lineHeight: 1.4,
               textAlign: "center",
               letterSpacing: "0.02em",
@@ -245,30 +279,15 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         }
       />
       <List>{renderRoutes}</List>
-      {/*<MDBox p={2} mt="auto">*/}
-      {/*  <MDButton*/}
-      {/*    component="a"*/}
-      {/*    href="https://www.creative-tim.com/product/material-dashboard-pro-react"*/}
-      {/*    target="_blank"*/}
-      {/*    rel="noreferrer"*/}
-      {/*    variant="gradient"*/}
-      {/*    color={sidenavColor}*/}
-      {/*    fullWidth*/}
-      {/*  >*/}
-      {/*    upgrade to pro*/}
-      {/*  </MDButton>*/}
-      {/*</MDBox>*/}
     </SidenavRoot>
   );
 }
 
-// Setting default values for the props of Sidenav
 Sidenav.defaultProps = {
   color: "info",
   brand: "",
 };
 
-// Typechecking props for the Sidenav
 Sidenav.propTypes = {
   color: PropTypes.oneOf(["primary", "secondary", "info", "success", "warning", "error", "dark"]),
   brand: PropTypes.string,
