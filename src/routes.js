@@ -30,13 +30,10 @@ import TachHo from "layouts/tach-ho";
 import NhapHo from "layouts/nhap-ho";
 import DoiChuHo from "layouts/doi-chu-ho";
 
-<<<<<<< Updated upstream
-=======
+
 import QuanLyYeuCauCuTru from "layouts/quan-ly-yeu-cau-cu-tru";
 import XuLyYeuCauCuTru from "layouts/xu-ly-yeu-cau-cu-tru";
 
->>>>>>> Stashed changes
-// ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
 
 // Định nghĩa danh sách các role quản lý để tái sử dụng
@@ -159,8 +156,6 @@ const routes = [
     allowedRoles: ROLES_HO_KHAU, // ADMIN, CAN_BO_HO_KHAU...
   },
 
-<<<<<<< Updated upstream
-=======
   // 4. Quản lý Yêu Cầu Cư Trú
   {
     type: "collapse",
@@ -173,7 +168,6 @@ const routes = [
     allowedRoles: ROLES_HO_KHAU, // Thường Cán bộ Hộ khẩu sẽ xử lý cái này
   },
 
->>>>>>> Stashed changes
   /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
 
   // --- Phản ánh ---
@@ -221,8 +215,6 @@ const routes = [
     allowedRoles: ROLES_NHAN_KHAU,
   },
 
-<<<<<<< Updated upstream
-=======
   // --- Yêu cầu cư trú ---
   {
     key: "tao-yeu-cau-cu-tru",
@@ -238,7 +230,6 @@ const routes = [
     allowedRoles: ROLES_HO_KHAU,
   },
 
->>>>>>> Stashed changes
   // --- Hộ khẩu (Sub-actions) ---
   {
     key: "them-ho-khau",
