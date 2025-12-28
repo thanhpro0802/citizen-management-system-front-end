@@ -115,7 +115,7 @@ function QuanLyYeuCauCuTru() {
     const userRole = user.vaiTro || (Array.isArray(user.roles) ? user.roles[0] : user.role || "");
 
     // Danh sách các role quản lý cư trú
-    const ROLES_CU_TRU = ["ADMIN", "CAN_BO_HO_KHAU", "TO_TRUONG", "TO_PHO"];
+    const ROLES_CU_TRU = ["ADMIN", "CAN_BO_HO_KHAU", "CAN_BO_NHAN_KHAU", "TO_TRUONG", "TO_PHO"];
 
     if (!ROLES_CU_TRU.includes(userRole)) {
       alert("⛔ CẢNH BÁO: Bạn không có quyền truy cập trang quản lý cư trú!");

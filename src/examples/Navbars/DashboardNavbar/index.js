@@ -146,6 +146,8 @@ function DashboardNavbar({ absolute, light, isMini, customTitle }) {
         return "Cán bộ hộ khẩu";
       case "CAN_BO_PHAN_ANH":
         return "Cán bộ phản ánh";
+      case "CAN_BO_NHAN_KHAU":
+        return "Cán bộ nhân khẩu";
       default:
         return "Công dân";
     }
