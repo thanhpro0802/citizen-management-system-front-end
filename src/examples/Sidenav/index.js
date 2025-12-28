@@ -60,7 +60,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
   console.log("Quyền hiện tại của tôi là:", currentUserRole);
 
   // State lưu số yêu cầu chờ xử lý
-  const [pendingYeuCauCount, setPendingYeuCauCount] = useState(0);
 
   let textColor = "white";
 
@@ -83,25 +82,6 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     handleMiniSidenav();
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
-
-  // Fetch số yêu cầu chờ xử lý nếu là cán bộ
-  useEffect(() => {
-    const fetchPendingCount = async () => {
-      if (isAuthenticated && user && coRole("CAN_BO", user)) {
-        try {
-          const count = await demYeuCauChoXuLy();
-          setPendingYeuCauCount(count || 0);
-        } catch (error) {
-          console.error("Lỗi khi lấy số yêu cầu chờ xử lý:", error);
-        }
-      }
-    };
-    fetchPendingCount();
-    // Refresh mỗi 30 giây
-    const interval = setInterval(fetchPendingCount, 30000);
-    return () => clearInterval(interval);
-  }, [isAuthenticated, user]);
-
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
   // Fetch số yêu cầu chờ xử lý (Logic mới: Check theo mảng quyền quản lý)
