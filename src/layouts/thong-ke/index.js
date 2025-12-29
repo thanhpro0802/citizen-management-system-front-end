@@ -23,8 +23,8 @@ import CommonMenu from "./components/Menu/CommonMenu";
 import dayjs from "dayjs";
 import ThongKeTamTruTheoThang from "./components/thongke/ThongKeTamTruTheoThang";
 import TamTruTamVangMenu from "./components/Menu/TamTruTamVangMenu";
-import TamVangTamTru from "./components/Menu/TamVangTamTruMenu";
 import ThongKeTamVangTheoThang from "./components/thongke/ThongKeTamVangTheoThang";
+import TamVangTamTruMenu from "./components/Menu/TamVangTamTruMenu";
 
 function ThongKe() {
   const [typeNK, setTypeNK] = useState("age");
@@ -138,18 +138,19 @@ function ThongKe() {
                   <MDBox position="absolute" right={16} zIndex={10}>
                     <ThongKeModeMenu mode={modePA} onChange={setModePA} />
                   </MDBox>
-                  {modePA === "week" && (
-                    <BasicDatePicker
-                      label="Chọn ngày"
-                      value={datePA}
-                      onChange={(datePA) => setDatePA(datePA)}
-                    />
-                  )}
+                  <MDBox>
+                    {modePA === "week" && (
+                      <BasicDatePicker
+                        label="Chọn ngày"
+                        value={datePA}
+                        onChange={(datePA) => setDatePA(datePA)}
+                      />
+                    )}
 
-                  {modePA === "month" && <YearPicker value={year} onChange={setYear} />}
-                  {modePA === "quarter" && <YearPicker value={year} onChange={setYear} />}
+                    {modePA === "month" && <YearPicker value={year} onChange={setYear} />}
+                    {modePA === "quarter" && <YearPicker value={year} onChange={setYear} />}
+                  </MDBox>
                 </MDBox>
-
                 {/* CHART */}
                 <MDBox px={2} pb={3} pt={2}>
                   {modePA === "week" && datePA && (
@@ -188,7 +189,7 @@ function ThongKe() {
                     gap={1.5}
                   >
                     <TamTruTamVangMenu mode={mode} onChange={setMode} />
-                    <TamVangTamTru mode={modeT} onChange={setModeT} />
+                    <TamVangTamTruMenu mode={modeT} onChange={setModeT} />
                   </MDBox>
 
                   <MDBox>

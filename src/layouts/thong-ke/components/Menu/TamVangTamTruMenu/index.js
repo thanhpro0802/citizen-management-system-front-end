@@ -4,7 +4,7 @@ import MDButton from "components/MDButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-const TamVangTamTru = ({ mode, onChange }) => {
+const TamVangTamTruMenu = ({ mode, onChange }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -38,9 +38,9 @@ const TamVangTamTru = ({ mode, onChange }) => {
   );
 };
 
-TamVangTamTru.propTypes = {
+TamVangTamTruMenu.propTypes = {
   mode: PropTypes.oneOf(["week", "month"]).isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-export default TamVangTamTru;
+export default TamVangTamTruMenu;

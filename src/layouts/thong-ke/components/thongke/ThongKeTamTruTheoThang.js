@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { getThongKeTamTruTheoThang } from "layouts/thong-ke/services/ThongKeService";
 import { useTheme } from "@mui/material/styles";
+import MDBox from "components/MDBox";
 
 const ThongKeTamTruTheoThang = ({ year }) => {
   const [labels, setLabels] = useState([]);
@@ -40,17 +41,24 @@ const ThongKeTamTruTheoThang = ({ year }) => {
   if (!labels.length) return null;
 
   return (
-    <BarChart
-      width={750}
-      height={350}
-      series={series}
-      xAxis={[
-        {
-          data: labels,
-          scaleType: "band",
-        },
-      ]}
-    />
+    <MDBox
+      width="100%"
+      sx={{
+        overflowX: "auto",
+      }}
+    >
+      <BarChart
+        height={350}
+        series={series}
+        xAxis={[
+          {
+            data: labels,
+            scaleType: "band",
+          },
+        ]}
+        sx={{ width: "100%" }}
+      />
+    </MDBox>
   );
 };
 
