@@ -25,7 +25,7 @@ import {
 import nhanKhauService from "services/nhanKhauService"; // Đảm bảo bạn đã tạo file này
 import { useAuth, setLogin } from "context/authContext";
 
-function Basic() {
+function SignIn() {
   const navigate = useNavigate();
   const [, dispatch] = useAuth();
 
@@ -225,4 +225,4 @@ function Basic() {
   );
 }
 
-export default Basic;
+export default SignIn;

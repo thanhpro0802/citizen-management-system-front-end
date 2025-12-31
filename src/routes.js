@@ -41,6 +41,7 @@ import XuLyYeuCauCuTru from "layouts/xu-ly-yeu-cau-cu-tru";
 
 // ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
+import ThongKe from "layouts/thong-ke";
 
 const routes = [
   /* ================= AUTHENTICATION ================= */
@@ -113,11 +114,11 @@ const routes = [
   // Dashboard - Thống kê
   {
     type: "collapse",
-    name: "Thống Kê",
+    name: "Thống kê",
     key: "thong-ke",
-    icon: <Icon fontSize="small">dashboard</Icon>,
+    icon: <Icon fontSize="small">equalizer</Icon>,
     route: "/thong-ke",
-    component: <Dashboard />,
+    component: <ThongKe />,
     requireAuth: true,
     requiredRole: "CAN_BO",
   },
