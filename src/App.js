@@ -34,6 +34,8 @@ import ChiTietPhanAnh from "layouts/chi-tiet-phan-anh";
 
 // Auth
 import { setUnauthorizedCallback } from "services/authService";
+// Lưu ý: Nếu ProtectedRoute.js của bạn vẫn chặn cứng role cũ, hãy tạm thời không bọc nó ở đây
+// hoặc cập nhật file ProtectedRoute.js đó sau.
 import ProtectedRoute from "components/ProtectedRoute";
 
 // Chatbot
@@ -94,12 +96,10 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [location.pathname]);
 
-  // ✅ ĐỔI TITLE
   useEffect(() => {
     document.title = "Hệ thống Quản lý Công dân";
   }, [location.pathname]);
 
-  // Khi backend trả 401 → về login
   useEffect(() => {
     setUnauthorizedCallback(() => {
       navigate("/authentication/sign-in");
@@ -109,18 +109,51 @@ export default function App() {
   /* ================= ROUTE BUILDER ================= */
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
-      if (route.collapse) return getRoutes(route.collapse);
+      if (route.collapse) {
+        return getRoutes(route.collapse);
+      }
 
       if (route.route) {
-        let element = route.component;
+        // 1. Lấy thông tin user an toàn
+        const userStr = localStorage.getItem("user");
+        const user = userStr ? JSON.parse(userStr) : null;
 
-        if (route.requireAuth || route.requiredRole) {
-          element = (
-            <ProtectedRoute requiredRole={route.requiredRole}>{route.component}</ProtectedRoute>
-          );
+        // 2. Lấy Role từ mọi trường có thể (vaiTro, role, roles)
+        const userRole =
+          user?.vaiTro ||
+          user?.role ||
+          (Array.isArray(user?.roles) ? user.roles[0] : user?.roles) ||
+          "";
+
+        // 3. Logic kiểm tra quyền truy cập
+        let hasAccess = true;
+
+        if (route.requireAuth) {
+          if (!user) {
+            hasAccess = false; // Chưa đăng nhập
+          } else if (route.allowedRoles) {
+            // Kiểm tra trong mảng allowedRoles (Ưu tiên)
+            hasAccess = route.allowedRoles.includes(userRole);
+          } else if (route.requiredRole) {
+            // Tương thích ngược với logic cũ
+            hasAccess = route.requiredRole === userRole;
+          }
         }
 
-        return <Route exact path={route.route} element={element} key={route.key} />;
+        return (
+          <Route
+            exact
+            path={route.route}
+            element={
+              hasAccess
+                ? route.component
+                : // Nếu không có quyền, log ra để debug và chuyển hướng
+                  (console.log(`Access Denied for ${route.route}. UserRole: ${userRole}`),
+                  (<Navigate to="/forbidden" />))
+            }
+            key={route.key}
+          />
+        );
       }
       return null;
     });
@@ -145,16 +178,16 @@ export default function App() {
       )}
 
       <Routes>
+        {/* Render toàn bộ routes từ file routes.js */}
         {getRoutes(routes)}
 
-        {/* Route đặc biệt */}
+        {/* Route chi tiết (đảm bảo không bị đè bởi catch-all) */}
         <Route path="/chi-tiet-phan-anh/:id" element={<ChiTietPhanAnh />} />
 
-        {/* Catch-all */}
+        {/* Catch-all: Nếu không khớp trang nào, về trang mặc định */}
         <Route path="*" element={<Navigate to="/gui-phan-anh" />} />
       </Routes>
 
-      {/* AI Chatbot Widget */}
       <ChatbotWidget />
     </>
   );

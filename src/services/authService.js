@@ -148,9 +148,28 @@ export const taoUserTuJWTResponse = (jwtResponse) => {
  * Lấy tên hiển thị của role (tiếng Việt)
  */
 export const layTenHienThiRole = (roles) => {
-  if (!roles || roles.length === 0) return "Người Dân";
-  if (roles.includes("CAN_BO")) return "Cán Bộ";
-  return "Người Dân";
+  // Nếu roles là mảng (ví dụ ["CAN_BO_HO_KHAU"])
+  const roleCode = Array.isArray(roles) ? roles[0] : roles;
+
+  switch (roleCode) {
+    case "ADMIN":
+      return "Quản trị viên";
+
+    // 👇 THÊM CÁC DÒNG NÀY:
+    case "CAN_BO_HO_KHAU":
+      return "Cán bộ Hộ khẩu";
+    case "CAN_BO_NHAN_KHAU":
+      return "Cán bộ Nhân khẩu";
+    case "TO_TRUONG":
+      return "Tổ trưởng";
+
+    case "CONG_DAN":
+      return "Công dân";
+
+    default:
+      // Nếu không khớp cái nào thì trả về chính mã đó hoặc "Cán bộ"
+      return roleCode || "Người dùng";
+  }
 };
 
 // Cấu hình axios interceptor

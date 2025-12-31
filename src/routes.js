@@ -17,18 +17,15 @@ import YeuCauCuTru from "layouts/yeu-cau-cu-tru";
 import TaoYeuCauCuTru from "layouts/tao-yeu-cau-cu-tru";
 
 // ================== CÁN BỘ ==================
-// 1. Phản ánh
 import QuanLyPhanAnh from "layouts/quan-ly-phan-anh";
 import XuLyPhanAnh from "layouts/xu-ly-phan-anh";
 import PhanHoi from "layouts/phan-hoi";
 
-// 2. Nhân khẩu
 import QuanLyNhanKhau from "layouts/nhan-khau";
 import NhanKhauForm from "layouts/nhan-khau/form";
 import NhanKhauDetail from "layouts/nhan-khau/detail";
 
-// 3. Hộ khẩu
-import QuanLyHoKhau from "layouts/quan-ly-ho-khau"; // Hoặc layouts/ho-khau tùy cấu trúc thư mục thực tế
+import QuanLyHoKhau from "layouts/quan-ly-ho-khau";
 import FormHoKhau from "layouts/form-ho-khau";
 import ChiTietHoKhau from "layouts/chi-tiet-ho-khau";
 import TachHo from "layouts/tach-ho";
@@ -42,6 +39,19 @@ import XuLyYeuCauCuTru from "layouts/xu-ly-yeu-cau-cu-tru";
 // ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
 import ThongKe from "layouts/thong-ke";
+
+// Định nghĩa danh sách các role quản lý để tái sử dụng
+const ROLES_QUAN_LY = [
+  "ADMIN",
+  "CAN_BO_HO_KHAU",
+  "CAN_BO_NHAN_KHAU",
+  "TO_TRUONG",
+  "TO_PHO",
+  "CAN_BO_PHAN_ANH",
+];
+const ROLES_HO_KHAU = ["ADMIN", "CAN_BO_HO_KHAU", "TO_TRUONG", "TO_PHO"];
+const ROLES_NHAN_KHAU = ["ADMIN", "CAN_BO_NHAN_KHAU", "CAN_BO_HO_KHAU", "TO_TRUONG", "TO_PHO"]; // Cán bộ HK cũng cần xem nhân khẩu
+const ROLES_PHAN_ANH = ["ADMIN", "CAN_BO_PHAN_ANH", "TO_TRUONG", "TO_PHO"];
 
 const routes = [
   /* ================= AUTHENTICATION ================= */
@@ -111,7 +121,7 @@ const routes = [
 
   /* ================= MENU DÀNH CHO CÁN BỘ ================= */
 
-  // Dashboard - Thống kê
+  // Dashboard: Tất cả các cấp quản lý đều xem được
   {
     type: "collapse",
     name: "Thống kê",
@@ -120,7 +130,7 @@ const routes = [
     route: "/thong-ke",
     component: <ThongKe />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_QUAN_LY, // Thay requiredRole bằng allowedRoles (Mảng)
   },
 
   // 1. Quản lý Phản Ánh
@@ -132,7 +142,7 @@ const routes = [
     route: "/quan-ly-phan-anh",
     component: <QuanLyPhanAnh />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_PHAN_ANH,
   },
 
   // 2. Quản lý Nhân Khẩu
@@ -144,10 +154,10 @@ const routes = [
     route: "/nhan-khau",
     component: <QuanLyNhanKhau />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_NHAN_KHAU,
   },
 
-  // 3. Quản lý Hộ Khẩu
+  // 3. Quản lý Hộ Khẩu (Quan trọng với bạn)
   {
     type: "collapse",
     name: "Quản Lý Hộ Khẩu",
@@ -156,7 +166,7 @@ const routes = [
     route: "/quan-ly-ho-khau",
     component: <QuanLyHoKhau />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_HO_KHAU, // ADMIN, CAN_BO_HO_KHAU...
   },
 
   // 4. Quản lý Yêu Cầu Cư Trú
@@ -168,7 +178,7 @@ const routes = [
     route: "/quan-ly-yeu-cau-cu-tru",
     component: <QuanLyYeuCauCuTru />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ["ADMIN", "CAN_BO_HO_KHAU", "CAN_BO_NHAN_KHAU", "TO_TRUONG", "TO_PHO"],
   },
 
   /* ================= CÁC ROUTE ẨN (Chi tiết / Form xử lý) ================= */
@@ -185,14 +195,14 @@ const routes = [
     route: "/xu-ly-phan-anh/:id",
     component: <XuLyPhanAnh />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_PHAN_ANH,
   },
   {
     key: "phan-hoi",
     route: "/phan-hoi/:id",
     component: <PhanHoi />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_PHAN_ANH,
   },
 
   // --- Nhân khẩu ---
@@ -201,21 +211,21 @@ const routes = [
     route: "/nhan-khau/create",
     component: <NhanKhauForm />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_NHAN_KHAU,
   },
   {
     key: "nhan-khau-edit",
     route: "/nhan-khau/edit/:id",
     component: <NhanKhauForm />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_NHAN_KHAU,
   },
   {
     key: "nhan-khau-detail",
     route: "/nhan-khau/:id",
     component: <NhanKhauDetail />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_NHAN_KHAU,
   },
 
   // --- Yêu cầu cư trú ---
@@ -230,7 +240,7 @@ const routes = [
     route: "/xu-ly-yeu-cau-cu-tru/:id",
     component: <XuLyYeuCauCuTru />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ["ADMIN", "CAN_BO_HO_KHAU", "CAN_BO_NHAN_KHAU", "TO_TRUONG", "TO_PHO"],
   },
 
   // --- Hộ khẩu (Sub-actions) ---
@@ -239,42 +249,42 @@ const routes = [
     route: "/them-ho-khau",
     component: <FormHoKhau />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_HO_KHAU,
   },
   {
     key: "chi-tiet-ho-khau",
     route: "/chi-tiet-ho-khau/:id",
     component: <ChiTietHoKhau />,
     requireAuth: true,
-    requiredRole: "CAN_BO", // Thêm requiredRole cho chắc chắn
+    allowedRoles: ROLES_HO_KHAU, // Thêm requiredRole cho chắc chắn
   },
   {
     key: "sua-ho-khau",
     route: "/sua-ho-khau/:id",
     component: <FormHoKhau />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_HO_KHAU,
   },
   {
     key: "tach-ho",
     route: "/tach-ho/:id",
     component: <TachHo />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_HO_KHAU,
   },
   {
     key: "nhap-ho",
     route: "/nhap-ho/:id",
     component: <NhapHo />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_HO_KHAU,
   },
   {
     key: "doi-chu-ho",
     route: "/doi-chu-ho/:id",
     component: <DoiChuHo />,
     requireAuth: true,
-    requiredRole: "CAN_BO",
+    allowedRoles: ROLES_HO_KHAU,
   },
 
   /* ================= TRANG LỖI ================= */

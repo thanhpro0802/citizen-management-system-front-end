@@ -27,6 +27,19 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <favorite-branches>
+      <branch-storage>
+        <map>
+          <entry type="REMOTE">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="origin/develop" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="feature/feedback-management" />
@@ -115,11 +128,26 @@
       <option name="filePath" />
       <method v="2" />
     </configuration>
+    <configuration name="Dashboard.test.js" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/node_modules/react-scripts" />
+      <working-dir value="$PROJECT_DIR$" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/src/layouts/dashboard/Dashboard.test.js" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.Dashboard.test.js" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.29188.1" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
       </set>
     </attachedChunks>
   </component>
@@ -170,6 +198,7 @@
       <workItem from="1766307878130" duration="6167000" />
       <workItem from="1766834865330" duration="1075000" />
       <workItem from="1766843006308" duration="4295000" />
+      <workItem from="1766925723998" duration="700000" />
     </task>
     <task id="LOCAL-00001" summary="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
       <option name="closed" value="true" />
@@ -179,7 +208,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766834385642</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Refactor authentication service to use CCCD instead of email for login and registration, update API endpoints, and enhance form validation">
+      <option name="closed" value="true" />
+      <created>1766923666198</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1766923666198</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
