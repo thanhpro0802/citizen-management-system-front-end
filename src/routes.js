@@ -38,6 +38,7 @@ import XuLyYeuCauCuTru from "layouts/xu-ly-yeu-cau-cu-tru";
 
 // ================== KHÁC ==================
 import Forbidden from "layouts/forbidden";
+import ThongKe from "layouts/thong-ke";
 
 // Định nghĩa danh sách các role quản lý để tái sử dụng
 const ROLES_QUAN_LY = [
@@ -123,11 +124,11 @@ const routes = [
   // Dashboard: Tất cả các cấp quản lý đều xem được
   {
     type: "collapse",
-    name: "Thống Kê",
+    name: "Thống kê",
     key: "thong-ke",
-    icon: <Icon fontSize="small">dashboard</Icon>,
+    icon: <Icon fontSize="small">equalizer</Icon>,
     route: "/thong-ke",
-    component: <Dashboard />,
+    component: <ThongKe />,
     requireAuth: true,
     allowedRoles: ROLES_QUAN_LY, // Thay requiredRole bằng allowedRoles (Mảng)
   },
